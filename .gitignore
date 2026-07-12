@@ -1,0 +1,14 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Editeurs
+.vscode/
+.idea/
+*.swp
+
+# Logs runtime
+/tmp/ollama-care.log
+*.log
+
+# Rien de sensible ici : ni .env, ni cle API, ni node_modules (aucune dependance).
