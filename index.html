@@ -1,0 +1,860 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Care Copilot - Onatera</title>
+<style>
+  :root{
+    --green:#2f6b4f;
+    --green-dark:#1e4d38;
+    --green-soft:#e5efe8;
+    --cream:#f7f3ea;
+    --cream-2:#fffdf8;
+    --ink:#20261f;
+    --muted:#6b7469;
+    --line:#dfe4d8;
+    --red:#b5352b;
+    --red-soft:#fbe9e7;
+    --amber:#8a5a00;
+    --amber-soft:#fcf2da;
+    --blue:#2a5b7a;
+    --radius:12px;
+    --shadow:0 1px 2px rgba(0,0,0,.05), 0 8px 24px rgba(30,77,56,.06);
+    font-synthesis:none;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    color:var(--ink);
+    background:var(--cream);
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:var(--green-dark)}
+  header.app{
+    background:var(--green-dark);
+    color:#fff;
+    padding:14px 22px;
+    display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+  }
+  header.app .logo{
+    width:30px;height:30px;border-radius:8px;background:var(--green-soft);
+    display:grid;place-items:center;color:var(--green-dark);font-weight:800;
+  }
+  header.app h1{font-size:16px;margin:0;font-weight:700;letter-spacing:.2px}
+  header.app .sub{font-size:12px;color:#cfe0d6;margin-top:1px}
+  header.app .spacer{flex:1}
+  .nav-btn{
+    background:transparent;border:1px solid rgba(255,255,255,.3);color:#fff;
+    padding:7px 12px;border-radius:8px;cursor:pointer;font-size:13px;
+  }
+  .nav-btn.active{background:#fff;color:var(--green-dark);border-color:#fff;font-weight:600}
+  .mode-pill{
+    font-size:12px;padding:5px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.35);
+    display:inline-flex;align-items:center;gap:6px;cursor:pointer;user-select:none;
+  }
+  .mode-pill b{font-weight:700}
+  main{max-width:1180px;margin:0 auto;padding:20px}
+  .grid{display:grid;grid-template-columns:minmax(320px,420px) 1fr;gap:20px;align-items:start}
+  @media (max-width:860px){.grid{grid-template-columns:1fr}}
+  .card{background:var(--cream-2);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+  .card .hd{padding:14px 16px;border-bottom:1px solid var(--line);font-weight:700;font-size:14px;display:flex;align-items:center;gap:8px}
+  .card .bd{padding:16px}
+  label.fld{display:block;font-size:12px;font-weight:600;color:var(--muted);margin:0 0 6px}
+  select,textarea{
+    width:100%;font:inherit;color:var(--ink);background:#fff;
+    border:1px solid var(--line);border-radius:9px;padding:9px 10px;
+  }
+  textarea{min-height:210px;resize:vertical;line-height:1.45}
+  .row{display:flex;gap:10px;align-items:center}
+  .row>*{flex:1}
+  .health{
+    display:flex;align-items:center;gap:9px;font-size:13px;padding:10px 12px;border-radius:9px;
+    background:var(--cream);border:1px solid var(--line);margin-top:12px;
+  }
+  .dot{width:10px;height:10px;border-radius:50%;background:#bbb;flex:none}
+  .dot.ok{background:#2f9e56}
+  .dot.bad{background:var(--red)}
+  .dot.wait{background:#c9a227;animation:pulse 1s infinite}
+  @keyframes pulse{50%{opacity:.35}}
+  .health .cmd{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11.5px;background:#fff;border:1px dashed var(--line);border-radius:6px;padding:2px 6px}
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    background:var(--green);color:#fff;border:0;border-radius:10px;
+    padding:12px 16px;font-size:15px;font-weight:700;cursor:pointer;width:100%;
+  }
+  .btn:disabled{opacity:.5;cursor:not-allowed}
+  .btn.sec{background:#fff;color:var(--green-dark);border:1px solid var(--line);font-weight:600}
+  .hint{font-size:12px;color:var(--muted);margin-top:8px}
+  .banner{
+    padding:11px 14px;border-radius:10px;font-size:13.5px;margin-bottom:14px;display:flex;gap:9px;align-items:flex-start
+  }
+  .banner.info{background:var(--green-soft);border:1px solid #cadfd0;color:var(--green-dark)}
+  .banner.warn{background:var(--amber-soft);border:1px solid #ecd9a6;color:var(--amber)}
+  .banner.danger{background:var(--red-soft);border:1px solid #eec3bd;color:var(--red)}
+  .steps{display:flex;flex-direction:column;gap:12px}
+  .step{border:1px solid var(--line);border-radius:var(--radius);background:var(--cream-2);overflow:hidden}
+  .step .shd{display:flex;align-items:center;gap:11px;padding:12px 14px;cursor:pointer;user-select:none}
+  .step .num{width:26px;height:26px;border-radius:50%;background:var(--green-soft);color:var(--green-dark);display:grid;place-items:center;font-weight:800;font-size:13px;flex:none}
+  .step.done .num{background:var(--green);color:#fff}
+  .step .stitle{font-weight:700;font-size:14px}
+  .step .smeta{font-size:12px;color:var(--muted);margin-left:auto;display:flex;align-items:center;gap:8px}
+  .status-ico{font-size:14px}
+  .spin{display:inline-block;width:13px;height:13px;border:2px solid var(--line);border-top-color:var(--green);border-radius:50%;animation:sp .7s linear infinite}
+  @keyframes sp{to{transform:rotate(360deg)}}
+  .step .sbody{padding:0 14px 14px;display:none}
+  .step.open .sbody{display:block}
+  .toggle-json{font-size:12px;color:var(--green-dark);cursor:pointer;background:none;border:0;padding:0;text-decoration:underline;margin-top:8px}
+  pre.json{background:#20261f;color:#e7efe9;border-radius:9px;padding:12px;overflow:auto;font-size:11.5px;line-height:1.45;max-height:320px;margin:8px 0 0}
+  .kbhit{display:flex;align-items:center;gap:10px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;margin-top:8px;background:#fff;cursor:pointer}
+  .kbhit .score{margin-left:auto;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+  .kbhit .bar{height:6px;border-radius:4px;background:var(--green);flex:none}
+  .risk{border-radius:var(--radius);padding:14px 16px;color:#fff;margin-bottom:14px}
+  .risk.critique{background:var(--red)}
+  .risk.eleve{background:#c9622a}
+  .risk.modere{background:#b98b17}
+  .risk.faible{background:var(--green)}
+  .risk .rl{font-size:12px;opacity:.9;text-transform:uppercase;letter-spacing:.6px}
+  .risk .rv{font-size:20px;font-weight:800;text-transform:capitalize}
+  .tags{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
+  .tag{background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.35);color:#fff;font-size:12px;padding:3px 9px;border-radius:999px}
+  .tag.forced{background:#fff;color:var(--red);font-weight:700;border-color:#fff}
+  .reply{white-space:pre-wrap;background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px;font-size:14px;line-height:1.55}
+  mark{background:#ffd9d3;color:var(--red);padding:0 2px;border-radius:3px}
+  table{width:100%;border-collapse:collapse;font-size:13px;margin-top:6px}
+  th,td{text-align:left;padding:8px 9px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-size:11px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted)}
+  .prio{font-size:11px;font-weight:700;padding:2px 7px;border-radius:999px}
+  .prio.haute{background:var(--red-soft);color:var(--red)}
+  .prio.moyenne{background:var(--amber-soft);color:var(--amber)}
+  .prio.basse{background:var(--green-soft);color:var(--green-dark)}
+  .subhd{font-weight:700;font-size:13px;margin:18px 0 4px;color:var(--green-dark)}
+  .src-chip{display:inline-block;font-size:12px;background:var(--green-soft);color:var(--green-dark);border:1px solid #cadfd0;border-radius:999px;padding:3px 9px;margin:4px 4px 0 0;cursor:pointer}
+  .conf{display:flex;align-items:center;gap:10px;margin-top:8px;font-size:13px}
+  .conf .track{flex:1;height:9px;background:var(--line);border-radius:6px;overflow:hidden}
+  .conf .fill{height:100%;background:var(--green)}
+  ul.checks{margin:6px 0 0;padding-left:18px;font-size:13px}
+  ul.checks li{margin:3px 0}
+  .footer-band{
+    position:sticky;bottom:0;background:var(--green-dark);color:#eafff2;font-size:12.5px;
+    text-align:center;padding:9px 14px;border-top:1px solid rgba(255,255,255,.1);z-index:5
+  }
+  .empty{color:var(--muted);font-size:14px;text-align:center;padding:40px 10px}
+  .copy{float:right;font-size:12px;background:#fff;border:1px solid var(--line);border-radius:7px;padding:4px 9px;cursor:pointer;color:var(--green-dark)}
+  /* how it works */
+  .how{display:none}
+  .how.show{display:block}
+  .app-view.hide{display:none}
+  .archi{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;white-space:pre;background:#20261f;color:#e7efe9;border-radius:10px;padding:16px;overflow:auto}
+  .cols{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:760px){.cols{grid-template-columns:1fr}}
+  .modal-bg{position:fixed;inset:0;background:rgba(20,26,20,.55);display:none;place-items:center;padding:20px;z-index:20}
+  .modal-bg.show{display:grid}
+  .modal{background:var(--cream-2);max-width:640px;width:100%;max-height:80vh;overflow:auto;border-radius:14px;padding:20px}
+  .modal h3{margin:0 0 4px}
+  .modal .meta{font-size:12px;color:var(--muted);margin-bottom:10px}
+  .modal .close{float:right;cursor:pointer;border:0;background:none;font-size:20px;color:var(--muted)}
+  .modal .lac{background:var(--amber-soft);border:1px solid #ecd9a6;color:var(--amber);padding:9px 11px;border-radius:9px;font-size:13px;margin-top:10px}
+</style>
+</head>
+<body>
+<header class="app">
+  <div class="logo">O</div>
+  <div>
+    <h1>Care Copilot</h1>
+    <div class="sub">Assistant de traitement des tickets - Service Client Onatera</div>
+  </div>
+  <div class="spacer"></div>
+  <button class="nav-btn active" id="nav-app">Atelier</button>
+  <button class="nav-btn" id="nav-how">Comment ca marche</button>
+  <div class="mode-pill" id="modeToggle" title="Basculer live / demo">
+    <span class="dot" id="modeDot"></span><b id="modeLabel">...</b>
+  </div>
+</header>
+
+<!-- ============ ATELIER ============ -->
+<main class="app-view" id="view-app">
+  <div id="topBanner"></div>
+  <div class="grid">
+    <!-- LEFT -->
+    <section class="card">
+      <div class="hd">Entree</div>
+      <div class="bd">
+        <label class="fld" for="exSelect">Charger un ticket d'exemple</label>
+        <select id="exSelect"><option value="">- Selectionner -</option></select>
+
+        <label class="fld" for="ticketText" style="margin-top:14px">Texte du ticket client</label>
+        <textarea id="ticketText" placeholder="Collez ici n'importe quel ticket client..."></textarea>
+
+        <label class="fld" for="modelSelect" style="margin-top:14px">Modele</label>
+        <select id="modelSelect"><option>qwen2.5:7b-instruct</option></select>
+
+        <div class="health" id="health">
+          <span class="dot wait" id="healthDot"></span>
+          <div id="healthText">Verification d'Ollama...</div>
+        </div>
+
+        <div style="margin-top:14px">
+          <button class="btn" id="runBtn">Analyser le ticket</button>
+        </div>
+        <div class="hint">Aucune donnee ne quitte votre machine. La reponse generee est une <b>proposition</b> a valider par un humain.</div>
+      </div>
+    </section>
+
+    <!-- RIGHT -->
+    <section class="card">
+      <div class="hd">Pipeline de traitement</div>
+      <div class="bd">
+        <div id="pipeBanner"></div>
+        <div class="steps">
+          <!-- step 1 -->
+          <div class="step" id="step1">
+            <div class="shd" data-step="step1">
+              <span class="num">1</span>
+              <span class="stitle">Triage</span>
+              <span class="smeta"><span class="status-ico" id="ico1">-</span><span id="t1"></span></span>
+            </div>
+            <div class="sbody" id="body1">
+              <div id="triageSummary" class="empty">En attente d'analyse.</div>
+              <button class="toggle-json" data-tgt="json1">Voir le JSON brut</button>
+              <pre class="json" id="json1" style="display:none"></pre>
+            </div>
+          </div>
+          <!-- step 2 -->
+          <div class="step" id="step2">
+            <div class="shd" data-step="step2">
+              <span class="num">2</span>
+              <span class="stitle">Recherche documentaire (KB)</span>
+              <span class="smeta"><span class="status-ico" id="ico2">-</span><span id="t2"></span></span>
+            </div>
+            <div class="sbody" id="body2">
+              <div id="kbHits" class="empty">En attente.</div>
+              <div class="hint">Retrieval lexical deterministe (pas de LLM, pas de vecteurs) - voir "Comment ca marche".</div>
+            </div>
+          </div>
+          <!-- step 3 -->
+          <div class="step" id="step3">
+            <div class="shd" data-step="step3">
+              <span class="num">3</span>
+              <span class="stitle">Redaction sourcee</span>
+              <span class="smeta"><span class="status-ico" id="ico3">-</span><span id="t3"></span></span>
+            </div>
+            <div class="sbody" id="body3">
+              <div id="draftLive" class="empty">En attente.</div>
+              <button class="toggle-json" data-tgt="json3" style="display:none" id="tg3">Voir le JSON brut</button>
+              <pre class="json" id="json3" style="display:none"></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- RESULT -->
+        <div id="result" style="display:none;margin-top:18px">
+          <div id="riskBox"></div>
+          <div id="guardBanner"></div>
+
+          <div class="subhd">Reponse client proposee <button class="copy" id="copyBtn">Copier</button></div>
+          <div class="reply" id="replyBox"></div>
+
+          <div class="subhd">Actions internes</div>
+          <table id="actionsTbl"><thead><tr><th>Service</th><th>Action</th><th>Prio.</th><th>Delai</th></tr></thead><tbody></tbody></table>
+
+          <div class="subhd">Sources utilisees</div>
+          <div id="sourcesBox"></div>
+
+          <div class="subhd">Confiance du modele</div>
+          <div class="conf"><span id="confVal">-</span><div class="track"><div class="fill" id="confFill" style="width:0%"></div></div></div>
+
+          <div class="subhd">A valider par un humain</div>
+          <ul class="checks" id="checksBox"></ul>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<!-- ============ COMMENT CA MARCHE ============ -->
+<main class="app-view how" id="view-how">
+  <section class="card"><div class="bd">
+    <h2 style="margin-top:4px">Comment ca marche</h2>
+    <p>Care Copilot ne remplace pas l'agent : il lui fait gagner les 30 minutes de recherche documentaire (retrouver la fiche produit, la precaution manquante, le cadre reglementaire, le bon service a escalader) et lui livre une base <b>sourcee</b> qu'il valide, corrige et signe. Le modele tourne <b>en local</b> : aucune donnee client ne sort de la machine.</p>
+
+    <div class="archi">navigateur (localhost:8080)          machine locale
+&#9484;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9488;      &#9484;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9488;
+&#9474;  index.html (vanilla JS)   &#9474;&#9472;&#9472;&#9472;&#9472;&#9660;&#9474;  Ollama :11434       &#9474;
+&#9474;  &#9500;&#9472; kb.json (connaissances)  &#9474;      &#9474;  qwen2.5:7b-instruct  &#9474;
+&#9474;  &#9492;&#9472; pipeline 3 etapes        &#9474;&#9664;&#9472;&#9472;&#9472;&#9472;&#9474;  (streaming)          &#9474;
+&#9492;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9496;      &#9492;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9496;
+        aucune donnee ne sort de la machine</div>
+
+    <div class="cols" style="margin-top:18px">
+      <div>
+        <h3>Le pipeline en 3 etapes</h3>
+        <p><b>1. Triage (LLM, sortie structuree)</b> - categorie, gravite, urgence sanitaire, produits/actifs cites, signaux d'escalade, etat emotionnel. Sortie JSON contrainte par un schema.</p>
+        <p><b>2. Recherche KB (deterministe)</b> - scoring lexical simple sur les fiches : produit cite = poids 3, actif = 2, categorie = 1. Max 4 fiches au-dessus du seuil. Les fiches retenues sont affichees : la reponse est sourcee, pas hallucinee.</p>
+        <p><b>3. Redaction (LLM, streaming)</b> - le ticket + le triage + les fiches KB retenues + les regles de posture produisent un mail pret a relire, avec niveau de risque, escalades, actions internes et points a valider.</p>
+      </div>
+      <div>
+        <h3>Les garde-fous (ceinture + bretelles)</h3>
+        <p>Deux niveaux : dans le <b>prompt systeme</b>, et en <b>post-traitement deterministe</b> - car un modele 7B local peut deriver.</p>
+        <ul>
+          <li>Aucune reconnaissance de responsabilite ou de lien de causalite. Un defaut d'information peut etre reconnu ; pas un dommage cause.</li>
+          <li>Aucun conseil medical : renvoi systematique vers medecin/pharmacien.</li>
+          <li>Aucune affirmation absente des fiches KB. Si l'info manque, on le dit et on promet un retour documente - jamais de chiffre invente.</li>
+          <li>Aucun engagement commercial chiffre : <code>[a definir avec le manager]</code>.</li>
+          <li><b>Escalade forcee</b> : hospitalisation ou atteinte corporelle &rarr; risque critique + escalade juridique/direction/pharmacovigilance ANSES, quoi qu'en dise le modele.</li>
+          <li><b>Blocklist</b> : toute formulation reconnaissant une responsabilite declenche un bandeau rouge et surligne le passage - sans censurer.</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3 style="margin-top:18px">Pourquoi pas d'embeddings ?</h3>
+    <p>Avec ~12 documents, un index vectoriel + embeddings n'apporte aucun gain de pertinence et ajoute une dependance, un temps de build et une source d'erreur. La regle : la solution la plus simple qui repond au besoin. A 500 fiches produit, la reponse serait differente (embeddings via <code>nomic-embed-text</code> sur Ollama, meme stack locale).</p>
+
+    <h3 style="margin-top:18px">Et apres ? (roadmap)</h3>
+    <ul>
+      <li>RAG vectoriel a l'echelle (au-dela de ~100 fiches) via embeddings locaux <code>nomic-embed-text</code>.</li>
+      <li>Connexion a l'outil de ticketing / CRM (Zendesk, Freshdesk...).</li>
+      <li>Boucle de feedback agent : chaque correction humaine ré-alimente les prompts et la KB.</li>
+      <li>Jeu de tickets annotes pour mesurer la qualite (categorisation, escalade, absence de formulation a risque).</li>
+      <li>Authentification, base de donnees, multi-utilisateur, deploiement - <i>non traites ici (hors perimetre du cas pratique)</i>.</li>
+    </ul>
+  </div></section>
+</main>
+
+<!-- KB modal -->
+<div class="modal-bg" id="kbModal">
+  <div class="modal">
+    <button class="close" id="kbClose">&times;</button>
+    <h3 id="kbmNom"></h3>
+    <div class="meta" id="kbmMeta"></div>
+    <div id="kbmContenu"></div>
+    <div class="lac" id="kbmLac" style="display:none"></div>
+    <div style="margin-top:10px;font-size:12px" id="kbmSrc"></div>
+  </div>
+</div>
+
+<div class="footer-band">Toute reponse generee est une <b>proposition</b>. Validation humaine obligatoire avant envoi. Aucun envoi automatique.</div>
+
+<script>
+/* =========================================================================
+   Care Copilot - Onatera  |  demo de recrutement
+   HTML/CSS/JS vanilla, un seul fichier. Appelle Ollama en local (localhost:11434).
+   Deux modes : LIVE (Ollama) et DEMO (rejoue data/demo_outputs.json).
+   ========================================================================= */
+const OLLAMA = 'http://localhost:11434';
+const IS_HTTPS = location.protocol === 'https:';
+const IS_LOCAL = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+const HEALTH_CMD = 'OLLAMA_ORIGINS="' + location.origin + '" ollama serve';
+
+let KB = null, TICKETS = null, DEMO = null;
+let ollamaOk = false;
+let installedModels = [];
+// mode: 'live' ou 'demo'. En https on force demo. En local on tente live.
+let mode = IS_HTTPS ? 'demo' : 'live';
+let modeManual = false; // true si l'utilisateur a bascule a la main
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s==null?'':s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* ---------- chargement des donnees ---------- */
+async function loadData(){
+  const [kb, tk, dm] = await Promise.all([
+    fetch('data/kb.json').then(r=>r.json()),
+    fetch('data/tickets.json').then(r=>r.json()),
+    fetch('data/demo_outputs.json').then(r=>r.json())
+  ]);
+  KB = kb.entries; TICKETS = tk.tickets; DEMO = dm.outputs;
+  const sel = $('#exSelect');
+  TICKETS.forEach(t => {
+    const o = document.createElement('option');
+    o.value = t.id; o.textContent = t.titre; sel.appendChild(o);
+  });
+}
+
+/* ---------- health-check Ollama ---------- */
+async function healthCheck(){
+  const dot = $('#healthDot'), txt = $('#healthText');
+  if (IS_HTTPS){
+    dot.className = 'dot'; dot.classList.add('ok');
+    txt.innerHTML = 'Demo statique (GitHub Pages) - resultats pre-calcules. Pour l\'execution live avec un LLM local, voir le README.';
+    ollamaOk = false; return;
+  }
+  dot.className = 'dot wait'; txt.textContent = 'Verification d\'Ollama...';
+  try{
+    const r = await fetch(OLLAMA + '/api/tags', {method:'GET'});
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    const d = await r.json();
+    installedModels = (d.models||[]).map(m=>m.name);
+    ollamaOk = true;
+    // remplir le select de modeles
+    const ms = $('#modelSelect'); ms.innerHTML='';
+    const prefer = ['qwen2.5:7b-instruct','qwen2.5:3b-instruct','llama3.1:8b-instruct'];
+    const list = installedModels.length ? installedModels : prefer;
+    list.forEach(m=>{const o=document.createElement('option');o.value=m;o.textContent=m;ms.appendChild(o);});
+    const def = list.find(m=>m.includes('qwen2.5:7b')) || list[0];
+    if(def) ms.value = def;
+    dot.className='dot ok';
+    txt.innerHTML = 'Ollama connecte - <b>'+esc(ms.value)+'</b>';
+  }catch(e){
+    ollamaOk = false;
+    dot.className='dot bad';
+    txt.innerHTML = 'Ollama indisponible. Lancez : <span class="cmd">'+esc(HEALTH_CMD)+'</span>'
+      + ' <button class="src-chip" id="copyCmd">Copier la commande</button>'
+      + '<br><span style="color:var(--muted)">Bascule automatique en mode demo (resultats pre-calcules).</span>';
+    const cc = $('#copyCmd'); if(cc) cc.onclick = ()=>navigator.clipboard.writeText(HEALTH_CMD);
+    if(!modeManual) mode = 'demo';
+  }
+  updateModeUI();
+}
+
+/* ---------- UI mode ---------- */
+function updateModeUI(){
+  const dot = $('#modeDot'), lbl = $('#modeLabel');
+  if(mode==='live'){ dot.className='dot ok'; lbl.textContent='Mode live'; }
+  else { dot.className='dot'; dot.style.background='#c9a227'; lbl.textContent='Mode demo'; }
+  // banniere haut
+  const tb = $('#topBanner');
+  if(IS_HTTPS){
+    tb.innerHTML = '<div class="banner info">&#8505;&#65039;&nbsp;<div><b>Demo statique</b> - resultats pre-calcules a partir d\'executions reelles. Pour l\'execution en direct avec un LLM local (Ollama), clonez le repo et lancez <code>./run.sh</code> (voir README).</div></div>';
+  } else if(mode==='demo'){
+    tb.innerHTML = '<div class="banner warn">&#9888;&#65039;&nbsp;<div><b>Mode demo</b> - Ollama indisponible ou desactive : lecture de resultats pre-calcules. Aucun appel LLM en direct.</div></div>';
+  } else {
+    tb.innerHTML = '';
+  }
+}
+
+/* ---------- schemas de sortie structuree ---------- */
+const TRIAGE_SCHEMA = {
+  type:"object",
+  properties:{
+    categorie:{type:"string",enum:["reglementaire","securite_produit","risque_sanitaire","logistique","autre"]},
+    gravite:{type:"string",enum:["critique","haute","moyenne","basse"]},
+    urgence_sanitaire:{type:"boolean"},
+    produits_cites:{type:"array",items:{type:"string"}},
+    actifs_concernes:{type:"array",items:{type:"string"}},
+    faits_allegues:{type:"array",items:{type:"string"}},
+    demandes_explicites:{type:"array",items:{type:"string"}},
+    signaux_escalade:{type:"array",items:{type:"string"}},
+    etat_emotionnel:{type:"string",enum:["colere","detresse","inquietude","factuel"]},
+    resume_1_phrase:{type:"string"}
+  },
+  required:["categorie","gravite","urgence_sanitaire","produits_cites","actifs_concernes","faits_allegues","demandes_explicites","signaux_escalade","etat_emotionnel","resume_1_phrase"]
+};
+const REDACTION_SCHEMA = {
+  type:"object",
+  properties:{
+    niveau_risque:{type:"string",enum:["critique","eleve","modere","faible"]},
+    escalade_requise:{type:"array",items:{type:"string"}},
+    reponse_client:{type:"string"},
+    actions_internes:{type:"array",items:{type:"object",properties:{
+      service:{type:"string"},action:{type:"string"},priorite:{type:"string"},delai:{type:"string"}
+    },required:["service","action","priorite","delai"]}},
+    sources_utilisees:{type:"array",items:{type:"string"}},
+    points_a_valider_par_un_humain:{type:"array",items:{type:"string"}},
+    confiance:{type:"number"}
+  },
+  required:["niveau_risque","escalade_requise","reponse_client","actions_internes","sources_utilisees","points_a_valider_par_un_humain","confiance"]
+};
+
+/* ---------- prompts ---------- */
+const TRIAGE_SYS =
+`Tu es un module de triage pour le service client d'Onatera (complements alimentaires).
+Analyse le ticket client et renvoie STRICTEMENT un JSON conforme au schema, en francais.
+N'invente aucun fait : n'extrais que ce qui est present dans le ticket.
+signaux_escalade est une liste choisie parmi : "menace_dgccrf","menace_media","menace_avocat","hospitalisation","atteinte_corporelle","grossesse","deces".
+urgence_sanitaire = true si un risque pour la sante d'une personne est evoque (interaction, surdosage, hospitalisation, grossesse...).
+Sois concis et factuel.`;
+
+function redactionSys(kbText){
+  return `Tu es un assistant de redaction pour le service client d'Onatera (complements alimentaires).
+Tu prepares une PROPOSITION de reponse qu'un agent humain relira, corrigera et signera. Rien n'est envoye automatiquement.
+
+REGLES DURES - NON NEGOCIABLES :
+1. AUCUNE reconnaissance de responsabilite juridique ni de lien de causalite. Tu peux reconnaitre un defaut d'information ; tu ne peux JAMAIS ecrire ou sous-entendre que le produit a cause un dommage.
+2. AUCUN conseil medical. Renvoie toujours vers un medecin ou un pharmacien.
+3. AUCUNE affirmation factuelle absente des FICHES ci-dessous. Si une information manque (ex. resultats d'analyses de metaux lourds), dis-le et promets un retour documente sous delai. N'invente JAMAIS un chiffre, un seuil ou un resultat d'analyse.
+4. AUCUN engagement commercial chiffre (remboursement, geste) : ecris "[a definir avec le manager]".
+5. Ton empathique, factuel, non defensif, vouvoiement. Signature exacte : "[Prenom] - Service Client Onatera". Propose un interlocuteur et un delai de retour "[delai a confirmer]".
+
+FICHES DE CONNAISSANCE (seule base factuelle autorisee) :
+${kbText}
+
+Reponds STRICTEMENT en JSON conforme au schema. Le champ reponse_client est le texte du mail, pret a relire, avec les champs a personnaliser entre [crochets].`;
+}
+
+function kbToText(hits){
+  return hits.map(h=>{
+    const e = KB.find(k=>k.id===h.id);
+    return `--- ${e.id} | ${e.nom} ---\n${e.contenu}${e.lacunes_identifiees?('\nLacune identifiee : '+e.lacunes_identifiees):''}`;
+  }).join('\n\n');
+}
+
+/* ---------- clients Ollama ---------- */
+async function ollamaChat(model, messages, format){
+  const r = await fetch(OLLAMA+'/api/chat',{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({model,messages,format,stream:false,options:{temperature:0.1}})
+  });
+  if(!r.ok) throw new Error('Ollama HTTP '+r.status);
+  const d = await r.json();
+  return d.message.content;
+}
+async function ollamaChatStream(model, messages, format, onDelta){
+  const r = await fetch(OLLAMA+'/api/chat',{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({model,messages,format,stream:true,options:{temperature:0.2}})
+  });
+  if(!r.ok) throw new Error('Ollama HTTP '+r.status);
+  const reader = r.body.getReader(); const dec = new TextDecoder();
+  let buf='', full='';
+  while(true){
+    const {done,value} = await reader.read();
+    if(done) break;
+    buf += dec.decode(value,{stream:true});
+    let i;
+    while((i=buf.indexOf('\n'))>=0){
+      const line = buf.slice(0,i).trim(); buf = buf.slice(i+1);
+      if(!line) continue;
+      let obj; try{obj=JSON.parse(line)}catch{continue}
+      if(obj.message && obj.message.content){ full += obj.message.content; onDelta(full); }
+    }
+  }
+  return full;
+}
+/* parsing JSON defensif : extrait le premier bloc {...} */
+function parseJsonLoose(txt){
+  try{ return JSON.parse(txt); }catch(e){}
+  const a = txt.indexOf('{'), b = txt.lastIndexOf('}');
+  if(a>=0 && b>a){ try{ return JSON.parse(txt.slice(a,b+1)); }catch(e){} }
+  throw new Error('JSON illisible');
+}
+/* extraction incrementale tolerante du champ reponse_client pendant le streaming */
+function extractPartial(full, key){
+  const m = full.indexOf('"'+key+'"');
+  if(m<0) return null;
+  const colon = full.indexOf(':', m);
+  if(colon<0) return null;
+  const q = full.indexOf('"', colon+1);
+  if(q<0) return null;
+  let out='';
+  for(let p=q+1;p<full.length;p++){
+    const c = full[p];
+    if(c==='\\'){ const n=full[p+1]; out += (n==='n'?'\n':n==='t'?'\t':n||''); p++; continue; }
+    if(c==='"') return {done:true,text:out};
+    out += c;
+  }
+  return {done:false,text:out};
+}
+
+/* ---------- etape 2 : retrieval deterministe ---------- */
+// Justification (assumee en entretien) : avec ~12 documents, un index vectoriel
+// n'apporte aucun gain et ajoute une dependance. Scoring lexical simple et lisible.
+function retrieve(triage){
+  const prod = (triage.produits_cites||[]).map(s=>s.toLowerCase());
+  const act  = (triage.actifs_concernes||[]).map(s=>s.toLowerCase());
+  const cat  = (triage.categorie||'').toLowerCase();
+  const hay = (e,term)=>{
+    const bag = [e.nom, e.mots_cles.join(' '), e.actifs.join(' ')].join(' ').toLowerCase();
+    return bag.includes(term);
+  };
+  const scored = KB.map(e=>{
+    let s = 0;
+    prod.forEach(p=>{ if(p && hay(e,p)) s += 3; });
+    act.forEach(a=>{ if(a && hay(e,a)) s += 2; });
+    // categorie -> type reglementaire/produit pertinent
+    if(cat && (e.mots_cles.join(' ').toLowerCase().includes(cat.split('_')[0]))) s += 1;
+    // la posture est toujours legerement utile
+    if(e.type==='posture') s += 0.5;
+    return {id:e.id, nom:e.nom, score:s};
+  }).filter(x=>x.score>=1).sort((a,b)=>b.score-a.score).slice(0,4);
+  // garantir la fiche posture
+  if(!scored.find(x=>x.id==='kb_posture_onatera')){
+    const p = KB.find(k=>k.id==='kb_posture_onatera');
+    scored.push({id:p.id, nom:p.nom, score:0.5});
+  }
+  return scored.slice(0,4);
+}
+
+/* ---------- garde-fous deterministes ---------- */
+// Detection deterministe des signaux durs DIRECTEMENT dans le texte du ticket,
+// independamment du triage LLM. Un modele local (7B/4B) peut oublier d'emettre
+// "hospitalisation" ; la regle metier ne doit pas dependre de lui (cf. section 4).
+// Sur un risque sanitaire, sur-escalader est le mode de defaillance sur (assume).
+const HOSPITAL_RE = /hospitalis\w*|h[oô]pital|aux urgences|service des urgences|r[eé]animation|soins intensifs/i;
+const BODYHARM_RE = /intoxication|empoisonn\w*|overdose|s[eé]quelle|atteinte corporelle|br[uû]lure grave/i;
+function augmentSignals(triage, text){
+  triage.signaux_escalade = triage.signaux_escalade || [];
+  const add = s => { if(!triage.signaux_escalade.includes(s)) triage.signaux_escalade.push(s); };
+  if(HOSPITAL_RE.test(text||'')) add('hospitalisation');
+  if(BODYHARM_RE.test(text||'')) add('atteinte_corporelle');
+  return triage;
+}
+// Normalise la confiance : un modele peut renvoyer 0.78, 78 ou 7800. On ramene a [0,1].
+function normConf(v){
+  v = Number(v);
+  if(!isFinite(v)) return 0;
+  if(v > 100) v = v/10000; else if(v > 1) v = v/100;
+  return Math.max(0, Math.min(1, v));
+}
+const BLOCKLIST = [
+  "notre produit a cause","nous sommes responsables","nous reconnaissons notre responsabilite",
+  "notre erreur a provoque","nous vous rembourserons","est responsable de votre",
+  "a provoque votre","a cause votre","reconnaissons etre responsable"
+];
+function applyGuardrails(triage, red){
+  const notes = [];
+  // 1. escalade forcee
+  const sig = triage.signaux_escalade||[];
+  const forced = sig.includes('hospitalisation') || sig.includes('atteinte_corporelle');
+  const forcedTags = [];
+  if(forced){
+    red.niveau_risque = 'critique';
+    const must = ['juridique','direction','pharmacovigilance_anses'];
+    red.escalade_requise = red.escalade_requise || [];
+    must.forEach(m=>{ if(!red.escalade_requise.includes(m)){ red.escalade_requise.push(m); forcedTags.push(m); } });
+    notes.push('Escalade forcee (hospitalisation / atteinte corporelle) : niveau critique + juridique/direction/pharmacovigilance ANSES.');
+  }
+  // 2. blocklist de formulations
+  const low = (red.reponse_client||'').toLowerCase();
+  const hits = BLOCKLIST.filter(b=>low.includes(b));
+  return { forced, forcedTags, blocklistHits:hits, notes };
+}
+function highlightRisky(text, hits){
+  let html = esc(text);
+  hits.forEach(h=>{
+    const re = new RegExp(h.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'gi');
+    html = html.replace(re, m=>'<mark>'+esc(m)+'</mark>');
+  });
+  return html;
+}
+
+/* ---------- rendu ---------- */
+function setStep(n, state, secs){
+  const step = $('#step'+n), ico = $('#ico'+n), t = $('#t'+n);
+  if(state==='run'){ step.classList.add('open'); ico.innerHTML='<span class="spin"></span>'; t.textContent=''; }
+  if(state==='done'){ step.classList.add('done'); ico.textContent='✓'; if(secs!=null) t.textContent=secs.toFixed(1)+' s'; }
+}
+function renderTriage(tr){
+  $('#json1').textContent = JSON.stringify(tr, null, 2);
+  const chips = [
+    ['Categorie', tr.categorie],['Gravite', tr.gravite],
+    ['Urgence sanitaire', tr.urgence_sanitaire?'oui':'non'],['Emotion', tr.etat_emotionnel]
+  ];
+  let h = '<p style="margin:0 0 6px"><b>'+esc(tr.resume_1_phrase)+'</b></p>';
+  h += '<div class="tags" style="margin-top:6px">'+chips.map(c=>'<span class="src-chip">'+esc(c[0])+' : '+esc(c[1])+'</span>').join('')+'</div>';
+  if((tr.signaux_escalade||[]).length)
+    h += '<div class="hint" style="margin-top:8px">Signaux d\'escalade : '+tr.signaux_escalade.map(esc).join(', ')+'</div>';
+  $('#triageSummary').classList.remove('empty'); $('#triageSummary').innerHTML = h;
+}
+function renderKb(hits){
+  const max = Math.max(...hits.map(h=>h.score), 1);
+  const box = $('#kbHits'); box.classList.remove('empty');
+  box.innerHTML = hits.map(h=>
+    '<div class="kbhit" data-kb="'+esc(h.id)+'">'
+    + '<div class="bar" style="width:'+(10+40*h.score/max)+'px"></div>'
+    + '<div><b>'+esc(h.nom)+'</b><div style="font-size:12px;color:var(--muted)">'+esc(h.id)+'</div></div>'
+    + '<div class="score">score '+h.score+'</div></div>'
+  ).join('');
+  box.querySelectorAll('[data-kb]').forEach(el=>el.onclick=()=>openKb(el.dataset.kb));
+}
+function renderResult(triage, red, guard){
+  $('#result').style.display='block';
+  // risque
+  const rb = $('#riskBox');
+  rb.className = 'risk '+red.niveau_risque;
+  let tags = (red.escalade_requise||[]).map(t=>{
+    const forced = guard.forcedTags.includes(t);
+    return '<span class="tag'+(forced?' forced':'')+'">'+esc(t)+(forced?' (force)':'')+'</span>';
+  }).join('');
+  rb.innerHTML = '<div class="rl">Niveau de risque</div><div class="rv">'+esc(red.niveau_risque)+'</div>'
+    + (tags?'<div class="tags">'+tags+'</div>':'');
+  // bandeaux garde-fous
+  let gb='';
+  if(guard.blocklistHits.length)
+    gb += '<div class="banner danger">&#9888;&#65039;&nbsp;<div><b>Formulation a risque detectee</b> - relecture juridique obligatoire. Le(s) passage(s) sont surlignes dans la reponse ci-dessous. (Le filet de securite n\'a pas censure le texte : il l\'a signale.)</div></div>';
+  if(guard.forced)
+    gb += '<div class="banner warn">&#9889;&nbsp;<div><b>Regle metier appliquee</b> : '+esc(guard.notes.join(' '))+'</div></div>';
+  $('#guardBanner').innerHTML = gb;
+  // reponse
+  $('#replyBox').innerHTML = highlightRisky(red.reponse_client||'', guard.blocklistHits);
+  // actions
+  const tb = $('#actionsTbl tbody');
+  tb.innerHTML = (red.actions_internes||[]).map(a=>
+    '<tr><td>'+esc(a.service)+'</td><td>'+esc(a.action)+'</td>'
+    +'<td><span class="prio '+esc((a.priorite||'').toLowerCase())+'">'+esc(a.priorite)+'</span></td>'
+    +'<td>'+esc(a.delai)+'</td></tr>').join('');
+  // sources
+  $('#sourcesBox').innerHTML = (red.sources_utilisees||[]).map(s=>{
+    const e = KB.find(k=>k.id===s);
+    return '<span class="src-chip" data-kb="'+esc(s)+'">'+esc(e?e.nom:s)+'</span>';
+  }).join('');
+  $('#sourcesBox').querySelectorAll('[data-kb]').forEach(el=>el.onclick=()=>openKb(el.dataset.kb));
+  // confiance
+  const c = Math.round(normConf(red.confiance)*100);
+  $('#confVal').textContent = c+' %'; $('#confFill').style.width = c+'%';
+  // checks
+  $('#checksBox').innerHTML = (red.points_a_valider_par_un_humain||[]).map(p=>'<li>'+esc(p)+'</li>').join('');
+}
+
+/* ---------- pipeline ---------- */
+let running = false;
+async function runPipeline(){
+  if(running) return;
+  const text = $('#ticketText').value.trim();
+  if(!text){ alert('Collez un ticket ou chargez un exemple.'); return; }
+  running = true; $('#runBtn').disabled = true; $('#runBtn').textContent='Analyse en cours...';
+  resetUI();
+  const model = $('#modelSelect').value;
+  const useDemo = (mode==='demo') || !ollamaOk || IS_HTTPS;
+  // identifier un ticket d'exemple (pour le mode demo)
+  const exId = $('#exSelect').value;
+  try{
+    if(useDemo){ await runDemo(exId, text); }
+    else { await runLive(model, text); }
+  }catch(err){
+    // en live, bascule automatique et honnete vers la demo
+    if(!useDemo && exId && DEMO[exId]){
+      $('#pipeBanner').innerHTML = '<div class="banner warn">&#9888;&#65039;&nbsp;Erreur Ollama ('+esc(err.message)+') - bascule sur les resultats pre-calcules.</div>';
+      try{ await runDemo(exId, text); }catch(e2){ showErr(e2); }
+    } else { showErr(err); }
+  } finally {
+    running = false; $('#runBtn').disabled=false; $('#runBtn').textContent='Analyser le ticket';
+  }
+}
+function showErr(err){
+  $('#pipeBanner').innerHTML = '<div class="banner danger">&#9888;&#65039;&nbsp;'+esc(err.message)
+    +'. Activez le mode demo ou chargez un ticket d\'exemple.</div>';
+}
+async function runLive(model, text){
+  // etape 1
+  setStep(1,'run'); let s=performance.now();
+  const raw1 = await ollamaChat(model,[{role:'system',content:TRIAGE_SYS},{role:'user',content:text}],TRIAGE_SCHEMA);
+  let triage; try{ triage = parseJsonLoose(raw1); }
+  catch(e){ // retry une fois
+    const fix = await ollamaChat(model,[{role:'system',content:TRIAGE_SYS},{role:'user',content:text},{role:'user',content:'Repond uniquement avec un JSON valide.'}],TRIAGE_SCHEMA);
+    triage = parseJsonLoose(fix);
+  }
+  augmentSignals(triage, text);
+  renderTriage(triage); setStep(1,'done',(performance.now()-s)/1000);
+  // etape 2
+  setStep(2,'run'); s=performance.now();
+  const hits = retrieve(triage);
+  await sleep(250);
+  renderKb(hits); setStep(2,'done',(performance.now()-s)/1000);
+  // etape 3
+  setStep(3,'run'); s=performance.now();
+  $('#draftLive').classList.remove('empty'); $('#draftLive').innerHTML='<div class="reply" id="liveReply"><span class="spin"></span> Generation en cours...</div>';
+  const sys = redactionSys(kbToText(hits));
+  const raw3 = await ollamaChatStream(model,
+    [{role:'system',content:sys},{role:'user',content:'TICKET:\n'+text+'\n\nTRIAGE:\n'+JSON.stringify(triage)}],
+    REDACTION_SCHEMA,
+    (full)=>{ const p = extractPartial(full,'reponse_client'); if(p){ $('#liveReply').textContent = p.text; } }
+  );
+  let red; try{ red = parseJsonLoose(raw3); }
+  catch(e){ throw new Error('Reponse etape 3 illisible'); }
+  $('#json3').textContent = JSON.stringify(red,null,2); $('#tg3').style.display='inline';
+  const guard = applyGuardrails(triage, red);
+  renderResult(triage, red, guard);
+  setStep(3,'done',(performance.now()-s)/1000);
+  $('#draftLive').innerHTML = '<div class="hint">Redaction terminee - voir le resultat ci-dessous.</div>';
+}
+async function runDemo(exId, text){
+  const rec = exId && DEMO[exId] ? DEMO[exId] : DEMO['4471']; // fallback demo
+  const genericNote = (!exId || !DEMO[exId])
+    ? '<div class="banner info">&#8505;&#65039;&nbsp;Ticket libre en mode demo : illustration avec des sorties pre-calculees. Passez en mode live (Ollama) pour analyser ce texte precis.</div>' : '';
+  $('#pipeBanner').innerHTML = genericNote + $('#pipeBanner').innerHTML;
+  const triage = JSON.parse(JSON.stringify(rec.triage));
+  const red = JSON.parse(JSON.stringify(rec.redaction));
+  augmentSignals(triage, text||'');
+  // etape 1
+  setStep(1,'run'); await sleep(700); renderTriage(triage); setStep(1,'done',0.8+Math.random()*0.6);
+  // etape 2
+  setStep(2,'run'); await sleep(500); renderKb(rec.retrieved); setStep(2,'done',0.2);
+  // etape 3 : streaming simule du champ reponse_client
+  setStep(3,'run');
+  $('#draftLive').classList.remove('empty');
+  $('#draftLive').innerHTML = '<div class="reply" id="liveReply"></div>';
+  await typeOut($('#liveReply'), red.reponse_client);
+  $('#json3').textContent = JSON.stringify(red,null,2); $('#tg3').style.display='inline';
+  const guard = applyGuardrails(triage, red);
+  renderResult(triage, red, guard);
+  setStep(3,'done',3.0+Math.random()*1.5);
+  $('#draftLive').innerHTML = '<div class="hint">Redaction terminee (pre-calculee) - voir le resultat ci-dessous.</div>';
+}
+function typeOut(el, txt){
+  return new Promise(res=>{
+    let i=0; const step = Math.max(2, Math.floor(txt.length/160));
+    const tick=()=>{ i=Math.min(txt.length,i+step); el.textContent=txt.slice(0,i);
+      if(i<txt.length) setTimeout(tick, 18); else res(); };
+    tick();
+  });
+}
+const sleep = ms => new Promise(r=>setTimeout(r,ms));
+
+/* ---------- reset ---------- */
+function resetUI(){
+  $('#result').style.display='none'; $('#pipeBanner').innerHTML='';
+  ['1','2','3'].forEach(n=>{
+    const st=$('#step'+n); st.classList.remove('done','open'); $('#ico'+n).textContent='-'; $('#t'+n).textContent='';
+  });
+  $('#triageSummary').className='empty'; $('#triageSummary').textContent='En attente d\'analyse.';
+  $('#json1').style.display='none'; $('#json3').style.display='none'; $('#tg3').style.display='none';
+  $('#kbHits').className='empty'; $('#kbHits').textContent='En attente.';
+  $('#draftLive').className='empty'; $('#draftLive').textContent='En attente.';
+}
+
+/* ---------- KB modal ---------- */
+function openKb(id){
+  const e = KB.find(k=>k.id===id); if(!e) return;
+  $('#kbmNom').textContent = e.nom;
+  $('#kbmMeta').textContent = [e.type, e.reference && ('ref. '+e.reference), e.actifs.join(', ')].filter(Boolean).join(' | ');
+  $('#kbmContenu').innerHTML = '<p>'+esc(e.contenu)+'</p>';
+  if(e.lacunes_identifiees){ $('#kbmLac').style.display='block'; $('#kbmLac').textContent='Lacune identifiee : '+e.lacunes_identifiees; }
+  else $('#kbmLac').style.display='none';
+  $('#kbmSrc').innerHTML = e.source_url ? 'Source : <a href="'+esc(e.source_url)+'" target="_blank" rel="noopener">'+esc(e.source_url)+'</a>' : '';
+  $('#kbModal').classList.add('show');
+}
+
+/* ---------- events ---------- */
+function wire(){
+  $('#exSelect').onchange = e=>{
+    const t = TICKETS.find(x=>x.id===e.target.value);
+    $('#ticketText').value = t ? t.texte : '';
+    resetUI();
+  };
+  $('#runBtn').onclick = runPipeline;
+  $('#copyBtn').onclick = ()=>{ navigator.clipboard.writeText($('#replyBox').textContent); $('#copyBtn').textContent='Copie !'; setTimeout(()=>$('#copyBtn').textContent='Copier',1200); };
+  document.querySelectorAll('.shd').forEach(h=>h.onclick=()=>$('#'+h.dataset.step).classList.toggle('open'));
+  document.querySelectorAll('.toggle-json').forEach(b=>b.onclick=()=>{
+    const el=$('#'+b.dataset.tgt); el.style.display = el.style.display==='none'?'block':'none';
+  });
+  $('#modeToggle').onclick = ()=>{
+    if(IS_HTTPS){ alert('En ligne (GitHub Pages), seul le mode demo est disponible. Le mode live necessite Ollama en local.'); return; }
+    modeManual = true; mode = (mode==='live') ? 'demo' : 'live';
+    if(mode==='live' && !ollamaOk){ alert('Ollama n\'est pas connecte. Lancez ./run.sh puis rechargez.'); }
+    updateModeUI();
+  };
+  $('#nav-app').onclick = ()=>switchView('app');
+  $('#nav-how').onclick = ()=>switchView('how');
+  $('#kbClose').onclick = ()=>$('#kbModal').classList.remove('show');
+  $('#kbModal').onclick = e=>{ if(e.target.id==='kbModal') $('#kbModal').classList.remove('show'); };
+}
+function switchView(v){
+  $('#nav-app').classList.toggle('active', v==='app');
+  $('#nav-how').classList.toggle('active', v==='how');
+  $('#view-app').classList.toggle('hide', v!=='app');
+  $('#view-how').classList.toggle('show', v==='how');
+}
+
+/* ---------- boot ---------- */
+(async function(){
+  wire();
+  try{ await loadData(); }catch(e){ $('#topBanner').innerHTML='<div class="banner danger">Impossible de charger data/*.json - servez le dossier via ./run.sh (pas en file://).</div>'; }
+  await healthCheck();
+  updateModeUI();
+})();
+</script>
+</body>
+</html>
