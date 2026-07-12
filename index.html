@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Care Copilot - Onatera</title>
+<title>Onatera Copilot</title>
 <style>
   :root{
     --green:#2f6b4f;
@@ -88,6 +88,11 @@
   .btn:disabled{opacity:.5;cursor:not-allowed}
   .btn.sec{background:#fff;color:var(--green-dark);border:1px solid var(--line);font-weight:600}
   .hint{font-size:12px;color:var(--muted);margin-top:8px}
+  .seg{display:flex;gap:0;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff}
+  .seg-btn{flex:1;border:0;background:#fff;padding:9px 8px;cursor:pointer;font:inherit;font-size:14px;font-weight:600;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:1px;border-right:1px solid var(--line)}
+  .seg-btn:last-child{border-right:0}
+  .seg-btn small{font-weight:400;font-size:11px;opacity:.8}
+  .seg-btn.active{background:var(--green);color:#fff}
   .banner{
     padding:11px 14px;border-radius:10px;font-size:13.5px;margin-bottom:14px;display:flex;gap:9px;align-items:flex-start
   }
@@ -131,6 +136,11 @@
   .prio.moyenne{background:var(--amber-soft);color:var(--amber)}
   .prio.basse{background:var(--green-soft);color:var(--green-dark)}
   .subhd{font-weight:700;font-size:13px;margin:18px 0 4px;color:var(--green-dark)}
+  .triage-badges{display:flex;gap:10px;flex-wrap:wrap}
+  .tb{border:1px solid var(--line);border-radius:9px;padding:6px 12px;background:#fff}
+  .tb-l{display:block;font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+  .tb-v{font-weight:700;font-size:15px}
+  .grav-critique{color:var(--red)} .grav-haute{color:#c9622a} .grav-moyenne{color:var(--amber)} .grav-basse{color:var(--green)}
   .src-chip{display:inline-block;font-size:12px;background:var(--green-soft);color:var(--green-dark);border:1px solid #cadfd0;border-radius:999px;padding:3px 9px;margin:4px 4px 0 0;cursor:pointer}
   .conf{display:flex;align-items:center;gap:10px;margin-top:8px;font-size:13px}
   .conf .track{flex:1;height:9px;background:var(--line);border-radius:6px;overflow:hidden}
@@ -150,6 +160,12 @@
   .archi{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;white-space:pre;background:#20261f;color:#e7efe9;border-radius:10px;padding:16px;overflow:auto}
   .cols{display:grid;grid-template-columns:1fr 1fr;gap:16px}
   @media(max-width:760px){.cols{grid-template-columns:1fr}}
+  .stepcard{display:flex;gap:12px;align-items:flex-start;background:var(--cream);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:10px}
+  .sc-n{flex:none;width:26px;height:26px;border-radius:50%;background:var(--green);color:#fff;display:grid;place-items:center;font-weight:800;font-size:14px}
+  .mut{color:var(--muted);font-size:13px}
+  #view-how h3{color:var(--green-dark);margin-bottom:8px}
+  #view-how ul{margin:6px 0 0;padding-left:18px}
+  #view-how li{margin:5px 0}
   .modal-bg{position:fixed;inset:0;background:rgba(20,26,20,.55);display:none;place-items:center;padding:20px;z-index:20}
   .modal-bg.show{display:grid}
   .modal{background:var(--cream-2);max-width:640px;width:100%;max-height:80vh;overflow:auto;border-radius:14px;padding:20px}
@@ -163,8 +179,8 @@
 <header class="app">
   <div class="logo">O</div>
   <div>
-    <h1>Care Copilot</h1>
-    <div class="sub">Assistant de traitement des tickets - Service Client Onatera</div>
+    <h1>Onatera Copilot</h1>
+    <div class="sub">Aide au traitement des tickets - Service Client</div>
   </div>
   <div class="spacer"></div>
   <button class="nav-btn active" id="nav-app">Atelier</button>
@@ -182,14 +198,18 @@
     <section class="card">
       <div class="hd">Entree</div>
       <div class="bd">
-        <label class="fld" for="exSelect">Charger un ticket d'exemple</label>
-        <select id="exSelect"><option value="">- Selectionner -</option></select>
+        <label class="fld" for="exSelect">Exemples de tickets</label>
+        <select id="exSelect"><option value="">- Choisir un exemple (ou coller un ticket ci-dessous) -</option></select>
 
         <label class="fld" for="ticketText" style="margin-top:14px">Texte du ticket client</label>
-        <textarea id="ticketText" placeholder="Collez ici n'importe quel ticket client..."></textarea>
+        <textarea id="ticketText" placeholder="Collez ici le message du client. L'outil en deduit tout seul la categorie et la criticite."></textarea>
 
-        <label class="fld" for="modelSelect" style="margin-top:14px">Modele</label>
-        <select id="modelSelect"><option>qwen2.5:7b-instruct</option></select>
+        <label class="fld" style="margin-top:14px">Profondeur d'analyse</label>
+        <div class="seg" id="seg">
+          <button class="seg-btn active" data-speed="rapide">Rapide<small>1er jet, ~15 s</small></button>
+          <button class="seg-btn" data-speed="complete">Complete<small>soignee, ~45 s</small></button>
+        </div>
+        <div class="hint" id="speedHint">Rapide : modele leger, pour degrossir un ticket simple. Complete : modele plus fin, pour un ticket sensible.</div>
 
         <div class="health" id="health">
           <span class="dot wait" id="healthDot"></span>
@@ -199,14 +219,15 @@
         <div style="margin-top:14px">
           <button class="btn" id="runBtn">Analyser le ticket</button>
         </div>
-        <div class="hint">Aucune donnee ne quitte votre machine. La reponse generee est une <b>proposition</b> a valider par un humain.</div>
+        <div class="hint"><b>Chaque proposition doit etre relue et validee par un humain avant tout envoi.</b></div>
       </div>
     </section>
 
     <!-- RIGHT -->
     <section class="card">
-      <div class="hd">Pipeline de traitement</div>
+      <div class="hd">Resultat de l'analyse</div>
       <div class="bd">
+        <div class="hint" id="pipeIntro" style="margin-top:0;margin-bottom:12px">Cliquez sur <b>&laquo; Analyser le ticket &raquo;</b> : le triage, les sources utilisees et la reponse proposee s'affichent ici automatiquement.</div>
         <div id="pipeBanner"></div>
         <div class="steps">
           <!-- step 1 -->
@@ -231,7 +252,7 @@
             </div>
             <div class="sbody" id="body2">
               <div id="kbHits" class="empty">En attente.</div>
-              <div class="hint">Retrieval lexical deterministe (pas de LLM, pas de vecteurs) - voir "Comment ca marche".</div>
+              <div class="hint">Fiches les plus pertinentes trouvees automatiquement dans la base Onatera (produits, regles, aide).</div>
             </div>
           </div>
           <!-- step 3 -->
@@ -254,11 +275,13 @@
           <div id="riskBox"></div>
           <div id="guardBanner"></div>
 
-          <div class="subhd">Reponse client proposee <button class="copy" id="copyBtn">Copier</button></div>
-          <div class="reply" id="replyBox"></div>
+          <div class="subhd">Actions internes a declencher</div>
+          <div class="hint" style="margin-top:0;margin-bottom:6px">Ce que l'agent doit faire au-dela de la reponse : qui alerter, quoi remonter, dans quel delai.</div>
+          <table id="actionsTbl"><thead><tr><th>A qui</th><th>Action</th><th>Prio.</th><th>Delai</th></tr></thead><tbody></tbody></table>
 
-          <div class="subhd">Actions internes</div>
-          <table id="actionsTbl"><thead><tr><th>Service</th><th>Action</th><th>Prio.</th><th>Delai</th></tr></thead><tbody></tbody></table>
+          <div class="subhd">Reponse client proposee <button class="copy" id="copyBtn">Copier</button></div>
+          <div class="hint" style="margin-top:0;margin-bottom:6px">Ton Onatera : chaleureux, factuel, jamais defensif. A relire et signer.</div>
+          <div class="reply" id="replyBox"></div>
 
           <div class="subhd">Sources utilisees</div>
           <div id="sourcesBox"></div>
@@ -278,47 +301,53 @@
 <main class="app-view how" id="view-how">
   <section class="card"><div class="bd">
     <h2 style="margin-top:4px">Comment ca marche</h2>
-    <p>Care Copilot ne remplace pas l'agent : il lui fait gagner les 30 minutes de recherche documentaire (retrouver la fiche produit, la precaution manquante, le cadre reglementaire, le bon service a escalader) et lui livre une base <b>sourcee</b> qu'il valide, corrige et signe. Le modele tourne <b>en local</b> : aucune donnee client ne sort de la machine.</p>
+    <p>Onatera Copilot fait gagner a l'agent les longues minutes de recherche : retrouver la bonne fiche produit, la precaution qui manque, la regle a connaitre, le bon service a prevenir. Il propose une reponse et les actions a mener. <b>L'agent garde la main</b> : il relit, corrige et signe. Rien n'est envoye automatiquement, et rien ne quitte l'ordinateur.</p>
 
-    <div class="archi">navigateur (localhost:8080)          machine locale
-&#9484;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9488;      &#9484;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9488;
-&#9474;  index.html (vanilla JS)   &#9474;&#9472;&#9472;&#9472;&#9472;&#9660;&#9474;  Ollama :11434       &#9474;
-&#9474;  &#9500;&#9472; kb.json (connaissances)  &#9474;      &#9474;  qwen2.5:7b-instruct  &#9474;
-&#9474;  &#9492;&#9472; pipeline 3 etapes        &#9474;&#9664;&#9472;&#9472;&#9472;&#9472;&#9474;  (streaming)          &#9474;
-&#9492;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9496;      &#9492;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9496;
-        aucune donnee ne sort de la machine</div>
-
-    <div class="cols" style="margin-top:18px">
+    <h3 style="margin-top:20px">L'utiliser en 3 gestes</h3>
+    <div class="cols">
       <div>
-        <h3>Le pipeline en 3 etapes</h3>
-        <p><b>1. Triage (LLM, sortie structuree)</b> - categorie, gravite, urgence sanitaire, produits/actifs cites, signaux d'escalade, etat emotionnel. Sortie JSON contrainte par un schema.</p>
-        <p><b>2. Recherche KB (deterministe)</b> - scoring lexical simple sur les fiches : produit cite = poids 3, actif = 2, categorie = 1. Max 4 fiches au-dessus du seuil. Les fiches retenues sont affichees : la reponse est sourcee, pas hallucinee.</p>
-        <p><b>3. Redaction (LLM, streaming)</b> - le ticket + le triage + les fiches KB retenues + les regles de posture produisent un mail pret a relire, avec niveau de risque, escalades, actions internes et points a valider.</p>
+        <div class="stepcard"><span class="sc-n">1</span><div><b>Collez le message du client</b><br><span class="mut">Ou choisissez un exemple. Vous n'avez rien a categoriser vous-meme.</span></div></div>
+        <div class="stepcard"><span class="sc-n">2</span><div><b>Choisissez la profondeur</b><br><span class="mut">Rapide pour un premier jet sur un ticket simple ; Complete pour un ticket sensible, plus soignee.</span></div></div>
       </div>
       <div>
-        <h3>Les garde-fous (ceinture + bretelles)</h3>
-        <p>Deux niveaux : dans le <b>prompt systeme</b>, et en <b>post-traitement deterministe</b> - car un modele 7B local peut deriver.</p>
+        <div class="stepcard"><span class="sc-n">3</span><div><b>Cliquez sur Analyser</b><br><span class="mut">L'outil affiche la categorie, la criticite, les sources, les actions a mener et une reponse. Vous relisez, corrigez, signez.</span></div></div>
+      </div>
+    </div>
+
+    <div class="cols" style="margin-top:20px">
+      <div>
+        <h3>Ce que l'outil fait pour vous</h3>
         <ul>
-          <li>Aucune reconnaissance de responsabilite ou de lien de causalite. Un defaut d'information peut etre reconnu ; pas un dommage cause.</li>
-          <li>Aucun conseil medical : renvoi systematique vers medecin/pharmacien.</li>
-          <li>Aucune affirmation absente des fiches KB. Si l'info manque, on le dit et on promet un retour documente - jamais de chiffre invente.</li>
-          <li>Aucun engagement commercial chiffre : <code>[a definir avec le manager]</code>.</li>
-          <li><b>Escalade forcee</b> : hospitalisation ou atteinte corporelle &rarr; risque critique + escalade juridique/direction/pharmacovigilance ANSES, quoi qu'en dise le modele.</li>
-          <li><b>Blocklist</b> : toute formulation reconnaissant une responsabilite declenche un bandeau rouge et surligne le passage - sans censurer.</li>
+          <li><b>Il lit le ticket</b> et propose une <b>categorie</b> (risque sanitaire, reglementaire, livraison, commande...) et un <b>niveau de criticite</b>.</li>
+          <li><b>Il retrouve les bonnes fiches</b> (produits, regles, pages d'aide) et vous les montre : la reponse s'appuie sur des sources, pas sur une invention.</li>
+          <li><b>Il redige une proposition</b> dans le ton Onatera : chaleureux, factuel, jamais defensif.</li>
+          <li><b>Il liste les actions internes</b> a declencher et a qui les adresser (remontee qualite, alerte fournisseur, escalade juridique...).</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Bien l'utiliser</h3>
+        <ul>
+          <li><b>Relisez toujours</b> avant d'envoyer, surtout sur un sujet de sante. L'outil propose, il ne decide pas.</li>
+          <li><b>Completez les [crochets]</b> (prenom, delai, geste commercial) : ils sont volontairement laisses a valider.</li>
+          <li>Si un <b>bandeau rouge</b> apparait, une phrase est a risque : relecture juridique avant tout envoi.</li>
+          <li>Sur une <b>hospitalisation ou un dommage corporel</b>, le ticket passe d'office en critique avec escalade : c'est voulu, ne le contournez pas.</li>
         </ul>
       </div>
     </div>
 
-    <h3 style="margin-top:18px">Pourquoi pas d'embeddings ?</h3>
-    <p>Avec ~12 documents, un index vectoriel + embeddings n'apporte aucun gain de pertinence et ajoute une dependance, un temps de build et une source d'erreur. La regle : la solution la plus simple qui repond au besoin. A 500 fiches produit, la reponse serait differente (embeddings via <code>nomic-embed-text</code> sur Ollama, meme stack locale).</p>
-
-    <h3 style="margin-top:18px">Et apres ? (roadmap)</h3>
+    <h3 style="margin-top:20px">Vos garanties</h3>
     <ul>
-      <li>RAG vectoriel a l'echelle (au-dela de ~100 fiches) via embeddings locaux <code>nomic-embed-text</code>.</li>
-      <li>Connexion a l'outil de ticketing / CRM (Zendesk, Freshdesk...).</li>
-      <li>Boucle de feedback agent : chaque correction humaine ré-alimente les prompts et la KB.</li>
-      <li>Jeu de tickets annotes pour mesurer la qualite (categorisation, escalade, absence de formulation a risque).</li>
-      <li>Authentification, base de donnees, multi-utilisateur, deploiement - <i>non traites ici (hors perimetre du cas pratique)</i>.</li>
+      <li><b>Confidentialite</b> : tout se passe sur l'ordinateur, aucune donnee client n'est envoyee sur internet.</li>
+      <li><b>Validation humaine</b> : aucune reponse n'est envoyee automatiquement.</li>
+      <li><b>Pas de conseil medical, pas d'aveu de responsabilite, aucun montant chiffre</b> : ces regles sont bloquees, meme si le client insiste.</li>
+    </ul>
+
+    <h3 style="margin-top:20px">Et apres ?</h3>
+    <ul>
+      <li>Mise a jour automatique de la base a partir du catalogue et des pages d'aide Onatera.</li>
+      <li>Branchement a l'outil de tickets (le message arrive et repart directement depuis l'outil habituel).</li>
+      <li>Apprentissage a partir des corrections des agents, pour s'ameliorer avec le temps.</li>
+      <li>Mesure reguliere de la qualite sur un lot de tickets de reference.</li>
     </ul>
   </div></section>
 </main>
@@ -354,6 +383,19 @@ let installedModels = [];
 // mode: 'live' ou 'demo'. En https on force demo. En local on tente live.
 let mode = IS_HTTPS ? 'demo' : 'live';
 let modeManual = false; // true si l'utilisateur a bascule a la main
+let speed = 'rapide';   // 'rapide' (petit modele) ou 'complete' (gros modele)
+
+// Choix automatique du modele selon la profondeur d'analyse demandee.
+// Rapide -> le plus petit/rapide dispo ; Complete -> le plus capable dispo.
+function pickModel(sp){
+  const list = installedModels.length ? installedModels : ['qwen2.5:7b-instruct'];
+  const firstMatch = names => { for(const n of names){ const m=list.find(x=>x.toLowerCase().includes(n)); if(m) return m; } return null; };
+  if(sp==='rapide')
+    return firstMatch(['qwen2.5:3b','qwen2.5:1.5b','gemma3:4b','llama3.2:3b','phi','gemma3','llama3.1:8b','qwen2.5:7b']) || list[0];
+  return firstMatch(['qwen2.5:14b','qwen2.5:7b','llama3.1:8b','mistral','gemma3','qwen2.5','llama']) || list[0];
+}
+// Profondeur de recherche documentaire : rapide = 2 fiches, complete = 4.
+function kbDepth(){ return speed==='rapide' ? 2 : 4; }
 
 const $ = s => document.querySelector(s);
 const esc = s => String(s==null?'':s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -388,15 +430,8 @@ async function healthCheck(){
     const d = await r.json();
     installedModels = (d.models||[]).map(m=>m.name);
     ollamaOk = true;
-    // remplir le select de modeles
-    const ms = $('#modelSelect'); ms.innerHTML='';
-    const prefer = ['qwen2.5:7b-instruct','qwen2.5:3b-instruct','llama3.1:8b-instruct'];
-    const list = installedModels.length ? installedModels : prefer;
-    list.forEach(m=>{const o=document.createElement('option');o.value=m;o.textContent=m;ms.appendChild(o);});
-    const def = list.find(m=>m.includes('qwen2.5:7b')) || list[0];
-    if(def) ms.value = def;
     dot.className='dot ok';
-    txt.innerHTML = 'Ollama connecte - <b>'+esc(ms.value)+'</b>';
+    txt.innerHTML = 'Ollama connecte - modele <b>'+esc(pickModel(speed))+'</b>';
   }catch(e){
     ollamaOk = false;
     dot.className='dot bad';
@@ -429,7 +464,7 @@ function updateModeUI(){
 const TRIAGE_SCHEMA = {
   type:"object",
   properties:{
-    categorie:{type:"string",enum:["reglementaire","securite_produit","risque_sanitaire","logistique","autre"]},
+    categorie:{type:"string",enum:["risque_sanitaire","reglementaire","securite_produit","livraison","commande","information_conseil","autre"]},
     gravite:{type:"string",enum:["critique","haute","moyenne","basse"]},
     urgence_sanitaire:{type:"boolean"},
     produits_cites:{type:"array",items:{type:"string"}},
@@ -463,6 +498,8 @@ const TRIAGE_SYS =
 `Tu es un module de triage pour le service client d'Onatera (complements alimentaires).
 Analyse le ticket client et renvoie STRICTEMENT un JSON conforme au schema, en francais.
 N'invente aucun fait : n'extrais que ce qui est present dans le ticket.
+categorie (choisir la plus pertinente) : "risque_sanitaire" (effet indesirable, interaction, surdosage, danger pour la sante), "reglementaire" (allegation, conformite, mention interdite), "securite_produit" (qualite, contamination, corps etranger), "livraison" (colis, retard, perte, transporteur), "commande" (paiement, facture, annulation, remboursement, erreur de commande), "information_conseil" (question produit, posologie, conseil d'usage), "autre".
+gravite = criticite du ticket : "critique","haute","moyenne","basse".
 signaux_escalade est une liste choisie parmi : "menace_dgccrf","menace_media","menace_avocat","hospitalisation","atteinte_corporelle","grossesse","deces".
 urgence_sanitaire = true si un risque pour la sante d'une personne est evoque (interaction, surdosage, hospitalisation, grossesse...).
 Sois concis et factuel.`;
@@ -551,7 +588,8 @@ function extractPartial(full, key){
 /* ---------- etape 2 : retrieval deterministe ---------- */
 // Justification (assumee en entretien) : avec ~12 documents, un index vectoriel
 // n'apporte aucun gain et ajoute une dependance. Scoring lexical simple et lisible.
-function retrieve(triage){
+function retrieve(triage, depth){
+  depth = depth || 4;
   const prod = (triage.produits_cites||[]).map(s=>s.toLowerCase());
   const act  = (triage.actifs_concernes||[]).map(s=>s.toLowerCase());
   const cat  = (triage.categorie||'').toLowerCase();
@@ -568,13 +606,13 @@ function retrieve(triage){
     // la posture est toujours legerement utile
     if(e.type==='posture') s += 0.5;
     return {id:e.id, nom:e.nom, score:s};
-  }).filter(x=>x.score>=1).sort((a,b)=>b.score-a.score).slice(0,4);
+  }).filter(x=>x.score>=1).sort((a,b)=>b.score-a.score).slice(0,depth);
   // garantir la fiche posture
   if(!scored.find(x=>x.id==='kb_posture_onatera')){
     const p = KB.find(k=>k.id==='kb_posture_onatera');
     scored.push({id:p.id, nom:p.nom, score:0.5});
   }
-  return scored.slice(0,4);
+  return scored.slice(0,depth);
 }
 
 /* ---------- garde-fous deterministes ---------- */
@@ -615,6 +653,18 @@ function applyGuardrails(triage, red){
     red.escalade_requise = red.escalade_requise || [];
     must.forEach(m=>{ if(!red.escalade_requise.includes(m)){ red.escalade_requise.push(m); forcedTags.push(m); } });
     notes.push('Escalade forcee (hospitalisation / atteinte corporelle) : niveau critique + juridique/direction/pharmacovigilance ANSES.');
+    // La regle metier apparait aussi comme actions concretes a mener (a qui / quoi / delai).
+    const FORCED_ACTIONS = {
+      juridique:{service:'Juridique', action:"Prendre en charge le dossier (risque sanitaire avec atteinte corporelle) et valider la reponse avant tout envoi", priorite:'haute', delai:'24h'},
+      direction:{service:'Direction', action:"Etre informee du dossier sensible et valider la reponse avant envoi", priorite:'haute', delai:'24h'},
+      pharmacovigilance_anses:{service:'Pharmacovigilance / ANSES', action:"Evaluer une declaration de nutrivigilance a l'ANSES (effet indesirable grave suspecte)", priorite:'haute', delai:'48h'}
+    };
+    red.actions_internes = red.actions_internes || [];
+    must.slice().reverse().forEach(m=>{
+      const a = FORCED_ACTIONS[m];
+      if(a && !red.actions_internes.some(x=>(x.service||'').toLowerCase()===a.service.toLowerCase()))
+        red.actions_internes.unshift(a);
+    });
   }
   // 2. blocklist de formulations
   const low = (red.reponse_client||'').toLowerCase();
@@ -636,16 +686,22 @@ function setStep(n, state, secs){
   if(state==='run'){ step.classList.add('open'); ico.innerHTML='<span class="spin"></span>'; t.textContent=''; }
   if(state==='done'){ step.classList.add('done'); ico.textContent='✓'; if(secs!=null) t.textContent=secs.toFixed(1)+' s'; }
 }
+const CAT_LABELS = {risque_sanitaire:'Risque sanitaire', reglementaire:'Reglementaire',
+  securite_produit:'Securite produit', livraison:'Livraison', commande:'Commande',
+  information_conseil:'Information / conseil', autre:'Autre'};
 function renderTriage(tr){
   $('#json1').textContent = JSON.stringify(tr, null, 2);
-  const chips = [
-    ['Categorie', tr.categorie],['Gravite', tr.gravite],
-    ['Urgence sanitaire', tr.urgence_sanitaire?'oui':'non'],['Emotion', tr.etat_emotionnel]
-  ];
-  let h = '<p style="margin:0 0 6px"><b>'+esc(tr.resume_1_phrase)+'</b></p>';
-  h += '<div class="tags" style="margin-top:6px">'+chips.map(c=>'<span class="src-chip">'+esc(c[0])+' : '+esc(c[1])+'</span>').join('')+'</div>';
+  const cat = CAT_LABELS[tr.categorie] || tr.categorie;
+  let h = '<div class="triage-badges">'
+    + '<div class="tb"><span class="tb-l">Categorie suggeree</span><span class="tb-v">'+esc(cat)+'</span></div>'
+    + '<div class="tb"><span class="tb-l">Criticite</span><span class="tb-v grav-'+esc(tr.gravite)+'">'+esc(tr.gravite)+'</span></div>'
+    + '</div>';
+  h += '<p style="margin:11px 0 6px">'+esc(tr.resume_1_phrase)+'</p>';
+  const chips = [['Urgence sanitaire', tr.urgence_sanitaire?'oui':'non'],['Emotion', tr.etat_emotionnel]];
+  if((tr.produits_cites||[]).length) chips.push(['Produits', tr.produits_cites.join(', ')]);
+  h += '<div class="tags">'+chips.map(c=>'<span class="src-chip">'+esc(c[0])+' : '+esc(c[1])+'</span>').join('')+'</div>';
   if((tr.signaux_escalade||[]).length)
-    h += '<div class="hint" style="margin-top:8px">Signaux d\'escalade : '+tr.signaux_escalade.map(esc).join(', ')+'</div>';
+    h += '<div class="hint" style="margin-top:8px">Signaux d\'escalade detectes : '+tr.signaux_escalade.map(esc).join(', ')+'</div>';
   $('#triageSummary').classList.remove('empty'); $('#triageSummary').innerHTML = h;
 }
 function renderKb(hits){
@@ -706,7 +762,8 @@ async function runPipeline(){
   if(!text){ alert('Collez un ticket ou chargez un exemple.'); return; }
   running = true; $('#runBtn').disabled = true; $('#runBtn').textContent='Analyse en cours...';
   resetUI();
-  const model = $('#modelSelect').value;
+  $('#pipeIntro').style.display = 'none';
+  const model = pickModel(speed);
   const useDemo = (mode==='demo') || !ollamaOk || IS_HTTPS;
   // identifier un ticket d'exemple (pour le mode demo)
   const exId = $('#exSelect').value;
@@ -740,7 +797,7 @@ async function runLive(model, text){
   renderTriage(triage); setStep(1,'done',(performance.now()-s)/1000);
   // etape 2
   setStep(2,'run'); s=performance.now();
-  const hits = retrieve(triage);
+  const hits = retrieve(triage, kbDepth());
   await sleep(250);
   renderKb(hits); setStep(2,'done',(performance.now()-s)/1000);
   // etape 3
@@ -771,7 +828,7 @@ async function runDemo(exId, text){
   // etape 1
   setStep(1,'run'); await sleep(700); renderTriage(triage); setStep(1,'done',0.8+Math.random()*0.6);
   // etape 2
-  setStep(2,'run'); await sleep(500); renderKb(rec.retrieved); setStep(2,'done',0.2);
+  setStep(2,'run'); await sleep(500); renderKb(rec.retrieved.slice(0,kbDepth())); setStep(2,'done',0.2);
   // etape 3 : streaming simule du champ reponse_client
   setStep(3,'run');
   $('#draftLive').classList.remove('empty');
@@ -780,7 +837,7 @@ async function runDemo(exId, text){
   $('#json3').textContent = JSON.stringify(red,null,2); $('#tg3').style.display='inline';
   const guard = applyGuardrails(triage, red);
   renderResult(triage, red, guard);
-  setStep(3,'done',3.0+Math.random()*1.5);
+  setStep(3,'done', (speed==='rapide'?3.0:9.0)+Math.random()*2);
   $('#draftLive').innerHTML = '<div class="hint">Redaction terminee (pre-calculee) - voir le resultat ci-dessous.</div>';
 }
 function typeOut(el, txt){
@@ -825,6 +882,11 @@ function wire(){
     resetUI();
   };
   $('#runBtn').onclick = runPipeline;
+  document.querySelectorAll('.seg-btn').forEach(b=>b.onclick=()=>{
+    speed = b.dataset.speed;
+    document.querySelectorAll('.seg-btn').forEach(x=>x.classList.toggle('active', x===b));
+    if(ollamaOk) $('#healthText').innerHTML = 'Ollama connecte - modele <b>'+esc(pickModel(speed))+'</b>';
+  });
   $('#copyBtn').onclick = ()=>{ navigator.clipboard.writeText($('#replyBox').textContent); $('#copyBtn').textContent='Copie !'; setTimeout(()=>$('#copyBtn').textContent='Copier',1200); };
   document.querySelectorAll('.shd').forEach(h=>h.onclick=()=>$('#'+h.dataset.step).classList.toggle('open'));
   document.querySelectorAll('.toggle-json').forEach(b=>b.onclick=()=>{
