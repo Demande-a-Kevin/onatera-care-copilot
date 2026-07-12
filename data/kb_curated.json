@@ -1,0 +1,141 @@
+{
+  "meta": {
+    "avertissement": "Base de connaissance construite a la main a partir d'une analyse des fiches produit et du cadre reglementaire. Les faits marques 'non verifie' ne doivent jamais etre utilises comme des faits. A revalider par les services Qualite / Juridique avant tout usage reel.",
+    "version": "1.0",
+    "date_releve": "2026-07"
+  },
+  "entries": [
+    {
+      "id": "kb_epilobe",
+      "type": "produit",
+      "nom": "Epilobe 120 gelules",
+      "reference": "17746",
+      "actifs": ["epilobium angustifolium", "epilobe"],
+      "mots_cles": ["epilobe", "prostate", "prostatique", "inflammation", "homme", "urinaire"],
+      "contenu": "Espece : Epilobium angustifolium L. Dosage : 1600 mg pour 4 gelules. Origine : cultive en Bourgogne, recolte a la main, Made in France. Allegations AFFICHEES sur la fiche : 'soutient la sante de la prostate', 'protege la prostate', 'reduit les inflammations prostatiques', 'maintien d'une taille de prostate normale'. Seule precaution presente : 'n'est pas un medicament'. Aucune allegation prostate n'est autorisee au niveau reglementaire (cf kb_reg_allegations).",
+      "lacunes_identifiees": "Les allegations 'prostate' affichees ne figurent sur aucune liste d'allegations autorisees ; allegations de type therapeutique problematiques pour un complement alimentaire.",
+      "source_url": "https://www.onatera.com/produit-epilobe-17746.html"
+    },
+    {
+      "id": "kb_millepertuis",
+      "type": "produit",
+      "nom": "Millepertuis Bio 30 comprimes",
+      "reference": "19544",
+      "actifs": ["hypericum perforatum", "millepertuis"],
+      "mots_cles": ["millepertuis", "humeur", "sommeil", "moral", "stress", "pilule", "contraceptif"],
+      "contenu": "Actif : Hypericum perforatum 400 mg. Usage mis en avant : humeur / sommeil. La fiche ne contient AUCUNE occurrence des mots 'contraceptif', 'pilule', 'hormonal', 'interaction' ni 'grossesse'. Seule precaution presente : 'deconseille en cas de prise simultanee de medicaments'. L'interaction majeure avec les contraceptifs oraux n'est donc pas explicitee au client (cf kb_reg_millepertuis).",
+      "lacunes_identifiees": "Aucune mention de l'interaction avec les contraceptifs oraux, alors que le millepertuis est un inducteur enzymatique connu. Defaut d'information caracterise.",
+      "source_url": "https://www.onatera.com/produit-millepertuis-bio-19544.html"
+    },
+    {
+      "id": "kb_spiruline_chine",
+      "type": "produit",
+      "nom": "Spiruline Bio (comprimes)",
+      "reference": "",
+      "actifs": ["spiruline", "arthrospira platensis"],
+      "mots_cles": ["spiruline", "metaux lourds", "chine", "hainan", "contamination", "analyse", "bio"],
+      "contenu": "Origine : ile de Hainan, Sud-Est de la Chine. Certifiee Bio, controle Ecocert. Fabriquee et conditionnee en France. AUCUN resultat d'analyse de metaux lourds n'est publie sur la fiche. On ne dispose donc d'aucune valeur chiffree de teneur en metaux lourds a communiquer (non verifie = ne pas inventer de chiffre).",
+      "lacunes_identifiees": "Absence de bulletin d'analyse metaux lourds accessible ; origine sensible en termes de contamination potentielle (cf kb_reg_spiruline).",
+      "source_url": "https://www.onatera.com/produit-spiruline-bio.html"
+    },
+    {
+      "id": "kb_spiruline_france",
+      "type": "produit",
+      "nom": "Spiruline Francaise Bio",
+      "reference": "",
+      "actifs": ["spiruline", "arthrospira platensis"],
+      "mots_cles": ["spiruline", "france", "provence", "origine", "alternative", "bio"],
+      "contenu": "Cultivee en Provence. Proposee comme alternative origine France. Comme pour la reference chinoise, aucune analyse de metaux lourds n'est publiee sur la fiche (non verifie). Peut etre proposee comme alternative au client soucieux de l'origine, sans pour autant garantir un resultat d'analyse non disponible.",
+      "lacunes_identifiees": "Pas d'analyses publiees non plus ; l'argument 'origine France' ne remplace pas un bulletin d'analyse.",
+      "source_url": "https://www.onatera.com/produit-spiruline-francaise-bio.html"
+    },
+    {
+      "id": "kb_vitd_1000",
+      "type": "produit",
+      "nom": "Vitamine D3 1000 UI (huile)",
+      "reference": "",
+      "actifs": ["vitamine d", "vitamine d3", "cholecalciferol"],
+      "mots_cles": ["vitamine d", "vitamine d3", "1000 ui", "goutte", "surdosage", "cumul"],
+      "contenu": "Posologie : 1 goutte par jour = 1000 UI (25 microgrammes) = 500 % des Apports de Reference (AR). Precaution generique uniquement. Aucune mention du cumul avec d'autres sources de vitamine D, d'un traitement medical en cours, ni du risque d'hypercalcemie.",
+      "lacunes_identifiees": "Aucune mise en garde sur le cumul de sources de vitamine D ni sur la limite de securite (cf kb_reg_vitd).",
+      "source_url": "https://www.onatera.com/produit-vitamine-d3-1000ui.html"
+    },
+    {
+      "id": "kb_vitd_k2",
+      "type": "produit",
+      "nom": "Vitamines K2 MK7 & D3 Ultra",
+      "reference": "22355",
+      "actifs": ["vitamine d", "vitamine d3", "vitamine k2", "mk7"],
+      "mots_cles": ["vitamine d", "vitamine k2", "mk7", "3000 ui", "ultra", "anticoagulant", "surdosage", "cumul"],
+      "contenu": "Posologie : 1 gelule par jour = 3000 UI de vitamine D3 = 1500 % des AR. La fiche indique elle-meme un dosage 'au-dessus du dosage standard'. Deconseille sous anticoagulant (a cause de la vitamine K2). AUCUNE mise en garde sur le cumul de plusieurs sources de vitamine D. Le cumul de ce produit (3000 UI) avec une autre supplementation en D peut rapidement approcher ou depasser la limite de securite (cf kb_reg_vitd).",
+      "lacunes_identifiees": "Dosage eleve annonce mais aucun avertissement sur le cumul de sources de vitamine D ; risque de depassement de l'UL en cas de supplementation multiple ou de prescription concomitante.",
+      "source_url": "https://www.onatera.com/produit-vitamines-k2-mk7-d3-ultra-22355.html"
+    },
+    {
+      "id": "kb_reg_allegations",
+      "type": "reglementaire",
+      "nom": "Allegations de sante - Reglement (CE) 1924/2006",
+      "reference": "1924/2006",
+      "actifs": [],
+      "mots_cles": ["allegation", "prostate", "reglementaire", "therapeutique", "efedra", "on hold", "botanique", "epilobe"],
+      "contenu": "Seules les allegations de sante autorisees peuvent etre utilisees. Les allegations botaniques sont pour la plupart 'on hold' (en attente d'evaluation par l'EFSA). Une allegation therapeutique (prevention ou traitement d'une pathologie) est INTERDITE pour un complement alimentaire. Aucune allegation 'prostate' n'est validee pour l'epilobe, quelle que soit l'espece. Source officielle a revalider avec le service Qualite/Reglementaire.",
+      "lacunes_identifiees": "",
+      "source_url": "https://eur-lex.europa.eu/legal-content/FR/TXT/?uri=CELEX:32006R1924"
+    },
+    {
+      "id": "kb_reg_millepertuis",
+      "type": "reglementaire",
+      "nom": "Interaction millepertuis - inducteur enzymatique",
+      "reference": "ANSM / EMA / ANSES",
+      "actifs": ["hypericum perforatum", "millepertuis"],
+      "mots_cles": ["millepertuis", "interaction", "cyp3a4", "p-glycoproteine", "contraceptif", "pilule", "anticoagulant", "antidepresseur", "serotoninergique"],
+      "contenu": "Le millepertuis est un inducteur puissant du CYP3A4 et de la P-glycoproteine. Il REDUIT l'efficacite des contraceptifs oraux, des anticoagulants, des antiretroviraux et des immunosuppresseurs. Il presente un risque de syndrome serotoninergique avec certains antidepresseurs. Interaction documentee par l'ANSM, l'EMA et l'ANSES. Un avis medical est recommande avant toute prise concomitante.",
+      "lacunes_identifiees": "",
+      "source_url": "https://ansm.sante.fr/"
+    },
+    {
+      "id": "kb_reg_spiruline",
+      "type": "reglementaire",
+      "nom": "Spiruline - Avis ANSES 2017 & Reglement 1881/2006",
+      "reference": "ANSES 2017 / 1881/2006",
+      "actifs": ["spiruline", "arthrospira platensis"],
+      "mots_cles": ["spiruline", "metaux lourds", "cyanotoxines", "contamination", "anses", "contaminant", "1881"],
+      "contenu": "Avis ANSES 2017 : contamination possible (metaux lourds, cyanotoxines, bacteries) selon les conditions de production ; il est recommande de privilegier les circuits controles. Les teneurs maximales en contaminants sont fixees par le Reglement (CE) 1881/2006. On peut renvoyer a ce cadre, mais on ne dispose d'aucune valeur d'analyse specifique du lot du client (non verifie = ne jamais annoncer un chiffre).",
+      "lacunes_identifiees": "",
+      "source_url": "https://www.anses.fr/fr/content/avis-spiruline"
+    },
+    {
+      "id": "kb_reg_vitd",
+      "type": "reglementaire",
+      "nom": "Vitamine D - Limite de securite EFSA",
+      "reference": "EFSA / 432/2012",
+      "actifs": ["vitamine d", "vitamine d3"],
+      "mots_cles": ["vitamine d", "ul", "limite", "4000 ui", "hypercalcemie", "surdosage", "efsa", "cumul"],
+      "contenu": "Limite superieure de securite (UL) pour l'adulte : 100 microgrammes/jour = 4000 UI/jour, TOUTES SOURCES CONFONDUES (complements + prescription medicale + alimentation). Un exces chronique peut provoquer une hypercalcemie (nausees, fatigue, confusion). Les allegations relatives a la vitamine D sont autorisees via le Reglement (CE) 432/2012. La comparaison entre les apports du client et cette limite releve d'une evaluation medicale : ne pas poser de diagnostic.",
+      "lacunes_identifiees": "",
+      "source_url": "https://www.efsa.europa.eu/fr"
+    },
+    {
+      "id": "kb_reg_nutrivigilance",
+      "type": "reglementaire",
+      "nom": "Nutrivigilance ANSES",
+      "reference": "ANSES nutrivigilance",
+      "actifs": [],
+      "mots_cles": ["nutrivigilance", "anses", "effet indesirable", "declaration", "hospitalisation", "atteinte corporelle"],
+      "contenu": "Tout effet indesirable suspecte d'etre lie a un complement alimentaire doit etre evalue en vue d'une declaration de nutrivigilance a l'ANSES. Declencheurs typiques : atteinte corporelle, hospitalisation. Cette obligation s'ajoute a l'escalade interne et ne se substitue pas a l'avis medical du client.",
+      "lacunes_identifiees": "",
+      "source_url": "https://pro.anses.fr/nutrivigilance/"
+    },
+    {
+      "id": "kb_posture_onatera",
+      "type": "posture",
+      "nom": "Regles de redaction - Service Client Onatera",
+      "reference": "",
+      "actifs": [],
+      "mots_cles": ["posture", "redaction", "responsabilite", "escalade", "ton", "signature"],
+      "contenu": "REGLES DURES : 1) Aucune reconnaissance de responsabilite juridique ni de lien de causalite. Reconnaitre un defaut d'information est autorise ; reconnaitre que le produit a cause le dommage est interdit. 2) Aucun conseil medical : toujours renvoyer vers un medecin ou un pharmacien. 3) Aucune affirmation factuelle absente des fiches KB fournies ; si l'information manque, le dire et promettre un retour documente sous delai, jamais inventer un chiffre ou un resultat d'analyse. 4) Aucun engagement commercial chiffre : laisser [a definir avec le manager]. 5) Ton empathique, factuel, non defensif, vouvoiement. Toujours proposer un interlocuteur nomme et un delai de retour. Signature : [Prenom] - Service Client Onatera. Reconnaitre un defaut d'information n'est PAS reconnaitre une responsabilite.",
+      "lacunes_identifiees": "",
+      "source_url": ""
+    }
+  ]
+}
