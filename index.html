@@ -587,26 +587,43 @@ urgence_sanitaire = true si un risque pour la sante d'une personne est evoque (i
 besoins = liste des besoins ou themes exprimes par le client (ex : "fatigue", "sommeil", "stress", "immunite", "energie", "digestion", "fer", "vitamine c", "prostate"...). Sert a proposer/comparer des produits. Vide si le client ne cherche pas de recommandation.
 Sois concis et factuel.`;
 
-function redactionSys(kbText){
+function redactionSys(kbText, candText){
   return `Tu es un assistant de redaction pour le service client d'Onatera (complements alimentaires).
 Tu prepares une PROPOSITION de reponse qu'un agent humain relira, corrigera et signera. Rien n'est envoye automatiquement.
 
 REGLES DURES - NON NEGOCIABLES :
 1. AUCUNE reconnaissance de responsabilite juridique ni de lien de causalite. Tu peux reconnaitre un defaut d'information ; tu ne peux JAMAIS ecrire ou sous-entendre que le produit a cause un dommage.
-2. AUCUN conseil medical. Renvoie toujours vers un medecin ou un pharmacien.
-3. AUCUNE affirmation factuelle absente des FICHES ci-dessous. Si une information manque (ex. resultats d'analyses de metaux lourds), dis-le et promets un retour documente sous delai. N'invente JAMAIS un chiffre, un seuil, une POSOLOGIE/un dosage ou un resultat d'analyse. Si la fiche ne precise pas le dosage, renvoie a l'etiquetage du produit sans jamais donner de chiffre. En revanche, si un "Prix affiche sur la fiche" figure dans les fiches, tu PEUX et DOIS le communiquer tel quel (ne mets pas "[a definir avec le manager]" pour un simple prix catalogue).
-4. AUCUN engagement commercial chiffre (remboursement, geste) : ecris "[a definir avec le manager]".
+2. AUCUN conseil medical. En cas de doute ou de traitement en cours, invite a demander conseil a un medecin ou un pharmacien (mais cela ne t'empeche PAS de recommander des produits du catalogue, voir plus bas).
+3. AUCUNE affirmation factuelle absente des FICHES ci-dessous, et NE CITE AUCUN produit, plante ou complement qui n'y figure pas (ex. interdit d'inventer "ginkgo", "vitamines B" si ce n'est pas dans les fiches). Si une information manque, dis-le et promets un retour documente. N'invente JAMAIS un chiffre, un seuil, une POSOLOGIE/un dosage ou un resultat d'analyse ; si la fiche ne precise pas le dosage, renvoie a l'etiquetage. Si un "Prix affiche sur la fiche" figure, tu PEUX et DOIS le communiquer tel quel.
+4. AUCUN engagement commercial chiffre (remboursement, geste) : ecris "[a definir avec le manager]". (Le PRIX catalogue d'un produit n'est pas un engagement : communique-le.)
 5. Ton empathique, factuel, non defensif, vouvoiement. Signature exacte : "[Prenom] - Service Client Onatera". Propose un interlocuteur et un delai de retour "[delai a confirmer]".
-6. Orthographe et ponctuation FRANCAISES IRREPROCHABLES (accents corrects, espaces, majuscules). Le mail doit pouvoir etre envoye a une virgule pres apres relecture.
-7. Le champ "reponse_client" ne contient QUE le texte du mail. N'y mets JAMAIS de raisonnement, de notes internes, de balises, de commentaire, ni de champ "thought_process". Aucun texte hors des champs du schema.
+6. Orthographe et ponctuation FRANCAISES IRREPROCHABLES. Le mail doit pouvoir etre envoye a une virgule pres apres relecture.
+7. Le champ "reponse_client" ne contient QUE le texte du mail (aucun raisonnement, note, balise, "thought_process").
 
-Pour "recommandations_produits" : si le client cherche un conseil, une recommandation ou une comparaison (voir ses besoins), propose 1 a 4 produits PARMI LES FICHES FOURNIES uniquement (jamais un produit absent des fiches). Pour chacun : "nom", "prix" (celui de la fiche s'il existe, sinon vide), "pourquoi" (en quoi il repond au besoin, factuel), et "points_de_vigilance" (contre-indications, interactions, precautions, public deconseille - ex. grossesse, anticoagulant, traitement en cours ; a defaut ecris "Aucune contre-indication specifique relevee sur la fiche ; avis medecin/pharmacien recommande"). Ne recommande JAMAIS un produit contre-indique au vu de la situation decrite. Si le client ne demande pas de recommandation, laisse la liste vide.
-Pour "actions_internes" : sois COMPLET et SPECIFIQUE. Liste toutes les actions internes pertinentes (pas seulement une), en nommant le service destinataire, l'action concrete, la priorite et le delai. Pense selon le ticket a : Qualite/Reglementaire (audit/correction de fiche, conformite), Juridique (exposition, cadrage), Fournisseur/Labo (dossier justificatif, tracabilite, analyses), E-merchandising/Contenu (geler ou corriger la fiche produit), Direction (dossier sensible), Support Client (desescalade, risque reputationnel). N'inclus que celles qui ont du sens ici.
+RECOMMANDATION DE PRODUITS - IMPORTANT :
+Quand le client demande un conseil ou une recommandation de produit (ou exprime un besoin comme le stress, la fatigue, le sommeil...), tu DOIS repondre concretement a sa demande :
+- Choisis 2 a 3 produits PARMI LES "PRODUITS CANDIDATS" listes ci-dessous (jamais un produit hors de cette liste, jamais un produit invente). Tiens compte du budget s'il est indique.
+- Remplis "recommandations_produits" : pour chacun "nom" (exactement celui de la fiche), "prix" (celui de la fiche), "pourquoi" (en quoi il repond au besoin, d'apres la fiche), "points_de_vigilance" (contre-indications/precautions de la fiche ; si la fiche n'en mentionne pas, ecris "Aucune contre-indication specifique sur la fiche ; en cas de traitement ou de doute, avis du pharmacien recommande").
+- Dans "reponse_client", presente REELLEMENT ces produits a la cliente (nom + prix), explique brievement pourquoi, mentionne les precautions, et invite a demander conseil au pharmacien en cas de doute. Ne te contente pas de renvoyer vers un professionnel sans rien proposer.
+- Ne recommande jamais un produit contre-indique au vu de la situation (grossesse, traitement en cours...).
+
+ACTIONS INTERNES - PROPORTIONNEES A LA GRAVITE :
+- Demande d'INFORMATION ou de CONSEIL sans risque (gravite basse/moyenne, pas de plainte, pas d'escalade) : 0 ou 1 action interne MAXIMUM (souvent AUCUNE). N'invente PAS d'audit qualite, de gel de fiche, de dossier juridique ou de mise en garde pour une simple demande de conseil.
+- Reclamation, risque sanitaire, sujet reglementaire ou reputationnel : la, liste les actions pertinentes (Qualite/Reglementaire, Juridique, Fournisseur/Labo, E-merchandising, Direction, Support), avec service, action, priorite, delai.
+
+PRODUITS CANDIDATS (issus de la base, pour la recommandation - n'en sors jamais) :
+${candText || '(aucun - le client ne demande pas de recommandation produit)'}
 
 FICHES DE CONNAISSANCE (seule base factuelle autorisee) :
 ${kbText}
 
 Reponds STRICTEMENT en JSON conforme au schema, en francais. Le champ reponse_client est le texte du mail, pret a relire, avec les champs a personnaliser entre [crochets], et RIEN D'AUTRE.`;
+}
+// Liste des produits candidats (issus du retrieval) a recommander, avec prix.
+function candidatesText(hits){
+  const prods = hits.map(h=>KB.find(k=>k.id===h.id)).filter(e=>e && e.type==='produit');
+  if(!prods.length) return '';
+  return prods.map(e=>'- '+e.nom+(e.prix?(' ('+e.prix+')'):'')).join('\n');
 }
 
 function kbToText(hits){
@@ -962,7 +979,7 @@ async function runLive(model, text){
   // etape 3
   setStep(3,'run'); s=performance.now();
   $('#draftLive').classList.remove('empty'); $('#draftLive').innerHTML='<div class="reply" id="liveReply"><span class="spin"></span> Génération en cours…</div>';
-  const sys = redactionSys(kbToText(hits));
+  const sys = redactionSys(kbToText(hits), candidatesText(hits));
   const raw3 = await ollamaChatStream(model,
     [{role:'system',content:sys},{role:'user',content:'TICKET:\n'+text+'\n\nTRIAGE:\n'+JSON.stringify(triage)}],
     REDACTION_SCHEMA,
@@ -977,8 +994,19 @@ async function runLive(model, text){
   setStep(3,'done',(performance.now()-s)/1000);
   $('#draftLive').innerHTML = '<div class="hint">Rédaction terminée - voir le résultat ci-dessous.</div>';
 }
+// En mode demo, un ticket libre est illustre par l'exemple pre-calcule le plus proche.
+function pickDemoByText(text){
+  const t = (text||'').toLowerCase();
+  if(/conseil|recommand|stress|fatigue|sommeil|dormir|tonus|energie|quel produit|budget/.test(t)) return '4560';
+  if(/millepertuis|pilule|contracept|enceinte|grossesse/.test(t)) return '4502';
+  if(/vitamine\s*d|hospitalis|hypercalc|surdos/.test(t)) return '4529';
+  if(/spiruline|metaux|métaux|lourds|contamin|analyse/.test(t)) return '4518';
+  if(/epilobe|épilobe|prostate|allegation|allégation|dgccrf/.test(t)) return '4471';
+  return '4560';
+}
 async function runDemo(exId, text){
-  const rec = exId && DEMO[exId] ? DEMO[exId] : DEMO['4471']; // fallback demo
+  const useId = (exId && DEMO[exId]) ? exId : pickDemoByText(text);
+  const rec = DEMO[useId];
   const genericNote = (!exId || !DEMO[exId])
     ? '<div class="banner info">&#8505;&#65039;&nbsp;Ticket libre en mode demo : illustration avec des sorties pre-calculees. Passez en mode live (Ollama) pour analyser ce texte precis.</div>' : '';
   $('#pipeBanner').innerHTML = genericNote + $('#pipeBanner').innerHTML;
