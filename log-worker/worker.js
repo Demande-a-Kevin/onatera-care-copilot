@@ -44,6 +44,16 @@ export default {
       }
     }
 
+    // --- vidage (protégé) ---
+    if (url.pathname === "/flush") {
+      const token = url.searchParams.get("token") || "";
+      if (!env.ADMIN_TOKEN || token !== env.ADMIN_TOKEN)
+        return new Response("Acces refuse.", { status: 401 });
+      const list = await env.LOGS.list({ prefix: "log:", limit: 1000 });
+      await Promise.all(list.keys.map((k) => env.LOGS.delete(k.name)));
+      return Response.redirect(url.origin + "/?token=" + encodeURIComponent(token), 302);
+    }
+
     // --- lecture (protégée) ---
     if (url.pathname === "/" || url.pathname === "/api") {
       const token = url.searchParams.get("token") || "";
@@ -123,6 +133,7 @@ function renderHTML(entries, token) {
   <div><h1>Historique des tests - Onatera Copilot</h1><div class="sub">Analyses effectuées via la démo en ligne</div></div>
   <span class="count">${entries.length} test${entries.length > 1 ? "s" : ""}</span>
   <button onclick="location.reload()">Rafraîchir</button>
+  <button onclick="if(confirm('Vider tout l\\'historique des tests ?'))location.href='/flush?token=${esc(token)}'" style="background:#fbe9e7;color:#b5352b">Vider</button>
 </header>
 <main>${entries.length ? rows : '<div class="empty">Aucun test enregistré pour le moment.</div>'}</main>
 <script>setTimeout(()=>location.reload(),60000);</script>
