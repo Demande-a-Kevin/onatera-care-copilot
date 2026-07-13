@@ -11,4 +11,9 @@ Thumbs.db
 /tmp/ollama-care.log
 *.log
 
-# Rien de sensible ici : ni .env, ni cle API, ni node_modules (aucune dependance).
+# Worker (outillage wrangler)
+log-worker/.wrangler/
+log-worker/node_modules/
+
+# Aucun secret dans le repo : le token admin du Worker est un secret Cloudflare
+# (wrangler secret put ADMIN_TOKEN), jamais commite.

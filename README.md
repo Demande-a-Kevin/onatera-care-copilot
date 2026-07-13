@@ -59,6 +59,22 @@ Ouvrez **ce** lien : la page passe en **Mode live** (bandeau ⚡). `Ctrl+C` ferm
 
 > **Confidentialité** : en live via tunnel, le **modèle reste sur votre machine** (aucun LLM tiers), mais le texte du ticket transite par le tunnel chiffré Cloudflare. Pour un « zéro octet ne sort de la machine » strict, utilisez `./run.sh` en local (URL `localhost`).
 
+## Suivi des tests de la démo (optionnel)
+
+Pour voir ce que des testeurs essaient sur la démo en ligne, un petit **Worker Cloudflare + KV** ([`log-worker/`](log-worker/)) enregistre chaque analyse (ticket + résultat) et sert une **page d'historique protégée par un token** :
+
+- L'app envoie chaque analyse à `…/log` (fire-and-forget).
+- Vous consultez `https://<worker>.workers.dev/?token=VOTRE_TOKEN` (table des tests : horodatage, mode, catégorie, risque, ticket, réponse, pays).
+
+> Cela **enregistre le texte saisi par les testeurs**. À réserver à une démo interne, et **supprimable** ensuite. Déploiement :
+> ```bash
+> cd log-worker
+> npx wrangler kv namespace create LOGS      # reporter l'id dans wrangler.toml
+> npx wrangler deploy
+> echo "<un-token-secret>" | npx wrangler secret put ADMIN_TOKEN
+> ```
+> Suppression après usage : `npx wrangler delete` (dans `log-worker/`) + supprimer le namespace KV.
+
 ## Les garde-fous (le vrai différenciateur)
 
 Câblés à deux niveaux — dans le prompt système **et** en post-traitement déterministe, parce qu'un modèle 7B local peut dériver :
@@ -117,6 +133,9 @@ onatera-care-copilot/
 ├── scripts/
 │   ├── ingest_onatera.py       # ingester offline -> data/kb.json
 │   └── generate_demo_outputs.md
+├── log-worker/           # Worker Cloudflare (suivi des tests de la démo) - optionnel
+│   ├── worker.js
+│   └── wrangler.toml
 ├── run.sh                # demo LOCALE (Ollama + serveur statique)
 ├── live_tunnel.sh        # demo LIVE depuis l'URL en ligne (tunnel Cloudflare)
 ├── README.md
