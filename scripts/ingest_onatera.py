@@ -121,6 +121,20 @@ def parse_product(url):
     brand = (prod.get("brand") or {}).get("name", "") if isinstance(prod.get("brand"), dict) else ""
     desc = strip_tags(prod.get("description", ""))
 
+    # prix + disponibilite depuis l'offre schema.org
+    offers = prod.get("offers") or {}
+    if isinstance(offers, list):
+        offers = offers[0] if offers else {}
+    price = offers.get("price")
+    currency = offers.get("priceCurrency", "EUR")
+    avail = str(offers.get("availability", "")).rsplit("/", 1)[-1]  # ex. InStock
+    prix = ""
+    if price is not None:
+        try:
+            prix = "%.2f %s" % (float(price), "EUR" if currency == "EUR" else currency)
+        except Exception:
+            prix = "%s %s" % (price, currency)
+
     # précautions / posologie depuis le HTML nettoyé (hors blocs script)
     no_script = re.sub(r"<script.*?</script>", " ", html, flags=re.S)
     prec = ""
@@ -142,6 +156,8 @@ def parse_product(url):
 
     contenu = ("Marque : %s. Reference : %s. Description et allegations AFFICHEES sur la fiche : %s"
                % (brand or "Onatera", sku or "n/a", desc[:1400]))
+    if prix:
+        contenu += " | Prix affiche sur la fiche : %s%s" % (prix, (" (" + avail + ")" if avail else ""))
     if prec:
         contenu += " | Precautions affichees : " + prec
     contenu += " | (Contenu releve automatiquement sur la fiche produit, a revalider Qualite/Reglementaire avant usage.)"
@@ -151,6 +167,8 @@ def parse_product(url):
         "type": "produit",
         "nom": nom,
         "reference": sku,
+        "prix": prix,
+        "disponibilite": avail,
         "actifs": actifs,
         "mots_cles": kws,
         "contenu": contenu,

@@ -424,10 +424,13 @@ const esc = s => String(s==null?'':s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':
 
 /* ---------- chargement des donnees ---------- */
 async function loadData(){
+  // anti-cache : evite qu'un navigateur serve une ancienne version des donnees (piege en demo)
+  const nc = '?v=' + Date.now();
+  const opt = {cache:'no-store'};
   const [kb, tk, dm] = await Promise.all([
-    fetch('data/kb.json').then(r=>r.json()),
-    fetch('data/tickets.json').then(r=>r.json()),
-    fetch('data/demo_outputs.json').then(r=>r.json())
+    fetch('data/kb.json'+nc, opt).then(r=>r.json()),
+    fetch('data/tickets.json'+nc, opt).then(r=>r.json()),
+    fetch('data/demo_outputs.json'+nc, opt).then(r=>r.json())
   ]);
   KB = kb.entries; TICKETS = tk.tickets; DEMO = dm.outputs;
   const sel = $('#exSelect');
@@ -556,7 +559,7 @@ Tu prepares une PROPOSITION de reponse qu'un agent humain relira, corrigera et s
 REGLES DURES - NON NEGOCIABLES :
 1. AUCUNE reconnaissance de responsabilite juridique ni de lien de causalite. Tu peux reconnaitre un defaut d'information ; tu ne peux JAMAIS ecrire ou sous-entendre que le produit a cause un dommage.
 2. AUCUN conseil medical. Renvoie toujours vers un medecin ou un pharmacien.
-3. AUCUNE affirmation factuelle absente des FICHES ci-dessous. Si une information manque (ex. resultats d'analyses de metaux lourds), dis-le et promets un retour documente sous delai. N'invente JAMAIS un chiffre, un seuil ou un resultat d'analyse.
+3. AUCUNE affirmation factuelle absente des FICHES ci-dessous. Si une information manque (ex. resultats d'analyses de metaux lourds), dis-le et promets un retour documente sous delai. N'invente JAMAIS un chiffre, un seuil, une POSOLOGIE/un dosage ou un resultat d'analyse. Si la fiche ne precise pas le dosage, renvoie a l'etiquetage du produit sans jamais donner de chiffre. En revanche, si un "Prix affiche sur la fiche" figure dans les fiches, tu PEUX et DOIS le communiquer tel quel (ne mets pas "[a definir avec le manager]" pour un simple prix catalogue).
 4. AUCUN engagement commercial chiffre (remboursement, geste) : ecris "[a definir avec le manager]".
 5. Ton empathique, factuel, non defensif, vouvoiement. Signature exacte : "[Prenom] - Service Client Onatera". Propose un interlocuteur et un delai de retour "[delai a confirmer]".
 6. Orthographe et ponctuation FRANCAISES IRREPROCHABLES (accents corrects, espaces, majuscules). Le mail doit pouvoir etre envoye a une virgule pres apres relecture.
@@ -951,7 +954,7 @@ function resetUI(){
 function openKb(id){
   const e = KB.find(k=>k.id===id); if(!e) return;
   $('#kbmNom').textContent = e.nom;
-  $('#kbmMeta').textContent = [e.type, e.reference && ('ref. '+e.reference), e.actifs.join(', ')].filter(Boolean).join(' | ');
+  $('#kbmMeta').textContent = [e.type, e.reference && ('ref. '+e.reference), e.prix && ('Prix : '+e.prix), e.actifs.join(', ')].filter(Boolean).join(' | ');
   $('#kbmContenu').innerHTML = '<p>'+esc(e.contenu)+'</p>';
   if(e.lacunes_identifiees){ $('#kbmLac').style.display='block'; $('#kbmLac').textContent='Lacune identifiee : '+e.lacunes_identifiees; }
   else $('#kbmLac').style.display='none';

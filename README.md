@@ -75,7 +75,7 @@ Câblés à deux niveaux — dans le prompt système **et** en post-traitement d
 La base (`data/kb.json`, ~166 entrées) combine :
 
 - des **fiches réglementaires + posture curées à la main** (vérifiées, liées aux cas sensibles) — dans `data/kb_curated.json` ;
-- les **fiches produit de la catégorie « Énergie & Vitalité »** + quelques **pages d'aide** (livraisons, conseils, support), **ingérées automatiquement** depuis onatera.com par [`scripts/ingest_onatera.py`](scripts/ingest_onatera.py).
+- les **fiches produit de la catégorie « Énergie & Vitalité »** (nom, référence, **prix**, disponibilité, allégations et précautions affichées) + quelques **pages d'aide** (livraisons, conseils, support), **ingérées automatiquement** depuis onatera.com par [`scripts/ingest_onatera.py`](scripts/ingest_onatera.py).
 
 L'ingestion est **hors-ligne** : elle fige une base **locale** que le LLM consulte à la volée. Rien n'est scrapé pendant l'analyse d'un ticket → la promesse « aucune donnée ne sort » tient. Régénérer :
 
