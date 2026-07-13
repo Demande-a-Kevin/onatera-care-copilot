@@ -1,6 +1,6 @@
 {
   "meta": {
-    "avertissement": "Sorties de demonstration. A REGENERER a partir d'une execution reelle (voir scripts/generate_demo_outputs.md). Les objets 'redaction' sont les sorties BRUTES du modele, AVANT application des garde-fous deterministes cote client. Le ticket 4529 sous-escalade volontairement pour montrer le garde-fou forcer l'escalade.",
+    "avertissement": "Sorties de démonstration. À REGÉNÉRER à partir d'une exécution réelle (voir scripts/generate_demo_outputs.md). Les objets 'redaction' sont les sorties du modèle AVANT application des garde-fous déterministes côté client. Le ticket 4529 sous-escalade volontairement pour montrer le garde-fou forcer l'escalade.",
     "modele_reference": "qwen2.5:7b-instruct"
   },
   "outputs": {
@@ -9,30 +9,33 @@
         "categorie": "reglementaire",
         "gravite": "haute",
         "urgence_sanitaire": false,
-        "produits_cites": ["epilobe"],
+        "produits_cites": ["Épilobe 120 gélules"],
         "actifs_concernes": ["epilobium angustifolium"],
-        "faits_allegues": ["allegations prostate affichees sur la fiche", "retard de consultation medicale"],
+        "faits_allegues": ["allégations « prostate » affichées sur la fiche produit", "report d'une consultation médicale"],
         "demandes_explicites": ["explication", "correction des mentions"],
         "signaux_escalade": ["menace_dgccrf"],
         "etat_emotionnel": "colere",
-        "resume_1_phrase": "Le client estime avoir ete trompe par des allegations 'prostate' non autorisees affichees sur la fiche Epilobe et menace de saisir la DGCCRF."
+        "resume_1_phrase": "Le client estime avoir été trompé par des allégations « prostate » non autorisées sur la fiche Épilobe et menace de saisir la DGCCRF.",
+        "produit_ref": "17746"
       },
       "retrieved": [
-        {"id": "kb_epilobe", "nom": "Epilobe 120 gelules", "score": 5},
-        {"id": "kb_reg_allegations", "nom": "Allegations de sante - Reglement (CE) 1924/2006", "score": 3},
-        {"id": "kb_posture_onatera", "nom": "Regles de redaction - Service Client Onatera", "score": 1}
+        {"id": "kb_epilobe", "nom": "Épilobe 120 gélules", "score": 5},
+        {"id": "kb_reg_allegations", "nom": "Allégations de santé - Règlement (CE) 1924/2006", "score": 3},
+        {"id": "kb_posture_onatera", "nom": "Règles de rédaction - Service Client Onatera", "score": 1}
       ],
       "redaction": {
         "niveau_risque": "eleve",
         "escalade_requise": ["qualite_reglementaire", "juridique"],
-        "reponse_client": "Bonjour M. Bertrand,\n\nJe vous remercie pour votre message et je comprends votre sentiment d'avoir ete induit en erreur : c'est une preoccupation legitime que nous prenons au serieux.\n\nVous avez raison de souligner que les mentions relatives a la prostate figurant sur la fiche de l'Epilobe (ref. 17746) posent question au regard de la reglementation sur les allegations de sante (Reglement CE 1924/2006), qui encadre strictement ce qui peut etre affirme pour un complement alimentaire. Je transmets ce point sans attendre a notre service Qualite/Reglementaire afin qu'il examine la formulation de la fiche et procede, le cas echeant, aux corrections necessaires.\n\nJe tiens a preciser qu'un complement alimentaire ne se substitue pas a un avis medical : pour toute question concernant votre sante ou votre prostate, l'avis de votre medecin ou de votre pharmacien reste la reference.\n\nJe reviens vers vous avec un retour documente sous [delai a confirmer, ex. 5 jours ouvres]. Concernant votre commande, je laisse le soin a mon manager de definir avec vous les suites appropriees [a definir avec le manager].\n\nJe reste a votre disposition,\n[Prenom] - Service Client Onatera",
+        "reponse_client": "Bonjour M. Bertrand,\n\nJe vous remercie pour votre message et je comprends votre sentiment d'avoir été induit en erreur : c'est une préoccupation parfaitement légitime, que nous prenons au sérieux.\n\nVous soulevez à juste titre la question des mentions relatives à la prostate figurant sur la fiche de l'Épilobe (réf. 17746). Le cadre européen encadre strictement ce qu'un complément alimentaire peut affirmer (Règlement CE 1924/2006), et un certain nombre d'allégations botaniques sont encore en cours d'évaluation. Je transmets donc sans attendre ce point à notre service Qualité/Réglementaire afin qu'il réexamine la formulation de la fiche et procède, le cas échéant, aux corrections nécessaires.\n\nJe tiens par ailleurs à préciser qu'un complément alimentaire ne se substitue pas à un avis médical : pour toute question concernant votre santé, l'avis de votre médecin ou de votre pharmacien reste la référence.\n\nJe reviens vers vous avec un retour documenté sous [délai à confirmer, ex. 5 jours ouvrés], en précisant les éléments sur lesquels nous nous appuyons. Concernant votre commande, je laisse le soin à mon responsable de définir avec vous les suites appropriées [à définir avec le manager].\n\nJe reste à votre disposition,\n[Prénom] - Service Client Onatera",
         "actions_internes": [
-          {"service": "Qualite/Reglementaire", "action": "Auditer les allegations 'prostate' de la fiche Epilobe (ref. 17746) au regard du Reglement 1924/2006 et corriger/retirer les mentions non autorisees", "priorite": "haute", "delai": "48h"},
-          {"service": "Juridique", "action": "Evaluer l'exposition liee a la menace de signalement DGCCRF et cadrer la reponse", "priorite": "haute", "delai": "72h"},
-          {"service": "E-commerce/Contenu", "action": "Passer en revue les fiches des autres plantes pour des allegations de sante similaires", "priorite": "moyenne", "delai": "1 semaine"}
+          {"service": "Qualité/Réglementaire", "action": "Auditer les allégations « prostate » de la fiche Épilobe (réf. 17746) et du packaging au regard du Règl. 1924/2006 ; reformuler ou retirer les mentions à caractère thérapeutique.", "priorite": "haute", "delai": "48h"},
+          {"service": "Juridique", "action": "Évaluer l'exposition en cas de saisine DGCCRF ; cadrer la réponse et tout geste commercial (un remboursement peut valoir reconnaissance).", "priorite": "haute", "delai": "72h"},
+          {"service": "E-merchandising / Contenu", "action": "Geler ou corriger la fiche produit en ligne en attendant l'arbitrage réglementaire.", "priorite": "haute", "delai": "24h"},
+          {"service": "Fournisseur / Laboratoire (Orfito)", "action": "Demander le dossier scientifique justifiant les allégations et le certificat de traçabilité de l'espèce (Epilobium angustifolium L.).", "priorite": "moyenne", "delai": "5 jours"},
+          {"service": "Support Client", "action": "Dossier à risque réputationnel (menace DGCCRF) : prioriser la désescalade et tenir le client informé du suivi.", "priorite": "moyenne", "delai": "48h"}
         ],
         "sources_utilisees": ["kb_epilobe", "kb_reg_allegations"],
-        "points_a_valider_par_un_humain": ["Formulation reconnaissant le probleme d'allegation sans reconnaitre de prejudice", "Delai de retour", "Suites commerciales eventuelles"],
+        "points_a_valider_par_un_humain": ["Formulation reconnaissant le défaut d'information sans reconnaître de préjudice", "Délai de retour réaliste", "Suites commerciales éventuelles"],
         "confiance": 0.78
       }
     },
@@ -41,31 +44,34 @@
         "categorie": "risque_sanitaire",
         "gravite": "critique",
         "urgence_sanitaire": true,
-        "produits_cites": ["millepertuis"],
+        "produits_cites": ["Millepertuis Bio 30 comprimés"],
         "actifs_concernes": ["hypericum perforatum"],
         "faits_allegues": ["grossesse sous pilule pendant une cure de millepertuis", "absence d'avertissement sur l'interaction contraceptive"],
         "demandes_explicites": ["explication", "mesures correctives"],
         "signaux_escalade": ["menace_media", "grossesse"],
         "etat_emotionnel": "detresse",
-        "resume_1_phrase": "Cliente enceinte apres une cure de millepertuis prise en concomitance avec sa pilule, sans avertissement sur l'interaction ; forte charge emotionnelle et menace mediatique."
+        "resume_1_phrase": "Cliente enceinte après une cure de millepertuis prise en même temps que sa pilule, sans avertissement sur l'interaction ; forte charge émotionnelle et menace médiatique.",
+        "produit_ref": "19544"
       },
       "retrieved": [
-        {"id": "kb_millepertuis", "nom": "Millepertuis Bio 30 comprimes", "score": 5},
+        {"id": "kb_millepertuis", "nom": "Millepertuis Bio 30 comprimés", "score": 5},
         {"id": "kb_reg_millepertuis", "nom": "Interaction millepertuis - inducteur enzymatique", "score": 4},
-        {"id": "kb_posture_onatera", "nom": "Regles de redaction - Service Client Onatera", "score": 1}
+        {"id": "kb_posture_onatera", "nom": "Règles de rédaction - Service Client Onatera", "score": 1}
       ],
       "redaction": {
         "niveau_risque": "critique",
         "escalade_requise": ["juridique", "qualite_reglementaire", "direction"],
-        "reponse_client": "Bonjour Mme Lefevre,\n\nJe recois votre message avec beaucoup d'attention et je mesure l'emotion qu'une telle situation represente. Je vous remercie de nous en faire part directement.\n\nIl est exact que le millepertuis (Hypericum perforatum) est connu pour reduire l'efficacite de certains medicaments, dont les contraceptifs oraux : c'est une interaction documentee par les autorites de sante (ANSM, EMA, ANSES). Je constate avec vous que notre fiche produit ne mentionnait pas explicitement cette interaction, et je fais remonter ce point des aujourd'hui a nos services Qualite/Reglementaire pour que l'information soit corrigee.\n\nJe ne suis pas en mesure de me prononcer sur votre situation personnelle, qui releve d'un avis medical : je vous invite a en parler avec votre medecin ou votre gynecologue, qui pourront vous accompagner au mieux.\n\nCompte tenu de la nature de votre message, je transmets votre dossier a notre direction et a notre service juridique afin qu'ils vous apportent une reponse a la hauteur. Une personne dediee reviendra vers vous sous [delai a confirmer]. Toute suite eventuelle sera definie avec eux [a definir avec le manager].\n\nJe reste a votre ecoute,\n[Prenom] - Service Client Onatera",
+        "reponse_client": "Bonjour Mme Lefèvre,\n\nJe reçois votre message avec beaucoup d'attention et je mesure l'émotion qu'une telle situation représente. Je vous remercie de nous en faire part directement.\n\nIl est exact que le millepertuis (Hypericum perforatum) est connu pour réduire l'efficacité de certains médicaments, dont les contraceptifs oraux : c'est une interaction documentée par les autorités de santé (ANSM, EMA, ANSES). Je constate avec vous que notre fiche produit ne mentionnait pas explicitement cette interaction, et je fais remonter ce point dès aujourd'hui à notre service Qualité/Réglementaire pour que l'information soit corrigée.\n\nJe ne suis pas en mesure de me prononcer sur votre situation personnelle, qui relève d'un avis médical : je vous invite à en parler avec votre médecin ou votre gynécologue, qui pourront vous accompagner au mieux.\n\nCompte tenu de la nature de votre message, je transmets votre dossier à notre direction et à notre service juridique afin qu'ils vous apportent une réponse à la hauteur. Une personne dédiée reviendra vers vous sous [délai à confirmer]. Toute suite éventuelle sera définie avec eux [à définir avec le manager].\n\nJe reste à votre écoute,\n[Prénom] - Service Client Onatera",
         "actions_internes": [
-          {"service": "Juridique", "action": "Prendre en charge le dossier (interaction non signalee + grossesse + menace media), definir la strategie de reponse", "priorite": "haute", "delai": "24h"},
-          {"service": "Direction", "action": "Etre informee et valider la reponse avant envoi", "priorite": "haute", "delai": "24h"},
-          {"service": "Qualite/Reglementaire", "action": "Ajouter l'avertissement d'interaction contraceptifs/anticoagulants sur la fiche et l'emballage du Millepertuis (ref. 19544)", "priorite": "haute", "delai": "48h"}
+          {"service": "Juridique", "action": "Prendre en charge le dossier (interaction non signalée + grossesse + menace média) et définir la stratégie de réponse.", "priorite": "haute", "delai": "24h"},
+          {"service": "Direction", "action": "Être informée et valider la réponse avant tout envoi.", "priorite": "haute", "delai": "24h"},
+          {"service": "Qualité/Réglementaire", "action": "Ajouter l'avertissement d'interaction (contraceptifs oraux, anticoagulants, antirétroviraux…) sur la fiche et l'emballage du Millepertuis (réf. 19544).", "priorite": "haute", "delai": "48h"},
+          {"service": "Fournisseur / Laboratoire", "action": "Vérifier les mentions de précaution portées sur le conditionnement par le fabricant.", "priorite": "moyenne", "delai": "5 jours"},
+          {"service": "Support Client", "action": "Dossier sensible (grossesse, menace média) : interlocuteur dédié, désescalade, suivi rapproché.", "priorite": "haute", "delai": "24h"}
         ],
         "sources_utilisees": ["kb_millepertuis", "kb_reg_millepertuis"],
-        "points_a_valider_par_un_humain": ["Absence de toute reconnaissance de lien de causalite avec la grossesse", "Coordination juridique avant envoi", "Delai et interlocuteur nomme"],
-        "confiance": 0.72
+        "points_a_valider_par_un_humain": ["Absence de toute reconnaissance de lien de causalité avec la grossesse", "Coordination juridique avant envoi", "Délai et interlocuteur nommé"],
+        "confiance": 0.74
       }
     },
     "4529": {
@@ -73,29 +79,31 @@
         "categorie": "risque_sanitaire",
         "gravite": "critique",
         "urgence_sanitaire": true,
-        "produits_cites": ["vitamine d3 1000 ui", "vitamines k2 mk7 & d3 ultra"],
+        "produits_cites": ["Vitamine D3 1000 UI", "Vitamines K2 MK7 & D3 Ultra"],
         "actifs_concernes": ["vitamine d", "vitamine k2"],
-        "faits_allegues": ["cumul de plusieurs sources de vitamine D", "hospitalisation pour hypercalcemie severe"],
-        "demandes_explicites": ["comprendre", "connaitre les mesures prises"],
+        "faits_allegues": ["cumul de plusieurs sources de vitamine D", "hospitalisation pour hypercalcémie sévère"],
+        "demandes_explicites": ["comprendre", "connaître les mesures prises"],
         "signaux_escalade": ["hospitalisation", "atteinte_corporelle", "menace_avocat"],
         "etat_emotionnel": "detresse",
-        "resume_1_phrase": "Le pere du client a ete hospitalise pour hypercalcemie apres cumul de plusieurs sources de vitamine D ; un avocat suit deja le dossier."
+        "resume_1_phrase": "Le père du client a été hospitalisé pour hypercalcémie après cumul de plusieurs sources de vitamine D ; un avocat suit déjà le dossier.",
+        "produit_ref": "22355"
       },
       "retrieved": [
         {"id": "kb_vitd_k2", "nom": "Vitamines K2 MK7 & D3 Ultra", "score": 5},
         {"id": "kb_vitd_1000", "nom": "Vitamine D3 1000 UI (huile)", "score": 5},
-        {"id": "kb_reg_vitd", "nom": "Vitamine D - Limite de securite EFSA", "score": 4},
+        {"id": "kb_reg_vitd", "nom": "Vitamine D - Limite de sécurité EFSA", "score": 4},
         {"id": "kb_reg_nutrivigilance", "nom": "Nutrivigilance ANSES", "score": 3}
       ],
       "redaction": {
         "niveau_risque": "eleve",
         "escalade_requise": ["qualite_reglementaire"],
-        "reponse_client": "Bonjour Mme Garnier,\n\nJe suis sincerement navre d'apprendre l'hospitalisation de votre pere et je comprends le choc pour votre famille. Je vous remercie de nous avoir alertes.\n\nJe ne peux pas me prononcer sur l'etat de sante de votre pere, qui releve entierement de son equipe medicale : ce sont les seuls a pouvoir evaluer sa situation. La vitamine D a une limite superieure de securite (100 microgrammes/jour, soit 4000 UI, toutes sources confondues selon l'EFSA), et je constate avec vous que nos fiches ne mettaient pas suffisamment en garde contre le fait d'additionner plusieurs sources de vitamine D. Je fais remonter ce point sans attendre.\n\nUn interlocuteur dedie reviendra vers vous avec un retour documente sous [delai a confirmer]. Les suites eventuelles seront definies avec nos services competents [a definir avec le manager].\n\nJe reste a votre disposition,\n[Prenom] - Service Client Onatera",
+        "reponse_client": "Bonjour Mme Garnier,\n\nJe suis sincèrement navré d'apprendre l'hospitalisation de votre père et je comprends le choc pour votre famille. Je vous remercie de nous avoir alertés.\n\nJe ne peux pas me prononcer sur l'état de santé de votre père, qui relève entièrement de son équipe médicale : ce sont les seuls à pouvoir évaluer sa situation. La vitamine D a une limite supérieure de sécurité (100 microgrammes par jour, soit 4000 UI, toutes sources confondues selon l'EFSA), et je constate avec vous que nos fiches ne mettaient pas suffisamment en garde contre le fait d'additionner plusieurs sources de vitamine D. Je fais remonter ce point sans attendre.\n\nUn interlocuteur dédié reviendra vers vous avec un retour documenté sous [délai à confirmer]. Les suites éventuelles seront définies avec nos services compétents [à définir avec le manager].\n\nJe reste à votre disposition,\n[Prénom] - Service Client Onatera",
         "actions_internes": [
-          {"service": "Qualite/Reglementaire", "action": "Ajouter un avertissement 'cumul de sources de vitamine D' sur les fiches D3 1000 UI et K2 MK7 & D3 Ultra (ref. 22355)", "priorite": "haute", "delai": "48h"}
+          {"service": "Qualité/Réglementaire", "action": "Ajouter un avertissement « cumul de sources de vitamine D » sur les fiches D3 1000 UI et K2 MK7 & D3 Ultra (réf. 22355).", "priorite": "haute", "delai": "48h"},
+          {"service": "Support Client", "action": "Dossier sensible (hospitalisation, avocat, famille sous le choc) : interlocuteur dédié, ton mesuré, désescalade.", "priorite": "haute", "delai": "24h"}
         ],
         "sources_utilisees": ["kb_vitd_k2", "kb_vitd_1000", "kb_reg_vitd"],
-        "points_a_valider_par_un_humain": ["Aucune reconnaissance de lien de causalite entre les produits et l'hospitalisation", "Declaration de nutrivigilance ANSES", "Coordination juridique"],
+        "points_a_valider_par_un_humain": ["Aucune reconnaissance de lien de causalité entre les produits et l'hospitalisation", "Déclaration de nutrivigilance ANSES", "Coordination juridique"],
         "confiance": 0.7
       }
     },
@@ -104,29 +112,32 @@
         "categorie": "securite_produit",
         "gravite": "moyenne",
         "urgence_sanitaire": false,
-        "produits_cites": ["spiruline bio", "spiruline francaise bio"],
+        "produits_cites": ["Spiruline Bio", "Spiruline Française Bio"],
         "actifs_concernes": ["spiruline"],
-        "faits_allegues": ["inquietude sur la contamination metaux lourds", "absence de bulletin d'analyse sur le site"],
-        "demandes_explicites": ["resultats d'analyses metaux lourds", "alternative origine France", "garantie de conformite"],
+        "faits_allegues": ["inquiétude sur la contamination aux métaux lourds", "absence de bulletin d'analyse sur le site"],
+        "demandes_explicites": ["résultats d'analyses métaux lourds", "alternative origine France", "garantie de conformité"],
         "signaux_escalade": [],
         "etat_emotionnel": "inquietude",
-        "resume_1_phrase": "Le client demande les bulletins d'analyses metaux lourds de la spiruline (origine Chine) et une alternative origine France."
+        "resume_1_phrase": "Le client demande les bulletins d'analyses métaux lourds de la spiruline (origine Chine) et une alternative origine France.",
+        "produit_ref": ""
       },
       "retrieved": [
-        {"id": "kb_spiruline_chine", "nom": "Spiruline Bio (comprimes)", "score": 5},
-        {"id": "kb_reg_spiruline", "nom": "Spiruline - Avis ANSES 2017 & Reglement 1881/2006", "score": 4},
-        {"id": "kb_spiruline_france", "nom": "Spiruline Francaise Bio", "score": 3}
+        {"id": "kb_spiruline_chine", "nom": "Spiruline Bio (comprimés)", "score": 5},
+        {"id": "kb_reg_spiruline", "nom": "Spiruline - Avis ANSES 2017 & Règlement 1881/2006", "score": 4},
+        {"id": "kb_spiruline_france", "nom": "Spiruline Française Bio", "score": 3}
       ],
       "redaction": {
         "niveau_risque": "modere",
         "escalade_requise": ["qualite_reglementaire"],
-        "reponse_client": "Bonjour M. Nguyen,\n\nJe vous remercie pour votre message : votre exigence de transparence sur la qualite est tout a fait legitime, et c'est un sujet que nous prenons au serieux.\n\nVous avez raison de rappeler l'avis de l'ANSES : selon les conditions de production, une spiruline peut presenter des contaminants (metaux lourds, cyanotoxines), et les teneurs maximales sont encadrees par le Reglement (CE) 1881/2006. Notre Spiruline Bio est cultivee sur l'ile de Hainan, certifiee Bio et controlee par Ecocert, puis conditionnee en France.\n\nJe ne dispose pas, a mon niveau, des bulletins d'analyses metaux lourds des lots concernes : je ne veux pas vous communiquer de chiffre que je ne pourrais pas garantir. Je sollicite donc notre service Qualite pour recuperer les analyses disponibles et vous les transmettre. Nous proposons par ailleurs une Spiruline Francaise Bio (cultivee en Provence) si vous preferez une origine France ; la aussi, je ferai verifier les analyses avant de vous repondre.\n\nJe reviens vers vous avec ces elements sous [delai a confirmer].\n\nBien a vous,\n[Prenom] - Service Client Onatera",
+        "reponse_client": "Bonjour M. Nguyen,\n\nJe vous remercie pour votre message : votre exigence de transparence sur la qualité est tout à fait légitime, et c'est un sujet que nous prenons au sérieux.\n\nVous avez raison de rappeler l'avis de l'ANSES : selon les conditions de production, une spiruline peut présenter des contaminants (métaux lourds, cyanotoxines), et les teneurs maximales sont encadrées par le Règlement (CE) 1881/2006. Notre Spiruline Bio est cultivée sur l'île de Hainan, certifiée Bio et contrôlée par Ecocert, puis conditionnée en France.\n\nJe ne dispose pas, à mon niveau, des bulletins d'analyses métaux lourds des lots concernés : je ne veux pas vous communiquer un chiffre que je ne pourrais pas garantir. Je sollicite donc notre service Qualité pour récupérer les analyses disponibles et vous les transmettre. Nous proposons par ailleurs une Spiruline Française Bio (cultivée en Provence) si vous préférez une origine France ; là aussi, je ferai vérifier les analyses avant de vous répondre.\n\nJe reviens vers vous avec ces éléments sous [délai à confirmer].\n\nBien à vous,\n[Prénom] - Service Client Onatera",
         "actions_internes": [
-          {"service": "Qualite", "action": "Recuperer les bulletins d'analyses metaux lourds des lots de Spiruline Bio (Hainan) et Spiruline Francaise Bio, verifier la conformite au Regl. 1881/2006", "priorite": "moyenne", "delai": "5 jours"},
-          {"service": "Achats/Fournisseurs", "action": "Verifier la disponibilite des certificats d'analyse aupres du fournisseur", "priorite": "basse", "delai": "1 semaine"}
+          {"service": "Qualité", "action": "Récupérer les bulletins d'analyses métaux lourds des lots de Spiruline Bio (Hainan) et Spiruline Française Bio ; vérifier la conformité au Règl. 1881/2006.", "priorite": "moyenne", "delai": "5 jours"},
+          {"service": "Achats / Fournisseurs", "action": "Obtenir les certificats d'analyse à jour auprès des fournisseurs.", "priorite": "basse", "delai": "1 semaine"},
+          {"service": "E-merchandising / Contenu", "action": "Si les analyses sont conformes, les publier sur la fiche produit (argument de transparence).", "priorite": "basse", "delai": "1 semaine"},
+          {"service": "Support Client", "action": "Tenir le client informé du délai et lui proposer, s'il le souhaite, l'alternative origine France.", "priorite": "moyenne", "delai": "5 jours"}
         ],
         "sources_utilisees": ["kb_spiruline_chine", "kb_reg_spiruline", "kb_spiruline_france"],
-        "points_a_valider_par_un_humain": ["Ne communiquer aucune valeur d'analyse avant verification", "Delai de retour realiste"],
+        "points_a_valider_par_un_humain": ["Ne communiquer aucune valeur d'analyse avant vérification", "Délai de retour réaliste"],
         "confiance": 0.8
       }
     }

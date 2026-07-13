@@ -115,6 +115,9 @@
   pre.json{background:#20261f;color:#e7efe9;border-radius:9px;padding:12px;overflow:auto;font-size:11.5px;line-height:1.45;max-height:320px;margin:8px 0 0}
   .kbhit{display:flex;align-items:center;gap:10px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;margin-top:8px;background:#fff;cursor:pointer}
   .kbhit .score{margin-left:auto;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+  .kb-ext{margin-left:auto;font-size:12px;color:var(--green-dark);white-space:nowrap;text-decoration:none;border:1px solid var(--line);padding:3px 8px;border-radius:7px;background:var(--green-soft)}
+  .kbhit .kb-ext + .score{margin-left:10px}
+  a.src-chip{text-decoration:none}
   .kbhit .bar{height:6px;border-radius:4px;background:var(--green);flex:none}
   .risk{border-radius:var(--radius);padding:14px 16px;color:#fff;margin-bottom:14px}
   .risk.critique{background:var(--red)}
@@ -184,7 +187,7 @@
   </div>
   <div class="spacer"></div>
   <button class="nav-btn active" id="nav-app">Atelier</button>
-  <button class="nav-btn" id="nav-how">Comment ca marche</button>
+  <button class="nav-btn" id="nav-how">Comment ça marche</button>
   <div class="mode-pill" id="modeToggle" title="Basculer live / demo">
     <span class="dot" id="modeDot"></span><b id="modeLabel">...</b>
   </div>
@@ -196,38 +199,38 @@
   <div class="grid">
     <!-- LEFT -->
     <section class="card">
-      <div class="hd">Entree</div>
+      <div class="hd">Entrée</div>
       <div class="bd">
         <label class="fld" for="exSelect">Exemples de tickets</label>
         <select id="exSelect"><option value="">- Choisir un exemple (ou coller un ticket ci-dessous) -</option></select>
 
         <label class="fld" for="ticketText" style="margin-top:14px">Texte du ticket client</label>
-        <textarea id="ticketText" placeholder="Collez ici le message du client. L'outil en deduit tout seul la categorie et la criticite."></textarea>
+        <textarea id="ticketText" placeholder="Collez ici le message du client. L'outil en déduit tout seul la catégorie et la criticité."></textarea>
 
         <label class="fld" style="margin-top:14px">Profondeur d'analyse</label>
         <div class="seg" id="seg">
           <button class="seg-btn active" data-speed="rapide">Rapide<small>1er jet, ~15 s</small></button>
-          <button class="seg-btn" data-speed="complete">Complete<small>soignee, ~45 s</small></button>
+          <button class="seg-btn" data-speed="complete">Complète<small>soignée, ~45 s</small></button>
         </div>
-        <div class="hint" id="speedHint">Rapide : modele leger, pour degrossir un ticket simple. Complete : modele plus fin, pour un ticket sensible.</div>
+        <div class="hint" id="speedHint">Rapide : modèle léger, pour dégrossir un ticket simple. Complète : modèle plus fin, pour un ticket sensible.</div>
 
         <div class="health" id="health">
           <span class="dot wait" id="healthDot"></span>
-          <div id="healthText">Verification d'Ollama...</div>
+          <div id="healthText">Vérification d'Ollama...</div>
         </div>
 
         <div style="margin-top:14px">
           <button class="btn" id="runBtn">Analyser le ticket</button>
         </div>
-        <div class="hint"><b>Chaque proposition doit etre relue et validee par un humain avant tout envoi.</b></div>
+        <div class="hint"><b>Chaque proposition doit être relue et validée par un humain avant tout envoi.</b></div>
       </div>
     </section>
 
     <!-- RIGHT -->
     <section class="card">
-      <div class="hd">Resultat de l'analyse</div>
+      <div class="hd">Résultat de l'analyse</div>
       <div class="bd">
-        <div class="hint" id="pipeIntro" style="margin-top:0;margin-bottom:12px">Cliquez sur <b>&laquo; Analyser le ticket &raquo;</b> : le triage, les sources utilisees et la reponse proposee s'affichent ici automatiquement.</div>
+        <div class="hint" id="pipeIntro" style="margin-top:0;margin-bottom:12px">Cliquez sur <b>&laquo; Analyser le ticket &raquo;</b> : le triage, les sources utilisées et la réponse proposée s'affichent ici automatiquement.</div>
         <div id="pipeBanner"></div>
         <div class="steps">
           <!-- step 1 -->
@@ -252,14 +255,14 @@
             </div>
             <div class="sbody" id="body2">
               <div id="kbHits" class="empty">En attente.</div>
-              <div class="hint">Fiches les plus pertinentes trouvees automatiquement dans la base Onatera (produits, regles, aide).</div>
+              <div class="hint">Fiches les plus pertinentes trouvées automatiquement dans la base Onatera (produits, règles, aide).</div>
             </div>
           </div>
           <!-- step 3 -->
           <div class="step" id="step3">
             <div class="shd" data-step="step3">
               <span class="num">3</span>
-              <span class="stitle">Redaction sourcee</span>
+              <span class="stitle">Rédaction sourcée</span>
               <span class="smeta"><span class="status-ico" id="ico3">-</span><span id="t3"></span></span>
             </div>
             <div class="sbody" id="body3">
@@ -275,21 +278,21 @@
           <div id="riskBox"></div>
           <div id="guardBanner"></div>
 
-          <div class="subhd">Actions internes a declencher</div>
-          <div class="hint" style="margin-top:0;margin-bottom:6px">Ce que l'agent doit faire au-dela de la reponse : qui alerter, quoi remonter, dans quel delai.</div>
-          <table id="actionsTbl"><thead><tr><th>A qui</th><th>Action</th><th>Prio.</th><th>Delai</th></tr></thead><tbody></tbody></table>
+          <div class="subhd">Actions internes à déclencher</div>
+          <div class="hint" style="margin-top:0;margin-bottom:6px">Ce que l'agent doit faire au-delà de la réponse : qui alerter, quoi remonter, dans quel délai.</div>
+          <table id="actionsTbl"><thead><tr><th>À qui</th><th>Action</th><th>Prio.</th><th>Délai</th></tr></thead><tbody></tbody></table>
 
-          <div class="subhd">Reponse client proposee <button class="copy" id="copyBtn">Copier</button></div>
-          <div class="hint" style="margin-top:0;margin-bottom:6px">Ton Onatera : chaleureux, factuel, jamais defensif. A relire et signer.</div>
+          <div class="subhd">Réponse client proposée <button class="copy" id="copyBtn">Copier</button></div>
+          <div class="hint" style="margin-top:0;margin-bottom:6px">Ton Onatera : chaleureux, factuel, jamais défensif. À relire et signer.</div>
           <div class="reply" id="replyBox"></div>
 
-          <div class="subhd">Sources utilisees</div>
+          <div class="subhd">Sources utilisées</div>
           <div id="sourcesBox"></div>
 
-          <div class="subhd">Confiance du modele</div>
+          <div class="subhd">Confiance du modèle</div>
           <div class="conf"><span id="confVal">-</span><div class="track"><div class="fill" id="confFill" style="width:0%"></div></div></div>
 
-          <div class="subhd">A valider par un humain</div>
+          <div class="subhd">À valider par un humain</div>
           <ul class="checks" id="checksBox"></ul>
         </div>
       </div>
@@ -300,17 +303,17 @@
 <!-- ============ COMMENT CA MARCHE ============ -->
 <main class="app-view how" id="view-how">
   <section class="card"><div class="bd">
-    <h2 style="margin-top:4px">Comment ca marche</h2>
-    <p>Onatera Copilot fait gagner a l'agent les longues minutes de recherche : retrouver la bonne fiche produit, la precaution qui manque, la regle a connaitre, le bon service a prevenir. Il propose une reponse et les actions a mener. <b>L'agent garde la main</b> : il relit, corrige et signe. Rien n'est envoye automatiquement, et rien ne quitte l'ordinateur.</p>
+    <h2 style="margin-top:4px">Comment ça marche</h2>
+    <p>Onatera Copilot fait gagner à l'agent les longues minutes de recherche : retrouver la bonne fiche produit, la précaution qui manque, la règle à connaître, le bon service à prévenir. Il propose une réponse et les actions à mener. <b>L'agent garde la main</b> : il relit, corrige et signe. Rien n'est envoyé automatiquement, et le modèle tourne sur la machine (aucun prestataire d'IA tiers ne voit les données).</p>
 
     <h3 style="margin-top:20px">L'utiliser en 3 gestes</h3>
     <div class="cols">
       <div>
-        <div class="stepcard"><span class="sc-n">1</span><div><b>Collez le message du client</b><br><span class="mut">Ou choisissez un exemple. Vous n'avez rien a categoriser vous-meme.</span></div></div>
-        <div class="stepcard"><span class="sc-n">2</span><div><b>Choisissez la profondeur</b><br><span class="mut">Rapide pour un premier jet sur un ticket simple ; Complete pour un ticket sensible, plus soignee.</span></div></div>
+        <div class="stepcard"><span class="sc-n">1</span><div><b>Collez le message du client</b><br><span class="mut">Ou choisissez un exemple. Vous n'avez rien à catégoriser vous-même.</span></div></div>
+        <div class="stepcard"><span class="sc-n">2</span><div><b>Choisissez la profondeur</b><br><span class="mut">Rapide pour un premier jet sur un ticket simple ; Complète pour un ticket sensible, plus soignée.</span></div></div>
       </div>
       <div>
-        <div class="stepcard"><span class="sc-n">3</span><div><b>Cliquez sur Analyser</b><br><span class="mut">L'outil affiche la categorie, la criticite, les sources, les actions a mener et une reponse. Vous relisez, corrigez, signez.</span></div></div>
+        <div class="stepcard"><span class="sc-n">3</span><div><b>Cliquez sur Analyser</b><br><span class="mut">L'outil affiche la catégorie, la criticité, les sources, les actions à mener et une réponse. Vous relisez, corrigez, signez.</span></div></div>
       </div>
     </div>
 
@@ -318,18 +321,18 @@
       <div>
         <h3>Ce que l'outil fait pour vous</h3>
         <ul>
-          <li><b>Il lit le ticket</b> et propose une <b>categorie</b> (risque sanitaire, reglementaire, livraison, commande...) et un <b>niveau de criticite</b>.</li>
-          <li><b>Il retrouve les bonnes fiches</b> (produits, regles, pages d'aide) et vous les montre : la reponse s'appuie sur des sources, pas sur une invention.</li>
-          <li><b>Il redige une proposition</b> dans le ton Onatera : chaleureux, factuel, jamais defensif.</li>
-          <li><b>Il liste les actions internes</b> a declencher et a qui les adresser (remontee qualite, alerte fournisseur, escalade juridique...).</li>
+          <li><b>Il lit le ticket</b> et propose une <b>catégorie</b> (risque sanitaire, réglementaire, livraison, commande…) et un <b>niveau de criticité</b>.</li>
+          <li><b>Il retrouve les bonnes fiches</b> (produits, règles, pages d'aide) et vous les montre : la réponse s'appuie sur des sources, pas sur une invention.</li>
+          <li><b>Il rédige une proposition</b> dans le ton Onatera : chaleureux, factuel, jamais défensif.</li>
+          <li><b>Il liste les actions internes</b> à déclencher et à qui les adresser (remontée qualité, alerte fournisseur, escalade juridique…).</li>
         </ul>
       </div>
       <div>
         <h3>Bien l'utiliser</h3>
         <ul>
-          <li><b>Relisez toujours</b> avant d'envoyer, surtout sur un sujet de sante. L'outil propose, il ne decide pas.</li>
-          <li><b>Completez les [crochets]</b> (prenom, delai, geste commercial) : ils sont volontairement laisses a valider.</li>
-          <li>Si un <b>bandeau rouge</b> apparait, une phrase est a risque : relecture juridique avant tout envoi.</li>
+          <li><b>Relisez toujours</b> avant d'envoyer, surtout sur un sujet de santé. L'outil propose, il ne décide pas.</li>
+          <li><b>Complétez les [crochets]</b> (prénom, délai, geste commercial) : ils sont volontairement laissés à valider.</li>
+          <li>Si un <b>bandeau rouge</b> apparaît, une phrase est à risque : relecture juridique avant tout envoi.</li>
           <li>Sur une <b>hospitalisation ou un dommage corporel</b>, le ticket passe d'office en critique avec escalade : c'est voulu, ne le contournez pas.</li>
         </ul>
       </div>
@@ -337,17 +340,17 @@
 
     <h3 style="margin-top:20px">Vos garanties</h3>
     <ul>
-      <li><b>Confidentialite</b> : tout se passe sur l'ordinateur, aucune donnee client n'est envoyee sur internet.</li>
-      <li><b>Validation humaine</b> : aucune reponse n'est envoyee automatiquement.</li>
-      <li><b>Pas de conseil medical, pas d'aveu de responsabilite, aucun montant chiffre</b> : ces regles sont bloquees, meme si le client insiste.</li>
+      <li><b>Modèle local</b> : le LLM tourne sur la machine ; aucun prestataire d'IA externe ne reçoit les messages clients.</li>
+      <li><b>Validation humaine</b> : aucune réponse n'est envoyée automatiquement.</li>
+      <li><b>Pas de conseil médical, pas d'aveu de responsabilité, aucun montant chiffré</b> : ces règles sont bloquées, même si le client insiste.</li>
     </ul>
 
-    <h3 style="margin-top:20px">Et apres ?</h3>
+    <h3 style="margin-top:20px">Et après ?</h3>
     <ul>
-      <li>Mise a jour automatique de la base a partir du catalogue et des pages d'aide Onatera.</li>
-      <li>Branchement a l'outil de tickets (le message arrive et repart directement depuis l'outil habituel).</li>
-      <li>Apprentissage a partir des corrections des agents, pour s'ameliorer avec le temps.</li>
-      <li>Mesure reguliere de la qualite sur un lot de tickets de reference.</li>
+      <li>Mise à jour automatique de la base à partir du catalogue et des pages d'aide Onatera.</li>
+      <li>Branchement à l'outil de tickets (le message arrive et repart directement depuis l'outil habituel).</li>
+      <li>Apprentissage à partir des corrections des agents, pour s'améliorer avec le temps.</li>
+      <li>Mesure régulière de la qualité sur un lot de tickets de référence.</li>
     </ul>
   </div></section>
 </main>
@@ -364,7 +367,7 @@
   </div>
 </div>
 
-<div class="footer-band">Toute reponse generee est une <b>proposition</b>. Validation humaine obligatoire avant envoi. Aucun envoi automatique.</div>
+<div class="footer-band">Toute réponse générée est une <b>proposition</b>. Validation humaine obligatoire avant envoi. Aucun envoi automatique.</div>
 
 <script>
 /* =========================================================================
@@ -409,7 +412,9 @@ function pickModel(sp){
   const firstMatch = names => { for(const n of names){ const m=list.find(x=>x.toLowerCase().includes(n)); if(m) return m; } return null; };
   if(sp==='rapide')
     return firstMatch(['qwen2.5:3b','qwen2.5:1.5b','gemma3:4b','llama3.2:3b','phi','gemma3','llama3.1:8b','qwen2.5:7b']) || list[0];
-  return firstMatch(['qwen2.5:14b','qwen2.5:7b','llama3.1:8b','gemma4','mistral','gemma3','qwen2.5','llama']) || list[0];
+  // qwen2.5 = bien meilleur que gemma pour le francais + le respect du JSON (gemma est
+  // lent et laisse fuiter son raisonnement) : on le prefere ; gemma en dernier recours.
+  return firstMatch(['qwen2.5:14b','qwen2.5:7b','qwen2.5:32b','llama3.1:8b','mistral','qwen2.5','llama3','gemma3','gemma4']) || list[0];
 }
 // Profondeur de recherche documentaire : rapide = 2 fiches, complete = 4.
 function kbDepth(){ return speed==='rapide' ? 2 : 4; }
@@ -439,10 +444,10 @@ async function healthCheck(){
   if(!OLLAMA){
     // en ligne, aucune connexion live configuree -> demo statique
     dot.className='dot'; dot.style.background='#c9a227';
-    txt.innerHTML = 'Demo statique - resultats pre-calcules. <a href="#" id="cfgLive">Activer une connexion live</a>';
+    txt.innerHTML = 'Démo statique - résultats pré-calculés. <a href="#" id="cfgLive">Activer une connexion live</a>';
     ollamaOk = false; if(!modeManual) mode='demo'; wireCfgLive(); updateModeUI(); return;
   }
-  dot.className = 'dot wait'; txt.textContent = 'Connexion au LLM...';
+  dot.className = 'dot wait'; txt.textContent = 'Connexion au LLM…';
   try{
     const r = await fetchT(OLLAMA + '/api/tags', {method:'GET'}, 5000);
     if(!r.ok) throw new Error('HTTP '+r.status);
@@ -450,7 +455,7 @@ async function healthCheck(){
     installedModels = (d.models||[]).map(m=>m.name);
     ollamaOk = true;
     dot.className='dot ok';
-    txt.innerHTML = 'LLM connecte'+(IS_LOCAL?'':' (via tunnel)')+' - modele <b>'+esc(pickModel(speed))+'</b>';
+    txt.innerHTML = 'LLM connecté'+(IS_LOCAL?'':' (via tunnel)')+' - modèle <b>'+esc(pickModel(speed))+'</b>';
     if(!modeManual) mode = 'live';
   }catch(e){
     ollamaOk = false;
@@ -458,10 +463,10 @@ async function healthCheck(){
     if(IS_LOCAL){
       txt.innerHTML = 'Ollama indisponible. Lancez : <span class="cmd">'+esc(HEALTH_CMD)+'</span>'
         + ' <button class="src-chip" id="copyCmd">Copier la commande</button>'
-        + '<br><span style="color:var(--muted)">Bascule automatique en mode demo (resultats pre-calcules).</span>';
+        + '<br><span style="color:var(--muted)">Bascule automatique en mode démo (résultats pré-calculés).</span>';
       const cc = $('#copyCmd'); if(cc) cc.onclick = ()=>navigator.clipboard.writeText(HEALTH_CMD);
     } else {
-      txt.innerHTML = 'Connexion live indisponible - mode demo. <a href="#" id="cfgLive">Reconfigurer</a>';
+      txt.innerHTML = 'Connexion live indisponible - mode démo. <a href="#" id="cfgLive">Reconfigurer</a>';
       wireCfgLive();
     }
     if(!modeManual) mode = 'demo';
@@ -484,19 +489,19 @@ function wireCfgLive(){
 function updateModeUI(){
   const dot = $('#modeDot'), lbl = $('#modeLabel');
   if(mode==='live'){ dot.className='dot ok'; lbl.textContent='Mode live'; }
-  else { dot.className='dot'; dot.style.background='#c9a227'; lbl.textContent='Mode demo'; }
+  else { dot.className='dot'; dot.style.background='#c9a227'; lbl.textContent='Mode démo'; }
   // banniere haut
   const tb = $('#topBanner');
   if(mode==='live'){
     tb.innerHTML = '<div class="banner info">&#9889;&nbsp;<div><b>Mode live</b> - '
       + (IS_LOCAL
-          ? 'le modele tourne en local, aucune donnee ne quitte la machine.'
-          : 'le modele tourne sur la machine du presentateur, relie via un tunnel chiffre Cloudflare (aucun LLM tiers).')
+          ? 'le modèle tourne en local, aucune donnée ne quitte la machine.'
+          : 'le modèle tourne sur la machine du présentateur, relié via un tunnel chiffré Cloudflare (aucun LLM tiers).')
       + '</div></div>';
   } else if(IS_HTTPS){
-    tb.innerHTML = '<div class="banner info">&#8505;&#65039;&nbsp;<div><b>Demo statique</b> - resultats pre-calcules a partir d\'executions reelles. Pour la demo en direct avec le LLM, voir le README.</div></div>';
+    tb.innerHTML = '<div class="banner info">&#8505;&#65039;&nbsp;<div><b>Démo statique</b> - résultats pré-calculés à partir d\'exécutions réelles. Pour la démo en direct avec le LLM, voir le README.</div></div>';
   } else {
-    tb.innerHTML = '<div class="banner warn">&#9888;&#65039;&nbsp;<div><b>Mode demo</b> - LLM indisponible : lecture de resultats pre-calcules. Aucun appel LLM en direct.</div></div>';
+    tb.innerHTML = '<div class="banner warn">&#9888;&#65039;&nbsp;<div><b>Mode démo</b> - LLM indisponible : lecture de résultats pré-calculés. Aucun appel LLM en direct.</div></div>';
   }
 }
 
@@ -554,11 +559,15 @@ REGLES DURES - NON NEGOCIABLES :
 3. AUCUNE affirmation factuelle absente des FICHES ci-dessous. Si une information manque (ex. resultats d'analyses de metaux lourds), dis-le et promets un retour documente sous delai. N'invente JAMAIS un chiffre, un seuil ou un resultat d'analyse.
 4. AUCUN engagement commercial chiffre (remboursement, geste) : ecris "[a definir avec le manager]".
 5. Ton empathique, factuel, non defensif, vouvoiement. Signature exacte : "[Prenom] - Service Client Onatera". Propose un interlocuteur et un delai de retour "[delai a confirmer]".
+6. Orthographe et ponctuation FRANCAISES IRREPROCHABLES (accents corrects, espaces, majuscules). Le mail doit pouvoir etre envoye a une virgule pres apres relecture.
+7. Le champ "reponse_client" ne contient QUE le texte du mail. N'y mets JAMAIS de raisonnement, de notes internes, de balises, de commentaire, ni de champ "thought_process". Aucun texte hors des champs du schema.
+
+Pour "actions_internes" : sois COMPLET et SPECIFIQUE. Liste toutes les actions internes pertinentes (pas seulement une), en nommant le service destinataire, l'action concrete, la priorite et le delai. Pense selon le ticket a : Qualite/Reglementaire (audit/correction de fiche, conformite), Juridique (exposition, cadrage), Fournisseur/Labo (dossier justificatif, tracabilite, analyses), E-merchandising/Contenu (geler ou corriger la fiche produit), Direction (dossier sensible), Support Client (desescalade, risque reputationnel). N'inclus que celles qui ont du sens ici.
 
 FICHES DE CONNAISSANCE (seule base factuelle autorisee) :
 ${kbText}
 
-Reponds STRICTEMENT en JSON conforme au schema. Le champ reponse_client est le texte du mail, pret a relire, avec les champs a personnaliser entre [crochets].`;
+Reponds STRICTEMENT en JSON conforme au schema, en francais. Le champ reponse_client est le texte du mail, pret a relire, avec les champs a personnaliser entre [crochets], et RIEN D'AUTRE.`;
 }
 
 function kbToText(hits){
@@ -676,6 +685,21 @@ function normConf(v){
   if(v > 100) v = v/10000; else if(v > 1) v = v/100;
   return Math.max(0, Math.min(1, v));
 }
+// Nettoie la reponse : coupe toute fuite de raisonnement / notes / balises qu'un
+// modele bavard (ex. gemma) ajoute parfois apres le mail.
+function sanitizeReply(t){
+  if(!t) return '';
+  t = String(t).replace(/\r/g,'');
+  // couper a partir d'un marqueur de raisonnement/format
+  t = t.replace(/\n?\s*(thought[_ ]?process|thinking|analysis|reasoning|note[s]? interne|explication\s*:|```)[\s\S]*$/i, '');
+  // si la signature Service Client est presente, on coupe juste apres (rien ne doit suivre)
+  const m = t.match(/^[\s\S]*?-\s*Service Client Onatera\.?/);
+  if(m) t = m[0];
+  return t.replace(/\n{3,}/g,'\n\n').trim();
+}
+// Rang de severite pour aligner niveau_risque et gravite du triage.
+const RISK_RANK = {faible:0, modere:1, eleve:2, critique:3};
+const GRAVITE_TO_RISK = {basse:'faible', moyenne:'modere', haute:'eleve', critique:'critique'};
 const BLOCKLIST = [
   "notre produit a cause","nous sommes responsables","nous reconnaissons notre responsabilite",
   "notre erreur a provoque","nous vous rembourserons","est responsable de votre",
@@ -683,6 +707,8 @@ const BLOCKLIST = [
 ];
 function applyGuardrails(triage, red){
   const notes = [];
+  // 0. nettoyer la reponse (fuite de raisonnement, notes, balises)
+  red.reponse_client = sanitizeReply(red.reponse_client);
   // 1. escalade forcee
   const sig = triage.signaux_escalade||[];
   const forced = sig.includes('hospitalisation') || sig.includes('atteinte_corporelle');
@@ -706,7 +732,18 @@ function applyGuardrails(triage, red){
         red.actions_internes.unshift(a);
     });
   }
-  // 2. blocklist de formulations
+  // 2. coherence : le niveau de risque ne peut pas etre plus faible que la criticite du triage
+  const floor = GRAVITE_TO_RISK[(triage.gravite||'').toLowerCase()];
+  if(floor && (RISK_RANK[floor] > (RISK_RANK[red.niveau_risque]||0))){
+    red.niveau_risque = floor;
+    notes.push('Niveau de risque aligne sur la criticite du triage ('+floor+').');
+  }
+  // urgence sanitaire -> au moins "eleve"
+  if(triage.urgence_sanitaire && (RISK_RANK[red.niveau_risque]||0) < RISK_RANK.eleve){
+    red.niveau_risque = 'eleve';
+    notes.push('Urgence sanitaire : niveau de risque releve a "eleve".');
+  }
+  // 3. blocklist de formulations
   const low = (red.reponse_client||'').toLowerCase();
   const hits = BLOCKLIST.filter(b=>low.includes(b));
   return { forced, forcedTags, blocklistHits:hits, notes };
@@ -726,34 +763,39 @@ function setStep(n, state, secs){
   if(state==='run'){ step.classList.add('open'); ico.innerHTML='<span class="spin"></span>'; t.textContent=''; }
   if(state==='done'){ step.classList.add('done'); ico.textContent='✓'; if(secs!=null) t.textContent=secs.toFixed(1)+' s'; }
 }
-const CAT_LABELS = {risque_sanitaire:'Risque sanitaire', reglementaire:'Reglementaire',
-  securite_produit:'Securite produit', livraison:'Livraison', commande:'Commande',
+const CAT_LABELS = {risque_sanitaire:'Risque sanitaire', reglementaire:'Réglementaire',
+  securite_produit:'Sécurité produit', livraison:'Livraison', commande:'Commande',
   information_conseil:'Information / conseil', autre:'Autre'};
+const RISK_LABELS = {critique:'Critique', eleve:'Élevé', modere:'Modéré', faible:'Faible'};
 function renderTriage(tr){
   $('#json1').textContent = JSON.stringify(tr, null, 2);
   const cat = CAT_LABELS[tr.categorie] || tr.categorie;
   let h = '<div class="triage-badges">'
-    + '<div class="tb"><span class="tb-l">Categorie suggeree</span><span class="tb-v">'+esc(cat)+'</span></div>'
-    + '<div class="tb"><span class="tb-l">Criticite</span><span class="tb-v grav-'+esc(tr.gravite)+'">'+esc(tr.gravite)+'</span></div>'
+    + '<div class="tb"><span class="tb-l">Catégorie suggérée</span><span class="tb-v">'+esc(cat)+'</span></div>'
+    + '<div class="tb"><span class="tb-l">Criticité</span><span class="tb-v grav-'+esc(tr.gravite)+'">'+esc(tr.gravite)+'</span></div>'
     + '</div>';
   h += '<p style="margin:11px 0 6px">'+esc(tr.resume_1_phrase)+'</p>';
   const chips = [['Urgence sanitaire', tr.urgence_sanitaire?'oui':'non'],['Emotion', tr.etat_emotionnel]];
   if((tr.produits_cites||[]).length) chips.push(['Produits', tr.produits_cites.join(', ')]);
   h += '<div class="tags">'+chips.map(c=>'<span class="src-chip">'+esc(c[0])+' : '+esc(c[1])+'</span>').join('')+'</div>';
   if((tr.signaux_escalade||[]).length)
-    h += '<div class="hint" style="margin-top:8px">Signaux d\'escalade detectes : '+tr.signaux_escalade.map(esc).join(', ')+'</div>';
+    h += '<div class="hint" style="margin-top:8px">Signaux d\'escalade détectés : '+tr.signaux_escalade.map(esc).join(', ')+'</div>';
   $('#triageSummary').classList.remove('empty'); $('#triageSummary').innerHTML = h;
 }
 function renderKb(hits){
   const max = Math.max(...hits.map(h=>h.score), 1);
   const box = $('#kbHits'); box.classList.remove('empty');
-  box.innerHTML = hits.map(h=>
-    '<div class="kbhit" data-kb="'+esc(h.id)+'">'
-    + '<div class="bar" style="width:'+(10+40*h.score/max)+'px"></div>'
-    + '<div><b>'+esc(h.nom)+'</b><div style="font-size:12px;color:var(--muted)">'+esc(h.id)+'</div></div>'
-    + '<div class="score">score '+h.score+'</div></div>'
-  ).join('');
-  box.querySelectorAll('[data-kb]').forEach(el=>el.onclick=()=>openKb(el.dataset.kb));
+  box.innerHTML = hits.map(h=>{
+    const e = KB.find(k=>k.id===h.id);
+    const link = (e && e.type==='produit' && e.source_url)
+      ? '<a class="kb-ext" href="'+esc(e.source_url)+'" target="_blank" rel="noopener" title="Ouvrir la fiche produit Onatera" onclick="event.stopPropagation()">Voir la fiche &#8599;</a>' : '';
+    return '<div class="kbhit" data-kb="'+esc(h.id)+'">'
+      + '<div class="bar" style="width:'+(10+40*h.score/max)+'px"></div>'
+      + '<div><b>'+esc(h.nom)+'</b><div style="font-size:12px;color:var(--muted)">'+esc(h.id)+'</div></div>'
+      + link
+      + '<div class="score">score '+h.score+'</div></div>';
+  }).join('');
+  box.querySelectorAll('[data-kb]').forEach(el=>el.onclick=(ev)=>{ if(ev.target.closest('a')) return; openKb(el.dataset.kb); });
 }
 function renderResult(triage, red, guard){
   $('#result').style.display='block';
@@ -764,13 +806,13 @@ function renderResult(triage, red, guard){
     const forced = guard.forcedTags.includes(t);
     return '<span class="tag'+(forced?' forced':'')+'">'+esc(t)+(forced?' (force)':'')+'</span>';
   }).join('');
-  rb.innerHTML = '<div class="rl">Niveau de risque</div><div class="rv">'+esc(red.niveau_risque)+'</div>'
+  rb.innerHTML = '<div class="rl">Niveau de risque</div><div class="rv">'+esc(RISK_LABELS[red.niveau_risque]||red.niveau_risque)+'</div>'
     + (tags?'<div class="tags">'+tags+'</div>':'');
   // bandeaux garde-fous
   let gb='';
   if(guard.blocklistHits.length)
     gb += '<div class="banner danger">&#9888;&#65039;&nbsp;<div><b>Formulation a risque detectee</b> - relecture juridique obligatoire. Le(s) passage(s) sont surlignes dans la reponse ci-dessous. (Le filet de securite n\'a pas censure le texte : il l\'a signale.)</div></div>';
-  if(guard.forced)
+  if(guard.notes.length)
     gb += '<div class="banner warn">&#9889;&nbsp;<div><b>Regle metier appliquee</b> : '+esc(guard.notes.join(' '))+'</div></div>';
   $('#guardBanner').innerHTML = gb;
   // reponse
@@ -781,9 +823,12 @@ function renderResult(triage, red, guard){
     '<tr><td>'+esc(a.service)+'</td><td>'+esc(a.action)+'</td>'
     +'<td><span class="prio '+esc((a.priorite||'').toLowerCase())+'">'+esc(a.priorite)+'</span></td>'
     +'<td>'+esc(a.delai)+'</td></tr>').join('');
-  // sources
+  // sources : les fiches PRODUIT ouvrent la page web du produit (nouvel onglet) ;
+  // les fiches reglementaires/support ouvrent le detail dans l'app.
   $('#sourcesBox').innerHTML = (red.sources_utilisees||[]).map(s=>{
     const e = KB.find(k=>k.id===s);
+    if(e && e.type==='produit' && e.source_url)
+      return '<a class="src-chip" href="'+esc(e.source_url)+'" target="_blank" rel="noopener" title="Ouvrir la fiche produit Onatera">'+esc(e.nom)+' &#8599;</a>';
     return '<span class="src-chip" data-kb="'+esc(s)+'">'+esc(e?e.nom:s)+'</span>';
   }).join('');
   $('#sourcesBox').querySelectorAll('[data-kb]').forEach(el=>el.onclick=()=>openKb(el.dataset.kb));
@@ -842,7 +887,7 @@ async function runLive(model, text){
   renderKb(hits); setStep(2,'done',(performance.now()-s)/1000);
   // etape 3
   setStep(3,'run'); s=performance.now();
-  $('#draftLive').classList.remove('empty'); $('#draftLive').innerHTML='<div class="reply" id="liveReply"><span class="spin"></span> Generation en cours...</div>';
+  $('#draftLive').classList.remove('empty'); $('#draftLive').innerHTML='<div class="reply" id="liveReply"><span class="spin"></span> Génération en cours…</div>';
   const sys = redactionSys(kbToText(hits));
   const raw3 = await ollamaChatStream(model,
     [{role:'system',content:sys},{role:'user',content:'TICKET:\n'+text+'\n\nTRIAGE:\n'+JSON.stringify(triage)}],
@@ -855,7 +900,7 @@ async function runLive(model, text){
   const guard = applyGuardrails(triage, red);
   renderResult(triage, red, guard);
   setStep(3,'done',(performance.now()-s)/1000);
-  $('#draftLive').innerHTML = '<div class="hint">Redaction terminee - voir le resultat ci-dessous.</div>';
+  $('#draftLive').innerHTML = '<div class="hint">Rédaction terminée - voir le résultat ci-dessous.</div>';
 }
 async function runDemo(exId, text){
   const rec = exId && DEMO[exId] ? DEMO[exId] : DEMO['4471']; // fallback demo
@@ -878,7 +923,7 @@ async function runDemo(exId, text){
   const guard = applyGuardrails(triage, red);
   renderResult(triage, red, guard);
   setStep(3,'done', (speed==='rapide'?3.0:9.0)+Math.random()*2);
-  $('#draftLive').innerHTML = '<div class="hint">Redaction terminee (pre-calculee) - voir le resultat ci-dessous.</div>';
+  $('#draftLive').innerHTML = '<div class="hint">Rédaction terminée (pré-calculée) - voir le résultat ci-dessous.</div>';
 }
 function typeOut(el, txt){
   return new Promise(res=>{
