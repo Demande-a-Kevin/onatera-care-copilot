@@ -144,6 +144,13 @@
   .tb-l{display:block;font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
   .tb-v{font-weight:700;font-size:15px}
   .grav-critique{color:var(--red)} .grav-haute{color:#c9622a} .grav-moyenne{color:var(--amber)} .grav-basse{color:var(--green)}
+  .reco-card{border:1px solid var(--line);border-radius:10px;padding:11px 13px;margin-top:8px;background:#fff}
+  .reco-card .rc-top{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+  .reco-card .rc-nom{font-weight:700}
+  .reco-card .rc-prix{font-weight:700;color:var(--green-dark);background:var(--green-soft);border:1px solid #cadfd0;border-radius:999px;padding:1px 9px;font-size:12px}
+  .reco-card .rc-why{font-size:13px;margin:6px 0 0}
+  .reco-card .rc-vig{font-size:12.5px;margin-top:7px;background:var(--amber-soft);border:1px solid #ecd9a6;color:var(--amber);border-radius:8px;padding:6px 9px}
+  .reco-card .rc-ext{font-size:12px;color:var(--green-dark);text-decoration:none;margin-left:auto;border:1px solid var(--line);border-radius:7px;padding:2px 8px;background:var(--green-soft)}
   .src-chip{display:inline-block;font-size:12px;background:var(--green-soft);color:var(--green-dark);border:1px solid #cadfd0;border-radius:999px;padding:3px 9px;margin:4px 4px 0 0;cursor:pointer}
   .conf{display:flex;align-items:center;gap:10px;margin-top:8px;font-size:13px}
   .conf .track{flex:1;height:9px;background:var(--line);border-radius:6px;overflow:hidden}
@@ -282,6 +289,10 @@
           <div class="hint" style="margin-top:0;margin-bottom:6px">Ce que l'agent doit faire au-delà de la réponse : qui alerter, quoi remonter, dans quel délai.</div>
           <table id="actionsTbl"><thead><tr><th>À qui</th><th>Action</th><th>Prio.</th><th>Délai</th></tr></thead><tbody></tbody></table>
 
+          <div class="subhd" id="recoHd" style="display:none">Recommandations produits <span style="font-weight:400;color:var(--muted)">(aide à l'agent)</span></div>
+          <div class="hint" id="recoLead" style="display:none;margin-top:0;margin-bottom:6px">Suggestions issues de la base — <b>vérifiez la vigilance / contre-indications</b> avant de conseiller le client.</div>
+          <div id="recoBox"></div>
+
           <div class="subhd">Réponse client proposée <button class="copy" id="copyBtn">Copier</button></div>
           <div class="hint" style="margin-top:0;margin-bottom:6px">Ton Onatera : chaleureux, factuel, jamais défensif. À relire et signer.</div>
           <div class="reply" id="replyBox"></div>
@@ -325,6 +336,7 @@
           <li><b>Il retrouve les bonnes fiches</b> (produits, règles, pages d'aide) et vous les montre : la réponse s'appuie sur des sources, pas sur une invention.</li>
           <li><b>Il rédige une proposition</b> dans le ton Onatera : chaleureux, factuel, jamais défensif.</li>
           <li><b>Il liste les actions internes</b> à déclencher et à qui les adresser (remontée qualité, alerte fournisseur, escalade juridique…).</li>
+          <li><b>Il peut recommander des produits</b> selon le besoin du client (avec prix), en signalant les <b>précautions et contre-indications</b> à vérifier.</li>
         </ul>
       </div>
       <div>
@@ -519,11 +531,12 @@ const TRIAGE_SCHEMA = {
     actifs_concernes:{type:"array",items:{type:"string"}},
     faits_allegues:{type:"array",items:{type:"string"}},
     demandes_explicites:{type:"array",items:{type:"string"}},
+    besoins:{type:"array",items:{type:"string"}},
     signaux_escalade:{type:"array",items:{type:"string"}},
     etat_emotionnel:{type:"string",enum:["colere","detresse","inquietude","factuel"]},
     resume_1_phrase:{type:"string"}
   },
-  required:["categorie","gravite","urgence_sanitaire","produits_cites","actifs_concernes","faits_allegues","demandes_explicites","signaux_escalade","etat_emotionnel","resume_1_phrase"]
+  required:["categorie","gravite","urgence_sanitaire","produits_cites","actifs_concernes","faits_allegues","demandes_explicites","besoins","signaux_escalade","etat_emotionnel","resume_1_phrase"]
 };
 const REDACTION_SCHEMA = {
   type:"object",
@@ -534,11 +547,14 @@ const REDACTION_SCHEMA = {
     actions_internes:{type:"array",items:{type:"object",properties:{
       service:{type:"string"},action:{type:"string"},priorite:{type:"string"},delai:{type:"string"}
     },required:["service","action","priorite","delai"]}},
+    recommandations_produits:{type:"array",items:{type:"object",properties:{
+      nom:{type:"string"}, prix:{type:"string"}, pourquoi:{type:"string"}, points_de_vigilance:{type:"string"}
+    },required:["nom","pourquoi","points_de_vigilance"]}},
     sources_utilisees:{type:"array",items:{type:"string"}},
     points_a_valider_par_un_humain:{type:"array",items:{type:"string"}},
     confiance:{type:"number"}
   },
-  required:["niveau_risque","escalade_requise","reponse_client","actions_internes","sources_utilisees","points_a_valider_par_un_humain","confiance"]
+  required:["niveau_risque","escalade_requise","reponse_client","actions_internes","recommandations_produits","sources_utilisees","points_a_valider_par_un_humain","confiance"]
 };
 
 /* ---------- prompts ---------- */
@@ -550,6 +566,7 @@ categorie (choisir la plus pertinente) : "risque_sanitaire" (effet indesirable, 
 gravite = criticite du ticket : "critique","haute","moyenne","basse".
 signaux_escalade est une liste choisie parmi : "menace_dgccrf","menace_media","menace_avocat","hospitalisation","atteinte_corporelle","grossesse","deces".
 urgence_sanitaire = true si un risque pour la sante d'une personne est evoque (interaction, surdosage, hospitalisation, grossesse...).
+besoins = liste des besoins ou themes exprimes par le client (ex : "fatigue", "sommeil", "stress", "immunite", "energie", "digestion", "fer", "vitamine c", "prostate"...). Sert a proposer/comparer des produits. Vide si le client ne cherche pas de recommandation.
 Sois concis et factuel.`;
 
 function redactionSys(kbText){
@@ -565,6 +582,7 @@ REGLES DURES - NON NEGOCIABLES :
 6. Orthographe et ponctuation FRANCAISES IRREPROCHABLES (accents corrects, espaces, majuscules). Le mail doit pouvoir etre envoye a une virgule pres apres relecture.
 7. Le champ "reponse_client" ne contient QUE le texte du mail. N'y mets JAMAIS de raisonnement, de notes internes, de balises, de commentaire, ni de champ "thought_process". Aucun texte hors des champs du schema.
 
+Pour "recommandations_produits" : si le client cherche un conseil, une recommandation ou une comparaison (voir ses besoins), propose 1 a 4 produits PARMI LES FICHES FOURNIES uniquement (jamais un produit absent des fiches). Pour chacun : "nom", "prix" (celui de la fiche s'il existe, sinon vide), "pourquoi" (en quoi il repond au besoin, factuel), et "points_de_vigilance" (contre-indications, interactions, precautions, public deconseille - ex. grossesse, anticoagulant, traitement en cours ; a defaut ecris "Aucune contre-indication specifique relevee sur la fiche ; avis medecin/pharmacien recommande"). Ne recommande JAMAIS un produit contre-indique au vu de la situation decrite. Si le client ne demande pas de recommandation, laisse la liste vide.
 Pour "actions_internes" : sois COMPLET et SPECIFIQUE. Liste toutes les actions internes pertinentes (pas seulement une), en nommant le service destinataire, l'action concrete, la priorite et le delai. Pense selon le ticket a : Qualite/Reglementaire (audit/correction de fiche, conformite), Juridique (exposition, cadrage), Fournisseur/Labo (dossier justificatif, tracabilite, analyses), E-merchandising/Contenu (geler ou corriger la fiche produit), Direction (dossier sensible), Support Client (desescalade, risque reputationnel). N'inclus que celles qui ont du sens ici.
 
 FICHES DE CONNAISSANCE (seule base factuelle autorisee) :
@@ -640,11 +658,14 @@ function extractPartial(full, key){
 /* ---------- etape 2 : retrieval deterministe ---------- */
 // Justification (assumee en entretien) : avec ~12 documents, un index vectoriel
 // n'apporte aucun gain et ajoute une dependance. Scoring lexical simple et lisible.
-function retrieve(triage, depth){
+const RETR_STOP = new Set(['sans','avec','pour','onatera','naturel']);
+function retrieve(triage, depth, text){
   depth = depth || 4;
   const prod = (triage.produits_cites||[]).map(s=>s.toLowerCase());
   const act  = (triage.actifs_concernes||[]).map(s=>s.toLowerCase());
+  const besoins = (triage.besoins||[]).map(s=>s.toLowerCase());
   const cat  = (triage.categorie||'').toLowerCase();
+  const t = (text||'').toLowerCase();
   const hay = (e,term)=>{
     const bag = [e.nom, e.mots_cles.join(' '), e.actifs.join(' ')].join(' ').toLowerCase();
     return bag.includes(term);
@@ -653,18 +674,28 @@ function retrieve(triage, depth){
     let s = 0;
     prod.forEach(p=>{ if(p && hay(e,p)) s += 3; });
     act.forEach(a=>{ if(a && hay(e,a)) s += 2; });
-    // categorie -> type reglementaire/produit pertinent
+    // besoins exprimes par le client -> produits (pour comparer/recommander) et fiches
+    besoins.forEach(b=>{ if(b && hay(e,b)) s += (e.type==='produit' ? 2 : 1); });
+    // categorie -> type reglementaire/produit/support pertinent
     if(cat && (e.mots_cles.join(' ').toLowerCase().includes(cat.split('_')[0]))) s += 1;
-    // la posture est toujours legerement utile
+    // mots-cles de la fiche presents dans le texte du ticket (couvre editorial + produits)
+    if(t){
+      let m = 0;
+      e.mots_cles.forEach(k=>{ k=k.toLowerCase(); if(k.length>=4 && !RETR_STOP.has(k) && t.includes(k)) m++; });
+      if(m) s += Math.min(3, m*1.2);
+    }
     if(e.type==='posture') s += 0.5;
-    return {id:e.id, nom:e.nom, score:s};
-  }).filter(x=>x.score>=1).sort((a,b)=>b.score-a.score).slice(0,depth);
+    return {id:e.id, nom:e.nom, score:Math.round(s*10)/10, type:e.type};
+  }).filter(x=>x.score>=1).sort((a,b)=>b.score-a.score);
+  // plus de candidats produits quand le client exprime un besoin (comparaison/reco)
+  const cap = besoins.length ? Math.max(depth, 5) : depth;
+  const top = scored.slice(0, cap);
   // garantir la fiche posture
-  if(!scored.find(x=>x.id==='kb_posture_onatera')){
+  if(!top.find(x=>x.id==='kb_posture_onatera')){
     const p = KB.find(k=>k.id==='kb_posture_onatera');
-    scored.push({id:p.id, nom:p.nom, score:0.5});
+    top.push({id:p.id, nom:p.nom, score:0.5, type:'posture'});
   }
-  return scored.slice(0,depth);
+  return top;
 }
 
 /* ---------- garde-fous deterministes ---------- */
@@ -770,6 +801,13 @@ const CAT_LABELS = {risque_sanitaire:'Risque sanitaire', reglementaire:'Régleme
   securite_produit:'Sécurité produit', livraison:'Livraison', commande:'Commande',
   information_conseil:'Information / conseil', autre:'Autre'};
 const RISK_LABELS = {critique:'Critique', eleve:'Élevé', modere:'Modéré', faible:'Faible'};
+// Affichage prix homogene : "19.90 EUR" -> "19,90 €"
+function formatPrix(s){
+  if(!s) return '';
+  const m = String(s).replace(',', '.').match(/(\d+(?:\.\d+)?)/);
+  if(!m) return String(s);
+  return m[1].replace('.', ',') + ' €';
+}
 function renderTriage(tr){
   $('#json1').textContent = JSON.stringify(tr, null, 2);
   const cat = CAT_LABELS[tr.categorie] || tr.categorie;
@@ -780,6 +818,7 @@ function renderTriage(tr){
   h += '<p style="margin:11px 0 6px">'+esc(tr.resume_1_phrase)+'</p>';
   const chips = [['Urgence sanitaire', tr.urgence_sanitaire?'oui':'non'],['Emotion', tr.etat_emotionnel]];
   if((tr.produits_cites||[]).length) chips.push(['Produits', tr.produits_cites.join(', ')]);
+  if((tr.besoins||[]).length) chips.push(['Besoins', tr.besoins.join(', ')]);
   h += '<div class="tags">'+chips.map(c=>'<span class="src-chip">'+esc(c[0])+' : '+esc(c[1])+'</span>').join('')+'</div>';
   if((tr.signaux_escalade||[]).length)
     h += '<div class="hint" style="margin-top:8px">Signaux d\'escalade détectés : '+tr.signaux_escalade.map(esc).join(', ')+'</div>';
@@ -826,6 +865,23 @@ function renderResult(triage, red, guard){
     '<tr><td>'+esc(a.service)+'</td><td>'+esc(a.action)+'</td>'
     +'<td><span class="prio '+esc((a.priorite||'').toLowerCase())+'">'+esc(a.priorite)+'</span></td>'
     +'<td>'+esc(a.delai)+'</td></tr>').join('');
+  // recommandations produits (aide a l'agent) + vigilance
+  const recos = red.recommandations_produits || [];
+  const rbox = $('#recoBox');
+  if(recos.length){
+    $('#recoHd').style.display=''; $('#recoLead').style.display='';
+    rbox.innerHTML = recos.map(r=>{
+      const e = KB.find(k=>k.type==='produit' && k.nom && r.nom && k.nom.toLowerCase().includes(String(r.nom).toLowerCase().slice(0,12)));
+      const prix = formatPrix(r.prix || (e && e.prix) || '');
+      const link = (e && e.source_url) ? '<a class="rc-ext" href="'+esc(e.source_url)+'" target="_blank" rel="noopener">Fiche &#8599;</a>' : '';
+      return '<div class="reco-card"><div class="rc-top"><span class="rc-nom">'+esc(r.nom)+'</span>'
+        + (prix?'<span class="rc-prix">'+esc(prix)+'</span>':'') + link + '</div>'
+        + (r.pourquoi?'<div class="rc-why">'+esc(r.pourquoi)+'</div>':'')
+        + '<div class="rc-vig">&#9888;&#65039; Vigilance : '+esc(r.points_de_vigilance||'Avis médecin/pharmacien recommandé.')+'</div></div>';
+    }).join('');
+  } else {
+    $('#recoHd').style.display='none'; $('#recoLead').style.display='none'; rbox.innerHTML='';
+  }
   // sources : les fiches PRODUIT ouvrent la page web du produit (nouvel onglet) ;
   // les fiches reglementaires/support ouvrent le detail dans l'app.
   $('#sourcesBox').innerHTML = (red.sources_utilisees||[]).map(s=>{
@@ -885,7 +941,7 @@ async function runLive(model, text){
   renderTriage(triage); setStep(1,'done',(performance.now()-s)/1000);
   // etape 2
   setStep(2,'run'); s=performance.now();
-  const hits = retrieve(triage, kbDepth());
+  const hits = retrieve(triage, kbDepth(), text);
   await sleep(250);
   renderKb(hits); setStep(2,'done',(performance.now()-s)/1000);
   // etape 3
@@ -948,13 +1004,14 @@ function resetUI(){
   $('#json1').style.display='none'; $('#json3').style.display='none'; $('#tg3').style.display='none';
   $('#kbHits').className='empty'; $('#kbHits').textContent='En attente.';
   $('#draftLive').className='empty'; $('#draftLive').textContent='En attente.';
+  $('#recoHd').style.display='none'; $('#recoLead').style.display='none'; $('#recoBox').innerHTML='';
 }
 
 /* ---------- KB modal ---------- */
 function openKb(id){
   const e = KB.find(k=>k.id===id); if(!e) return;
   $('#kbmNom').textContent = e.nom;
-  $('#kbmMeta').textContent = [e.type, e.reference && ('ref. '+e.reference), e.prix && ('Prix : '+e.prix), e.actifs.join(', ')].filter(Boolean).join(' | ');
+  $('#kbmMeta').textContent = [e.type, e.reference && ('ref. '+e.reference), e.prix && ('Prix : '+formatPrix(e.prix)), e.actifs.join(', ')].filter(Boolean).join(' | ');
   $('#kbmContenu').innerHTML = '<p>'+esc(e.contenu)+'</p>';
   if(e.lacunes_identifiees){ $('#kbmLac').style.display='block'; $('#kbmLac').textContent='Lacune identifiee : '+e.lacunes_identifiees; }
   else $('#kbmLac').style.display='none';

@@ -140,6 +140,44 @@
         "points_a_valider_par_un_humain": ["Ne communiquer aucune valeur d'analyse avant vérification", "Délai de retour réaliste"],
         "confiance": 0.8
       }
+    },
+    "4560": {
+      "triage": {
+        "categorie": "information_conseil",
+        "gravite": "basse",
+        "urgence_sanitaire": false,
+        "produits_cites": [],
+        "actifs_concernes": [],
+        "faits_allegues": [],
+        "demandes_explicites": ["recommandation de produit", "précautions à prendre", "prix"],
+        "besoins": ["fatigue", "stress", "sommeil"],
+        "signaux_escalade": [],
+        "etat_emotionnel": "factuel",
+        "resume_1_phrase": "La cliente, fatiguée, stressée et dormant mal, cherche un conseil produit adapté avec les précautions et les prix.",
+        "produit_ref": ""
+      },
+      "retrieved": [
+        {"id": "kb_prod_magnesium_bisglycinate_300_mg_90_gelules_onatera", "nom": "Magnésium Bisglycinate 300 mg", "score": 6},
+        {"id": "kb_prod_ashwagandha_ksm_66_bio_600_mg_60_comprimes_onate", "nom": "Ashwagandha KSM-66® bio 600 mg", "score": 5},
+        {"id": "kb_prod_rhodiola_safran_30_gelules_onatera", "nom": "Rhodiola & Safran", "score": 5},
+        {"id": "kb_posture_onatera", "nom": "Règles de rédaction - Service Client Onatera", "score": 0.5}
+      ],
+      "redaction": {
+        "niveau_risque": "faible",
+        "escalade_requise": [],
+        "reponse_client": "Bonjour Mme Fontaine,\n\nMerci pour votre message, et pour votre confiance. Fatigue, stress et sommeil difficile forment souvent un cercle qu'il est utile d'aborder en douceur.\n\nAvant tout, ces suggestions ne remplacent pas un avis médical : si la fatigue persiste ou s'accompagne d'autres symptômes, je vous invite à en parler à votre médecin ou à votre pharmacien, qui pourront écarter une cause à traiter.\n\nParmi nos produits, trois pistes pourraient correspondre à votre besoin :\n\n- Le Magnésium Bisglycinate 300 mg (9,95 €), une forme bien tolérée, souvent utilisée pour la détente musculaire et nerveuse.\n- L'Ashwagandha KSM-66® bio (18,90 €), une plante adaptogène traditionnellement associée à la gestion du stress.\n- Rhodiola & Safran (19,90 €), orienté équilibre émotionnel et sommeil.\n\nQuelques précautions importantes : l'ashwagandha est déconseillé en cas de grossesse, d'allaitement ou de trouble thyroïdien ; la rhodiola et le safran demandent de la prudence si vous prenez un traitement de l'humeur (antidépresseurs). En cas de doute, demandez conseil à votre pharmacien.\n\nJe reste à votre disposition pour affiner selon votre situation.\n\nBelle journée,\n[Prénom] - Service Client Onatera",
+        "actions_internes": [
+          {"service": "Support Client", "action": "Si la cliente le souhaite, proposer un point conseil personnalisé (téléphone) pour affiner selon ses traitements en cours.", "priorite": "basse", "delai": "à la demande"}
+        ],
+        "recommandations_produits": [
+          {"nom": "Magnésium Bisglycinate 300 mg", "prix": "9,95 €", "pourquoi": "Forme bien assimilée et bien tolérée ; couramment utilisée pour la détente nerveuse et musculaire et le confort du sommeil.", "points_de_vigilance": "Effet laxatif possible à forte dose ; prudence en cas d'insuffisance rénale (avis médical)."},
+          {"nom": "Ashwagandha KSM-66® bio 600 mg", "prix": "18,90 €", "pourquoi": "Plante adaptogène traditionnellement associée à la gestion du stress et de la fatigue nerveuse.", "points_de_vigilance": "Déconseillé en cas de grossesse, d'allaitement ou de trouble thyroïdien ; prudence avec les sédatifs et antidiabétiques — avis médecin/pharmacien recommandé."},
+          {"nom": "Rhodiola & Safran", "prix": "19,90 €", "pourquoi": "Orienté équilibre émotionnel, moral et sommeil.", "points_de_vigilance": "Prudence en cas de traitement de l'humeur (antidépresseurs) : risque d'interaction ; déconseillé pendant la grossesse."}
+        ],
+        "sources_utilisees": ["kb_prod_magnesium_bisglycinate_300_mg_90_gelules_onatera", "kb_prod_ashwagandha_ksm_66_bio_600_mg_60_comprimes_onate", "kb_prod_rhodiola_safran_30_gelules_onatera", "kb_posture_onatera"],
+        "points_a_valider_par_un_humain": ["Vérifier l'absence de contre-indication au vu des traitements de la cliente", "Ne pas présenter les compléments comme un traitement"],
+        "confiance": 0.82
+      }
     }
   }
 }

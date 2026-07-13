@@ -28,11 +28,29 @@ DATA = os.path.join(HERE, "data")
 SUPPORT_PAGES = [
     ("kb_support_livraisons", "livraison", "Livraisons & délais",
      BASE + "/FR/fr/info/livraisons"),
-    ("kb_support_conseils", "conseil", "Conseils Onatera",
+    ("kb_conseils", "conseil", "Conseils / Naturothèque Onatera",
      BASE + "/FR/fr/conseils"),
+    ("kb_club_onatera", "club", "Club Onatera (avantages fidélité)",
+     BASE + "/FR/fr/info/avantages"),
+    ("kb_engagements", "engagement", "Nos engagements Onatera",
+     BASE + "/FR/fr/info/nos-engagements"),
+    ("kb_charte_formulation", "engagement", "Charte de formulation Onatera",
+     BASE + "/FR/fr/info/notre-charte-formulation"),
+    ("kb_boutiques", "boutique", "Boutique Onatera (Aix-en-Provence)",
+     BASE + "/FR/fr/info/boutiques"),
     ("kb_support_aide", "support", "Centre d'aide Onatera",
      "https://support.onatera.com/hc/fr"),
 ]
+# mots-clés par type de page éditoriale (pour le retrieval)
+SUPPORT_KW = {
+    "livraison": ["livraison", "delai", "colis", "transporteur", "expedition", "retour", "remboursement", "commande", "suivi"],
+    "conseil": ["conseil", "naturotheque", "guide", "naturopathie", "bien-etre", "dossier"],
+    "club": ["club", "onatera", "fidelite", "avantages", "trefles", "points", "parrainage", "anniversaire", "cadeau", "remise"],
+    "engagement": ["engagement", "charte", "formulation", "qualite", "naturel", "ethique", "environnement", "ingredients", "sans", "controverse"],
+    "boutique": ["boutique", "magasin", "aix", "provence", "point de vente", "horaires", "adresse", "physique"],
+    "support": ["support", "aide", "faq", "assistance", "contact", "sav"],
+}
+BOILER = re.compile(r"mot de passe|se connecter|cr[ée]ez votre compte|cumulez des tr[èe]fles|newsletter|abonnez|cookies?|ajouter au panier|inscription|votre panier", re.I)
 
 # themes -> mots-clés d'usage, pour le retrieval lexical et la suggestion de catégorie
 THEMES = {
@@ -177,19 +195,39 @@ def parse_product(url):
     }
 
 
+def clean_editorial(html):
+    """Extrait un contenu propre d'une page editoriale : meta description +
+    titres (h1/h2) + paragraphes, en ecartant le boilerplate (login, panier...)."""
+    md = re.search(r'<meta[^>]+(?:name|property)=["\'](?:description|og:description)["\'][^>]+content=["\'](.*?)["\']', html, re.I)
+    desc = strip_tags(md.group(1)) if md else ""
+    heads = [strip_tags(x) for x in re.findall(r'<h[12][^>]*>(.*?)</h[12]>', html, re.S)]
+    heads = [h for h in heads if h and len(h) > 2 and not BOILER.search(h)][:10]
+    ns = re.sub(r"<(script|style|nav|header|footer|form).*?</\1>", " ", html, flags=re.S)
+    paras = [strip_tags(x) for x in re.findall(r'<p[^>]*>(.*?)</p>', ns, re.S)]
+    paras = [p for p in paras if len(p) > 40 and not BOILER.search(p)]
+    body = " ".join(paras)
+    return desc, heads, body
+
+
 def parse_support(id_, type_, nom, url):
     html = fetch(url)
     if not html:
         return None
-    no_script = re.sub(r"<(script|style|nav|header|footer).*?</\1>", " ", html, flags=re.S)
-    txt = strip_tags(no_script)
-    # garder un extrait dense du corps
-    txt = txt[:1600]
+    desc, heads, body = clean_editorial(html)
+    contenu = nom + ". "
+    if desc:
+        contenu += desc + " "
+    if heads:
+        contenu += "Rubriques : " + " ; ".join(heads) + ". "
+    if body:
+        contenu += body
+    contenu = re.sub(r"\s+", " ", contenu).strip()[:1600]
+    contenu += " (Contenu releve automatiquement sur onatera.com, a revalider.)"
+    mots = list(dict.fromkeys(SUPPORT_KW.get(type_, [type_]) + [type_]))
     return {
         "id": id_, "type": type_, "nom": nom, "reference": "",
-        "actifs": [], "mots_cles": [type_, "livraison", "delai", "commande", "retour",
-                                     "remboursement", "support", "aide", "conseil"],
-        "contenu": "Page %s d'Onatera. Extrait : %s (Contenu releve automatiquement, a revalider.)" % (nom, txt),
+        "actifs": [], "mots_cles": mots,
+        "contenu": contenu,
         "lacunes_identifiees": "", "source_url": url,
     }
 

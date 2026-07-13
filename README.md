@@ -16,7 +16,7 @@ En ligne, l'app tourne en **mode démo** : elle rejoue des résultats réels pr�
 
 1. **Triage** (LLM, sortie structurée) — catégorie **suggérée** (risque sanitaire, réglementaire, sécurité produit, livraison, commande, information/conseil…), criticité, urgence sanitaire, signaux d'escalade.
 2. **Recherche documentaire** (déterministe) — les fiches produit + réglementaires + pages d'aide pertinentes, affichées avec leur score.
-3. **Rédaction sourcée** (LLM, streaming) — un mail prêt à relire **et les actions internes à déclencher** (qui alerter, quoi remonter, dans quel délai), appuyés uniquement sur les fiches retenues.
+3. **Rédaction sourcée** (LLM, streaming) — un mail prêt à relire **et les actions internes à déclencher** (qui alerter, quoi remonter, dans quel délai) ; sur une demande de conseil, une **recommandation de produits** (prix + points de vigilance / contre-indications), appuyés uniquement sur les fiches retenues.
 4. **Garde-fous** — règles métier non négociables câblées en dur (pas confiées au modèle).
 5. **Validation humaine** — rien n'est envoyé automatiquement. L'outil propose, l'humain valide.
 
@@ -75,7 +75,8 @@ Câblés à deux niveaux — dans le prompt système **et** en post-traitement d
 La base (`data/kb.json`, ~166 entrées) combine :
 
 - des **fiches réglementaires + posture curées à la main** (vérifiées, liées aux cas sensibles) — dans `data/kb_curated.json` ;
-- les **fiches produit de la catégorie « Énergie & Vitalité »** (nom, référence, **prix**, disponibilité, allégations et précautions affichées) + quelques **pages d'aide** (livraisons, conseils, support), **ingérées automatiquement** depuis onatera.com par [`scripts/ingest_onatera.py`](scripts/ingest_onatera.py).
+- les **fiches produit de la catégorie « Énergie & Vitalité »** (nom, référence, **prix**, disponibilité, allégations et précautions affichées) + les **pages éditoriales** (livraisons, conseils/Naturothèque, **Club Onatera**, **nos engagements**, **charte de formulation**, **boutiques**, aide), **ingérées automatiquement** depuis onatera.com par [`scripts/ingest_onatera.py`](scripts/ingest_onatera.py).
+  - *Limite connue* : les articles de conseil (sous-pages de `/conseils`) sont chargés en JavaScript et ne sont pas récupérés par le simple fetch ; il faudrait un navigateur headless (roadmap).
 
 L'ingestion est **hors-ligne** : elle fige une base **locale** que le LLM consulte à la volée. Rien n'est scrapé pendant l'analyse d'un ticket → la promesse « aucune donnée ne sort » tient. Régénérer :
 

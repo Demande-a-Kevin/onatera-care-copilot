@@ -6,7 +6,7 @@
     "sources": {
       "curées": 12,
       "produits_ingérés": 152,
-      "support": 3
+      "support": 7
     }
   },
   "entries": [
@@ -4045,39 +4045,122 @@
       "actifs": [],
       "mots_cles": [
         "livraison",
-        "livraison",
         "delai",
-        "commande",
+        "colis",
+        "transporteur",
+        "expedition",
         "retour",
         "remboursement",
-        "support",
-        "aide",
-        "conseil"
+        "commande",
+        "suivi"
       ],
-      "contenu": "Page Livraisons & délais d'Onatera. Extrait : Modes de livraison - Onatera.com Fermer Vous avez déjà un compte ? {\"event\":\"trackErrorForm\",\"form_field_id\":\"\",\"form_field_label\":\"\",\"form_error_type\":\"\"} Adresse email* Mot de passe* Afficher Masquer Mot de passe oublié ? Se connecter [] Vous êtes un nouveau client ? Créez votre compte et profitez des avantages du Club Onatera. Cumulez des trèfles pour des remises Recevez un cadeau d'anniversaire Profitez d'offres et conseils gratuits Créer un compte Retour à Accueil Modes de livraison Modes de livraison En france Une expédition rapide de vos commandes Toute commande passée avant 14h est expédiée, dans la mesure du possible, le jour même ou au plus tard le lendemain. Les commandes passées après 14h sont expédiées le lendemain. Il n'y a pas d'expédition de commandes durant les week-ends et les jours fériés. Les commandes passées le vendredi après 14h sont expédiées le lundi matin. A noter que les commandes par chèques sont traitées à la réception de ce dernier. Vos 2 transporteurs à domicile Domicile 24h – UPS La livraison est effectuée à l’adresse de votre choix sous 1 jour ouvrable (à compter de la prise en charge par le transporteur) sur toute la France métropolitaine, du lundi au vendredi, lorsque la commande est passée, en semaine, avant 14h. Les commandes passées le vendredi ne sont, en revanche, livrées que le lundi suivant. Pour une livraison réussie, il est important de nous communiquer vos coordonnées détaillées. Votre commande est remise en mains propres contre signature. En cas d’absence, votre livreur dépose un avis de passage mentionnant la date et l’adresse  (Contenu releve automatiquement, a revalider.)",
+      "contenu": "Livraisons & délais. Rubriques : Modes de livraison ; En france ; Une expédition rapide de vos commandes ; Vos 2 transporteurs à domicile ; Vos 3 transporteurs en points relais ; Coût, délais et seuil de livraison gratuite. A noter que les commandes par chèques sont traitées à la réception de ce dernier. En optant pour Colissimo, Onatera choisit un partenaire responsable, 1er acteur de la compensation carbone volontaire d’Europe, qui s’engage à réduire son empreinte écologique en visant 3 objectifs : mesurer, réduire les émissions de CO2 notamment en optimisant les livraisons et compenser sans surcoût les émissions résiduelles en soutenant des projets en France et dans le monde.Onatera s’engage ainsi au quotidien dans des activités plus respectueuses de l’environnement et contribue à une consommation plus responsable. Si un pays n’est pas mentionné dans la liste ci-dessus c’est qu’il ne fait pas partie des destinations desservies par Onatera.com. * Délais moyens observés après traitement de la commande sur la France Métropolitaine. Hors périodes de soldes et de ventes privées. Source : La Poste. ** Les commandes passées en UPS le vendredi seront livrées seulement le lundi suivant (pas de livraison le samedi) (Contenu releve automatiquement sur onatera.com, a revalider.)",
       "lacunes_identifiees": "",
       "source_url": "https://www.onatera.com/FR/fr/info/livraisons"
     },
     {
-      "id": "kb_support_conseils",
+      "id": "kb_conseils",
       "type": "conseil",
-      "nom": "Conseils Onatera",
+      "nom": "Conseils / Naturothèque Onatera",
       "reference": "",
       "actifs": [],
       "mots_cles": [
         "conseil",
-        "livraison",
-        "delai",
-        "commande",
-        "retour",
-        "remboursement",
-        "support",
-        "aide",
-        "conseil"
+        "naturotheque",
+        "guide",
+        "naturopathie",
+        "bien-etre",
+        "dossier"
       ],
-      "contenu": "Page Conseils Onatera d'Onatera. Extrait : Naturothèque - Onatera.com Fermer Vous avez déjà un compte ? {\"event\":\"trackErrorForm\",\"form_field_id\":\"\",\"form_field_label\":\"\",\"form_error_type\":\"\"} Adresse email* Mot de passe* Afficher Masquer Mot de passe oublié ? Se connecter [] Vous êtes un nouveau client ? Créez votre compte et profitez des avantages du Club Onatera. Cumulez des trèfles pour des remises Recevez un cadeau d'anniversaire Profitez d'offres et conseils gratuits Créer un compte Naturothèque Retrouvez tous nos conseils pour mieux comprendre votre corps et répondre naturellement à vos besoins : digestion, stress, immunité, énergie, beauté, et bien plus. Article du moment Le Végétarisme : quand la nature rencontre la science de la nutrition Adopter un régime végétarien représente bien plus qu'un simple choix alimentaire, c'est un art de vivre qui exige une compréhension fine des besoins de notre organisme. Lire l'article Le guide des actifs Tout comprendre pour mieux choisir. Magnésium Collagène Vitamine C Vitamine en complexe Oméga-3 Vitamine D3 Ashwagandha Curcuma Onagre Propolis Spiruline Urucum Vitamine K2 Acide hyaluronique BCAA (Acides aminés branchés) Bourrache Gelée royale Ginkgo biloba Harpagophytum (griffe du diable) Lactobacillus gasseri Mélanine Probiotiques Pycnogenol Safran Vinaigre de cidre Zinc CBD Fer Huile de krill Myo-Inositol Mélatonine Rhodiola rosea Shilajit Vitamine B12 Acérola Ail Astaxanthine Astragale Berbérine Boswellia serrata Bêta-glucane Camomille romaine (noble) Chardon-marie Coenzyme Q10 (ubiquinone & ubiquinol) Eucalyptus Glutamine Glutathion Griffonia Kératine Lavande Levure (Contenu releve automatiquement, a revalider.)",
+      "contenu": "Conseils / Naturothèque Onatera. À votre disposition : 7000 produits naturels de santé, beauté et nutrition à prix raisonnés ainsi que les meilleurs conseils de nos spécialistes en naturopathie. Rubriques : Naturothèque. Article du moment Le Végétarisme : quand la nature rencontre la science de la nutrition Adopter un régime végétarien représente bien plus qu'un simple choix alimentaire, c'est un art de vivre qui exige une compréhension fine des besoins de notre organisme. Magnésium Collagène Vitamine C Vitamine en complexe Oméga-3 Vitamine D3 Ashwagandha Curcuma Onagre Propolis Spiruline Urucum Vitamine K2 Acide hyaluronique BCAA (Acides aminés branchés) Bourrache Gelée royale Ginkgo biloba Harpagophytum (griffe du diable) Lactobacillus gasseri Mélanine Probiotiques Pycnogenol Safran Vinaigre de cidre Zinc CBD Fer Huile de krill Myo-Inositol Mélatonine Rhodiola rosea Shilajit Vitamine B12 Acérola Ail Astaxanthine Astragale Berbérine Boswellia serrata Bêta-glucane Camomille romaine (noble) Chardon-marie Coenzyme Q10 (ubiquinone & ubiquinol) Eucalyptus Glutamine Glutathion Griffonia Kératine Lavande Levure de bière Litsée citronnée (Verveine exotique) Lutéine Mandarine verte Marjolaine à coquille Menthe poivrée NADH Nacre Orange douce Petit grain bigaradier Potassium Psyllium Ispaghul Sève de bouleau Sélénium Tea tree (arbre à thé) Voir plus Vitamine C Vitamine C liposomale Ultra, la science au service de la vitalité Collagène La qualité exceptionnelle du collagène marin Onatera Magnésium Magnésium bisglycinate Albion®: La référence en matière d’absorption et de pureté Lutéi (Contenu releve automatiquement sur onatera.com, a revalider.)",
       "lacunes_identifiees": "",
       "source_url": "https://www.onatera.com/FR/fr/conseils"
+    },
+    {
+      "id": "kb_club_onatera",
+      "type": "club",
+      "nom": "Club Onatera (avantages fidélité)",
+      "reference": "",
+      "actifs": [],
+      "mots_cles": [
+        "club",
+        "onatera",
+        "fidelite",
+        "avantages",
+        "trefles",
+        "points",
+        "parrainage",
+        "anniversaire",
+        "cadeau",
+        "remise"
+      ],
+      "contenu": "Club Onatera (avantages fidélité). Vous satisfaire nous tient à coeur, c’est pourquoi nous vous proposons toujours plus d’avantages. Rubriques : Vos avantages fidélité ; Et bien d'autres cadeaux selon votre statut… ; Comment cumuler des trèfles ?. Et bien d'autres cadeaux selon votre statut… Je consulte mon statut Comment cumuler des trèfles ? Je consulte mon solde de trèfles Questions fréquentes Comment adhérer au programme de fidélité ? Pour adhérer au programme de fidélité, il vous suffit de créer votre compte en ligne sur le site onatera.com ou en boutique. Le programme de fidélité Onatera vous permet d'accéder à des avantages exclusifs. Chez Onatera, 1€ = 1 trèfle (sur les produits des marques Onatera). Dès votre premier achat, vous entrez dans le Club Onatera. Vous pouvez ensuite tenter d’intégrer le Club VIP Onatera et de bénéficier d'avantages inédits… NB : Lorsque vous utilisez des trèfles pour obtenir une réduction sur une commande, cette dernière ne permet pas de cumuler de nouveaux trèfles. Récoltez des trèfles à l'achat de produits des marques Onatera. Les trèfles sont valables 12 mois à partir de leur date d'obtention. Les trèfles fidélité sont valables 12 mois à partir de la date d'obtention. Votre solde de trèfles est consultable depuis votre compte client sur onatera.com, dans votre tableau de bord, ou dans la rubrique « Mon programme de fidélité ». Si vous avez besoin d'être accompagné, n'hésitez pas à nous contacter au 04 65 26 00 60 du lundi au vendredi de 9h à 18h ou à nous écrire via notre Formulaire de contact. Les avis sont consultés par les autres c (Contenu releve automatiquement sur onatera.com, a revalider.)",
+      "lacunes_identifiees": "",
+      "source_url": "https://www.onatera.com/FR/fr/info/avantages"
+    },
+    {
+      "id": "kb_engagements",
+      "type": "engagement",
+      "nom": "Nos engagements Onatera",
+      "reference": "",
+      "actifs": [],
+      "mots_cles": [
+        "engagement",
+        "charte",
+        "formulation",
+        "qualite",
+        "naturel",
+        "ethique",
+        "environnement",
+        "ingredients",
+        "sans",
+        "controverse"
+      ],
+      "contenu": "Nos engagements Onatera. Découvrez les engagements Onatera : produits naturels, fabrication responsable, ingrédients de qualité et respect de l’environnement pour votre bien-être durable. Inspirés par la nature. Guidés par la recherche. Obsédés par la qualité. Chez Onatera, nous ne faisons pas que créer des produits naturels : nous redéfinissons les standards. Chaque formule, chaque ingrédient, chaque protocole est pensé pour vous offrir des résultats concrets, et un bien-être qui s’inscrit dans la durée. Nos 10 engagements pour réinventer la santé naturelle SOURCER L'EXCEPTION : des ingrédients puissants, naturels, tracés. CRÉER LA PERFORMANCE : des formules efficaces et sensorielles. FABRIQUER EN FRANCE : 90 % de nos produits sont locaux. SOUTENIRS NOS PRODUCTEURS : filières éthiques, directes et durables. PROPOSER UNE OFFRE SUR-MESURE : chaque besoin a sa solution. GARANTIR UN PRIX JUSTE : qualité accessible, pas de compromis. INNOVER DANS LE PACKAGING : éco-conçu, recyclable, biosourcé. RÉDUIRE LE GASPILLAGE : 127 931 produits sauvés en 2023 via Comerso. ACCOMPAGNER CHAQUE CLIENT : conseils personnalisés, experts à l’écoute. AMÉLIORER SANS CESSE : l’innovation est notre moteur quotidien. NOTRE PROCESSUS : LA SCIENCE AU SERVICE DE LA NATURE. RECHERCHE Tout commence par une question : comment répondre à votre besoin avec une solution claire et efficace ? Nos biochimistes et micro-nutritionnistes élaborent des formules sur-mesure, validées par la littérature scientifique (PubMed, ANSES, EFSA) et construites pour une synergie parfaite. ✔️ Méthode exclusive OSIE (Onatera Sci (Contenu releve automatiquement sur onatera.com, a revalider.)",
+      "lacunes_identifiees": "",
+      "source_url": "https://www.onatera.com/FR/fr/info/nos-engagements"
+    },
+    {
+      "id": "kb_charte_formulation",
+      "type": "engagement",
+      "nom": "Charte de formulation Onatera",
+      "reference": "",
+      "actifs": [],
+      "mots_cles": [
+        "engagement",
+        "charte",
+        "formulation",
+        "qualite",
+        "naturel",
+        "ethique",
+        "environnement",
+        "ingredients",
+        "sans",
+        "controverse"
+      ],
+      "contenu": "Charte de formulation Onatera. À votre disposition : 7000 produits naturels de santé, beauté et nutrition à prix raisonnés ainsi que les meilleurs conseils de nos spécialistes en naturopathie. Chez Onatera, la santé naturelle ne se résume pas à empiler des actifs. Nous décryptons chaque ingrédient, sélectionnons l’essentiel et construisons des formules qui allient efficacité, sécurité et plaisir. Notre engagement ? Faire de chaque produit une solution claire et maîtrisée, pas une boîte noire. Tout part de notre Lab à ciel ouvert en Provence. Nos biochimistes et micro-nutritionnistes scrutent la littérature scientifique, décryptent les études cliniques et testent chaque actif. Résultat ? Nous ne retenons que les ingrédients dont l’efficacité et la biodisponibilité sont prouvées, et nous écartons systématiquement ce qui n’apporte rien. Chaque ingrédient est choisi pour une fonction précise et expliqué en toute transparence. Nous privilégions les formes les plus biodisponibles et actives : Acide Hyaluronique naturel, Vitamine C liposomale, Magnésium bisglycinate… Certains surdosent pour impressionner, d’autres sous-dosent pour marger. Nous, nous dosons pour être efficaces et sûrs, en cohérence avec les études scientifiques les plus récentes, pour garantir un effet ressenti. UN SOURCING EXIGEANT, TRAÇABLE ET ÉTHIQUE. Nous sélectionnons des matières premières d’exception, issues de filières rigoureuses : Majoritairement bio et provenant de France ou d’Europe, avec un contrôle qualité systématique sur chaque lot (GMP, ISO22000, ISO9001). Pour les plantes exotiques, nous travaillo (Contenu releve automatiquement sur onatera.com, a revalider.)",
+      "lacunes_identifiees": "",
+      "source_url": "https://www.onatera.com/FR/fr/info/notre-charte-formulation"
+    },
+    {
+      "id": "kb_boutiques",
+      "type": "boutique",
+      "nom": "Boutique Onatera (Aix-en-Provence)",
+      "reference": "",
+      "actifs": [],
+      "mots_cles": [
+        "boutique",
+        "magasin",
+        "aix",
+        "provence",
+        "point de vente",
+        "horaires",
+        "adresse",
+        "physique"
+      ],
+      "contenu": "Boutique Onatera (Aix-en-Provence). Venez nous rencontrer à Aix-en-Provence pour découvrir tous nos produits et nos conseils. Rubriques : Notre boutique ; Au coeur d’Aix-en-Provence ; Notre concept ; Notre offre ; Ce qui vous attend en boutique… ; Notre boutique Onatera ; Notre boutique en images ; Encore quelques questions ?. Au coeur d’Aix-en-Provence DU LUNDI AU SAMEDI DE 10H à 19H. Onatera, c’est un site internet qui vous propose des centaines de marques et des milliers de produits naturels soigneusement sélectionnés, afin de vous aider à prendre soin de votre santé et de votre bien-être plus naturellement et plus durablement. Mais c’est aussi une boutique de 180 m2, installée en plein cœur d’Aix-en-Provence. Une boutique qui en appellera bientôt d’autres… Notre concept En venant chez Onatera, l’expérience que vous allez vivre, ce n’est pas seulement l’expérience des sens. C’est aussi l’expérience de la connaissance. Nous souhaitons que vous repartiez en ayant mieux compris les produits que vous consommez, ou en ayant découvert ceux qui sont bons pour vous. Que vous repartiez en nous connaissant mieux, mais surtout en vous connaissant mieux. Notre offre Nous sommes convaincus que l’approche holistique est celle qui permet d’obtenir les meilleurs résultats. Nous souhaitons que vous puissiez trouver tout ce dont vous avez besoin en un seul et même lieu. Un choix varié de produits Retrouvez les produits naturels et durables de nos marques Onatera Des conseils personnalisés Nos conseillers vous accompagnent dans la sélection de vos produits et soins Des soins sur mesure Per (Contenu releve automatiquement sur onatera.com, a revalider.)",
+      "lacunes_identifiees": "",
+      "source_url": "https://www.onatera.com/FR/fr/info/boutiques"
     },
     {
       "id": "kb_support_aide",
@@ -4087,16 +4170,13 @@
       "actifs": [],
       "mots_cles": [
         "support",
-        "livraison",
-        "delai",
-        "commande",
-        "retour",
-        "remboursement",
-        "support",
         "aide",
-        "conseil"
+        "faq",
+        "assistance",
+        "contact",
+        "sav"
       ],
-      "contenu": "Page Centre d'aide Onatera d'Onatera. Extrait : Onatera.com Aller au contenu principal Onatera.com Recherche Comment peut-on vous aider ? Catégories Compte client Commande Programme fidélité Paiement et facture Problème à réception Livraison Questions fréquemment posées Comment créer mon compte client ? Vous n'avez pas trouvé votre réponse ? N'hésitez pas à nous contacter ! Formulaire de contact Appelez-nous (Contenu releve automatiquement, a revalider.)",
+      "contenu": "Centre d'aide Onatera. Rubriques : Onatera.com ; Recherche ; Comment peut-on vous aider ? ; Catégories ; Questions fréquemment posées ; Vous n'avez pas trouvé votre réponse ?. (Contenu releve automatiquement sur onatera.com, a revalider.)",
       "lacunes_identifiees": "",
       "source_url": "https://support.onatera.com/hc/fr"
     }
