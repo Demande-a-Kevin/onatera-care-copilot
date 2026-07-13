@@ -372,10 +372,27 @@
    HTML/CSS/JS vanilla, un seul fichier. Appelle Ollama en local (localhost:11434).
    Deux modes : LIVE (Ollama) et DEMO (rejoue data/demo_outputs.json).
    ========================================================================= */
-const OLLAMA = 'http://localhost:11434';
 const IS_HTTPS = location.protocol === 'https:';
 const IS_LOCAL = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
 const HEALTH_CMD = 'OLLAMA_ORIGINS="' + location.origin + '" ollama serve';
+// Endpoint LLM. Priorite : ?ollama=<url> (memorise), puis localStorage, puis localhost.
+// Permet le mode LIVE meme depuis la page en ligne, via un tunnel Cloudflare qui
+// expose l'Ollama local derriere une URL https publique. Sans endpoint -> mode demo.
+function resolveEndpoint(){
+  try{
+    const q = new URLSearchParams(location.search).get('ollama');
+    if(q) localStorage.setItem('onatera_ollama_url', q);
+    const s = localStorage.getItem('onatera_ollama_url');
+    if(s) return s.replace(/\/+$/,'');
+  }catch(e){}
+  if(IS_LOCAL) return 'http://localhost:11434';
+  return null;
+}
+let OLLAMA = resolveEndpoint();
+function fetchT(url, opts, ms){
+  const c = new AbortController(); const id = setTimeout(()=>c.abort(), ms||5000);
+  return fetch(url, Object.assign({signal:c.signal}, opts||{})).finally(()=>clearTimeout(id));
+}
 
 let KB = null, TICKETS = null, DEMO = null;
 let ollamaOk = false;
@@ -392,7 +409,7 @@ function pickModel(sp){
   const firstMatch = names => { for(const n of names){ const m=list.find(x=>x.toLowerCase().includes(n)); if(m) return m; } return null; };
   if(sp==='rapide')
     return firstMatch(['qwen2.5:3b','qwen2.5:1.5b','gemma3:4b','llama3.2:3b','phi','gemma3','llama3.1:8b','qwen2.5:7b']) || list[0];
-  return firstMatch(['qwen2.5:14b','qwen2.5:7b','llama3.1:8b','mistral','gemma3','qwen2.5','llama']) || list[0];
+  return firstMatch(['qwen2.5:14b','qwen2.5:7b','llama3.1:8b','gemma4','mistral','gemma3','qwen2.5','llama']) || list[0];
 }
 // Profondeur de recherche documentaire : rapide = 2 fiches, complete = 4.
 function kbDepth(){ return speed==='rapide' ? 2 : 4; }
@@ -418,30 +435,49 @@ async function loadData(){
 /* ---------- health-check Ollama ---------- */
 async function healthCheck(){
   const dot = $('#healthDot'), txt = $('#healthText');
-  if (IS_HTTPS){
-    dot.className = 'dot'; dot.classList.add('ok');
-    txt.innerHTML = 'Demo statique (GitHub Pages) - resultats pre-calcules. Pour l\'execution live avec un LLM local, voir le README.';
-    ollamaOk = false; return;
+  OLLAMA = resolveEndpoint();
+  if(!OLLAMA){
+    // en ligne, aucune connexion live configuree -> demo statique
+    dot.className='dot'; dot.style.background='#c9a227';
+    txt.innerHTML = 'Demo statique - resultats pre-calcules. <a href="#" id="cfgLive">Activer une connexion live</a>';
+    ollamaOk = false; if(!modeManual) mode='demo'; wireCfgLive(); updateModeUI(); return;
   }
-  dot.className = 'dot wait'; txt.textContent = 'Verification d\'Ollama...';
+  dot.className = 'dot wait'; txt.textContent = 'Connexion au LLM...';
   try{
-    const r = await fetch(OLLAMA + '/api/tags', {method:'GET'});
+    const r = await fetchT(OLLAMA + '/api/tags', {method:'GET'}, 5000);
     if(!r.ok) throw new Error('HTTP '+r.status);
     const d = await r.json();
     installedModels = (d.models||[]).map(m=>m.name);
     ollamaOk = true;
     dot.className='dot ok';
-    txt.innerHTML = 'Ollama connecte - modele <b>'+esc(pickModel(speed))+'</b>';
+    txt.innerHTML = 'LLM connecte'+(IS_LOCAL?'':' (via tunnel)')+' - modele <b>'+esc(pickModel(speed))+'</b>';
+    if(!modeManual) mode = 'live';
   }catch(e){
     ollamaOk = false;
     dot.className='dot bad';
-    txt.innerHTML = 'Ollama indisponible. Lancez : <span class="cmd">'+esc(HEALTH_CMD)+'</span>'
-      + ' <button class="src-chip" id="copyCmd">Copier la commande</button>'
-      + '<br><span style="color:var(--muted)">Bascule automatique en mode demo (resultats pre-calcules).</span>';
-    const cc = $('#copyCmd'); if(cc) cc.onclick = ()=>navigator.clipboard.writeText(HEALTH_CMD);
+    if(IS_LOCAL){
+      txt.innerHTML = 'Ollama indisponible. Lancez : <span class="cmd">'+esc(HEALTH_CMD)+'</span>'
+        + ' <button class="src-chip" id="copyCmd">Copier la commande</button>'
+        + '<br><span style="color:var(--muted)">Bascule automatique en mode demo (resultats pre-calcules).</span>';
+      const cc = $('#copyCmd'); if(cc) cc.onclick = ()=>navigator.clipboard.writeText(HEALTH_CMD);
+    } else {
+      txt.innerHTML = 'Connexion live indisponible - mode demo. <a href="#" id="cfgLive">Reconfigurer</a>';
+      wireCfgLive();
+    }
     if(!modeManual) mode = 'demo';
   }
   updateModeUI();
+}
+function wireCfgLive(){
+  const a = $('#cfgLive'); if(!a) return;
+  a.onclick = (e)=>{
+    e.preventDefault();
+    let cur=''; try{ cur = localStorage.getItem('onatera_ollama_url')||''; }catch(_){}
+    const u = prompt('URL du LLM en direct (tunnel https, ex. https://xxxx.trycloudflare.com) :', cur);
+    if(u===null) return;
+    try{ const v=u.trim().replace(/\/+$/,''); if(v) localStorage.setItem('onatera_ollama_url', v); else localStorage.removeItem('onatera_ollama_url'); }catch(_){}
+    modeManual = false; healthCheck();
+  };
 }
 
 /* ---------- UI mode ---------- */
@@ -451,12 +487,16 @@ function updateModeUI(){
   else { dot.className='dot'; dot.style.background='#c9a227'; lbl.textContent='Mode demo'; }
   // banniere haut
   const tb = $('#topBanner');
-  if(IS_HTTPS){
-    tb.innerHTML = '<div class="banner info">&#8505;&#65039;&nbsp;<div><b>Demo statique</b> - resultats pre-calcules a partir d\'executions reelles. Pour l\'execution en direct avec un LLM local (Ollama), clonez le repo et lancez <code>./run.sh</code> (voir README).</div></div>';
-  } else if(mode==='demo'){
-    tb.innerHTML = '<div class="banner warn">&#9888;&#65039;&nbsp;<div><b>Mode demo</b> - Ollama indisponible ou desactive : lecture de resultats pre-calcules. Aucun appel LLM en direct.</div></div>';
+  if(mode==='live'){
+    tb.innerHTML = '<div class="banner info">&#9889;&nbsp;<div><b>Mode live</b> - '
+      + (IS_LOCAL
+          ? 'le modele tourne en local, aucune donnee ne quitte la machine.'
+          : 'le modele tourne sur la machine du presentateur, relie via un tunnel chiffre Cloudflare (aucun LLM tiers).')
+      + '</div></div>';
+  } else if(IS_HTTPS){
+    tb.innerHTML = '<div class="banner info">&#8505;&#65039;&nbsp;<div><b>Demo statique</b> - resultats pre-calcules a partir d\'executions reelles. Pour la demo en direct avec le LLM, voir le README.</div></div>';
   } else {
-    tb.innerHTML = '';
+    tb.innerHTML = '<div class="banner warn">&#9888;&#65039;&nbsp;<div><b>Mode demo</b> - LLM indisponible : lecture de resultats pre-calcules. Aucun appel LLM en direct.</div></div>';
   }
 }
 
@@ -764,7 +804,7 @@ async function runPipeline(){
   resetUI();
   $('#pipeIntro').style.display = 'none';
   const model = pickModel(speed);
-  const useDemo = (mode==='demo') || !ollamaOk || IS_HTTPS;
+  const useDemo = (mode==='demo') || !ollamaOk;
   // identifier un ticket d'exemple (pour le mode demo)
   const exId = $('#exSelect').value;
   try{
@@ -893,9 +933,16 @@ function wire(){
     const el=$('#'+b.dataset.tgt); el.style.display = el.style.display==='none'?'block':'none';
   });
   $('#modeToggle').onclick = ()=>{
-    if(IS_HTTPS){ alert('En ligne (GitHub Pages), seul le mode demo est disponible. Le mode live necessite Ollama en local.'); return; }
-    modeManual = true; mode = (mode==='live') ? 'demo' : 'live';
-    if(mode==='live' && !ollamaOk){ alert('Ollama n\'est pas connecte. Lancez ./run.sh puis rechargez.'); }
+    if(mode==='demo'){
+      if(!ollamaOk){
+        alert(OLLAMA ? 'Le LLM n\'est pas joignable pour le moment (verifiez le tunnel / Ollama).'
+                     : 'Aucune connexion live configuree. Cliquez sur « Activer une connexion live » a cote de la pastille de sante.');
+        return;
+      }
+      modeManual = true; mode = 'live';
+    } else {
+      modeManual = true; mode = 'demo';
+    }
     updateModeUI();
   };
   $('#nav-app').onclick = ()=>switchView('app');

@@ -36,6 +36,29 @@ ollama pull qwen2.5:3b-instruct          # (optionnel) analyse "Rapide"
 - Si Ollama est éteint ou indisponible, l'app **bascule automatiquement en mode démo**, sans erreur.
 - **Profondeur d'analyse** : *Rapide* (petit modèle, 1er jet sur un ticket simple) ou *Complète* (modèle plus capable, ticket sensible). Le bon modèle installé est **choisi automatiquement** — pas de sélecteur à régler.
 
+## Démo live depuis l'URL en ligne (tunnel Cloudflare)
+
+L'URL **https://onatera-copilot.pages.dev/** fonctionne en **deux modes**, sans changer de page :
+
+- **Démo** (par défaut) — résultats pré-calculés. N'importe qui teste sans rien installer (idéal pour partager avant un rendez-vous).
+- **Live** — le vrai LLM, en ouvrant la **même URL** avec le tunnel de votre machine.
+
+Pour activer le live pendant une présentation (Ollama installé + `brew install cloudflared`) :
+
+```bash
+./live_tunnel.sh
+```
+
+Le script démarre Ollama avec les bonnes origines, ouvre un tunnel Cloudflare et affiche un lien du type :
+
+```
+https://onatera-copilot.pages.dev/?ollama=https://xxxx.trycloudflare.com
+```
+
+Ouvrez **ce** lien : la page passe en **Mode live** (bandeau ⚡). `Ctrl+C` ferme le tunnel (l'URL nue repasse en démo). On peut aussi coller l'URL du tunnel via « Activer une connexion live » à côté de la pastille de santé.
+
+> **Confidentialité** : en live via tunnel, le **modèle reste sur votre machine** (aucun LLM tiers), mais le texte du ticket transite par le tunnel chiffré Cloudflare. Pour un « zéro octet ne sort de la machine » strict, utilisez `./run.sh` en local (URL `localhost`).
+
 ## Les garde-fous (le vrai différenciateur)
 
 Câblés à deux niveaux — dans le prompt système **et** en post-traitement déterministe, parce qu'un modèle 7B local peut dériver :
@@ -93,7 +116,8 @@ onatera-care-copilot/
 ├── scripts/
 │   ├── ingest_onatera.py       # ingester offline -> data/kb.json
 │   └── generate_demo_outputs.md
-├── run.sh
+├── run.sh                # demo LOCALE (Ollama + serveur statique)
+├── live_tunnel.sh        # demo LIVE depuis l'URL en ligne (tunnel Cloudflare)
 ├── README.md
 └── LICENSE               # MIT
 ```
