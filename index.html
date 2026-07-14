@@ -426,9 +426,10 @@ const IS_LOCAL = location.hostname === 'localhost' || location.hostname === '127
 const HEALTH_CMD = 'OLLAMA_ORIGINS="' + location.origin + '" ollama serve';
 
 // Pont live distant securise (Worker proxy authentifie qui relaie vers Ollama
-// sans jamais exposer l'API brute). Vide tant qu'il n'est pas configure : dans
-// ce cas le mode live n'est disponible qu'en local (localhost).
-const LIVE_BRIDGE = DEFAULT_LIVE_ENDPOINT; // '' par defaut
+// sans jamais exposer l'API brute). Ce n'est PAS une URL Ollama : c'est un proxy
+// qui exige un jeton, verrouille CORS, limite routes/modeles/taille et rate-limit.
+// Vide -> le mode live n'est disponible qu'en local (localhost).
+const LIVE_BRIDGE = 'https://onatera-copilot-live.kev1n-cockpit.workers.dev';
 
 // Endpoint LLM effectif.
 // - En local : ?ollama=<url> (memorise) sinon localhost. On autorise une URL
