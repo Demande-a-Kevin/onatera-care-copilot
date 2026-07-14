@@ -1,24 +1,38 @@
 // Onatera Copilot - Worker de journalisation (démo).
-// - POST /log : enregistre une analyse (ticket + résultat) dans KV (TTL 30 j).
+// - POST /log : ajoute une analyse (ticket + résultat) au journal.
 // - GET /?token=... : page HTML d'historique (protégée par ADMIN_TOKEN).
 // - GET /api?token=... : historique en JSON.
+// - GET /flush?token=... : vide le journal.
 // Isolé de toute prod ; supprimable après l'entretien (voir README).
+//
+// Sobriété KV : le journal tient dans UNE seule clé JSON ("logs").
+//   -> consultation = 1 lecture KV (pas de "list", pas de N "get").
+//   -> le token est vérifié AVANT tout accès KV (un scan sans token = 0 op).
+// Aucune page ne s'auto-rafraîchit (évite toute boucle si un onglet reste ouvert).
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
   "Access-Control-Allow-Headers": "content-type",
 };
+const KEY = "logs";
+const MAX = 300; // on ne garde que les 300 dernières analyses
 const S = (v, n) => String(v == null ? "" : v).slice(0, n);
 const esc = (s) => String(s == null ? "" : s).replace(/[&<>"]/g, (c) =>
   ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+async function readLogs(env) {
+  const raw = await env.LOGS.get(KEY);
+  if (!raw) return [];
+  try { const a = JSON.parse(raw); return Array.isArray(a) ? a : []; } catch (_) { return []; }
+}
 
 export default {
   async fetch(req, env) {
     const url = new URL(req.url);
     if (req.method === "OPTIONS") return new Response(null, { headers: CORS });
 
-    // --- enregistrement d'une analyse ---
+    // --- enregistrement (public, 1 lecture + 1 écriture) ---
     if (req.method === "POST" && url.pathname === "/log") {
       try {
         const b = await req.json();
@@ -34,38 +48,30 @@ export default {
           reponse: S(b.reponse, 3000),
           pays: (req.cf && req.cf.country) || "",
           ville: (req.cf && req.cf.city) || "",
-          ua: S(req.headers.get("user-agent"), 140),
         };
-        const key = "log:" + entry.ts + ":" + Math.random().toString(36).slice(2, 7);
-        await env.LOGS.put(key, JSON.stringify(entry), { expirationTtl: 60 * 60 * 24 * 30 });
+        const logs = await readLogs(env);
+        logs.unshift(entry);
+        if (logs.length > MAX) logs.length = MAX;
+        await env.LOGS.put(KEY, JSON.stringify(logs));
         return json({ ok: true });
       } catch (e) {
         return json({ ok: false, error: String(e) }, 400);
       }
     }
 
-    // --- vidage (protégé) ---
+    // --- routes protégées : token vérifié AVANT tout accès KV ---
+    const token = url.searchParams.get("token") || "";
+    const authed = env.ADMIN_TOKEN && token === env.ADMIN_TOKEN;
+
     if (url.pathname === "/flush") {
-      const token = url.searchParams.get("token") || "";
-      if (!env.ADMIN_TOKEN || token !== env.ADMIN_TOKEN)
-        return new Response("Acces refuse.", { status: 401 });
-      const list = await env.LOGS.list({ prefix: "log:", limit: 1000 });
-      await Promise.all(list.keys.map((k) => env.LOGS.delete(k.name)));
+      if (!authed) return new Response("Acces refuse.", { status: 401 });
+      await env.LOGS.put(KEY, "[]");
       return Response.redirect(url.origin + "/?token=" + encodeURIComponent(token), 302);
     }
 
-    // --- lecture (protégée) ---
     if (url.pathname === "/" || url.pathname === "/api") {
-      const token = url.searchParams.get("token") || "";
-      if (!env.ADMIN_TOKEN || token !== env.ADMIN_TOKEN)
-        return new Response("Acces refuse. Ouvrez cette URL avec ?token=VOTRE_TOKEN", { status: 401 });
-      const list = await env.LOGS.list({ prefix: "log:", limit: 1000 });
-      const entries = [];
-      for (const k of list.keys) {
-        const v = await env.LOGS.get(k.name);
-        if (v) { try { entries.push(JSON.parse(v)); } catch (_) {} }
-      }
-      entries.sort((a, b) => (b.ts || "").localeCompare(a.ts || ""));
+      if (!authed) return new Response("Acces refuse. Ouvrez cette URL avec ?token=VOTRE_TOKEN", { status: 401 });
+      const entries = await readLogs(env); // 1 lecture KV
       if (url.pathname === "/api")
         return new Response(JSON.stringify(entries, null, 2), { headers: { ...CORS, "content-type": "application/json" } });
       return new Response(renderHTML(entries, token), { headers: { "content-type": "text/html; charset=utf-8" } });
@@ -114,6 +120,7 @@ function renderHTML(entries, token) {
   header .count{margin-left:auto;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);border-radius:999px;padding:4px 12px;font-size:13px}
   header button{background:#fff;color:var(--green-dark);border:0;border-radius:8px;padding:7px 12px;font-weight:600;cursor:pointer}
   main{max-width:1080px;margin:0 auto;padding:18px}
+  .note{font-size:12px;color:var(--muted);margin:0 0 12px}
   .empty{color:var(--muted);text-align:center;padding:60px 10px}
   .card{background:#fffdf8;border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:14px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
   .meta{display:flex;flex-wrap:wrap;gap:7px;align-items:center;margin-bottom:10px}
@@ -135,7 +142,9 @@ function renderHTML(entries, token) {
   <button onclick="location.reload()">Rafraîchir</button>
   <button onclick="if(confirm('Vider tout l\\'historique des tests ?'))location.href='/flush?token=${esc(token)}'" style="background:#fbe9e7;color:#b5352b">Vider</button>
 </header>
-<main>${entries.length ? rows : '<div class="empty">Aucun test enregistré pour le moment.</div>'}</main>
-<script>setTimeout(()=>location.reload(),60000);</script>
+<main>
+  <p class="note">Cette page ne se rafraîchit pas toute seule — cliquez sur « Rafraîchir » pour actualiser. (Évite toute consommation inutile si l'onglet reste ouvert.)</p>
+  ${entries.length ? rows : '<div class="empty">Aucun test enregistré pour le moment.</div>'}
+</main>
 </body></html>`;
 }
