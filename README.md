@@ -93,6 +93,17 @@ npm test        # node --test
 
 Couvre les cas obligatoires : hospitalisation ⇒ critique + `legal_nutrivigilance` ; grossesse/traitement ⇒ aucune recommandation ; demande logistique ⇒ pas d'escalade sanitaire ; menace DGCCRF ⇒ Qualité + Juridique ; formulation causale ⇒ verrouillage ; télémétrie ⇒ ni ticket ni réponse ; mode public ⇒ aucun appel réseau au chargement ; ticket libre ⇒ bandeau « illustration pré-calculée ».
 
+## Suivi des tests de la démo (`monitor/`)
+
+Pour cette **démo de recrutement**, un Worker (`monitor/`) enregistre les tickets testés + la réponse proposée, afin de voir ce que les testeurs essaient. Corrige les failles de l'ancienne version :
+
+- jeton d'accès **jamais dans l'URL** (formulaire → en-tête `Authorization`) ;
+- **CORS verrouillé** sur les origines de la démo ;
+- stockage **par enregistrement** (une clé KV par test, pas de course à l'écriture) ;
+- **aucune IP / ville / pays** ; **rétention 14 j** (TTL) affichée ; page `noindex`.
+
+L'app l'**annonce** (bandeau : « les tickets testés sont enregistrés »). À réserver à des testeurs connus, pas de données personnelles réelles. Page : `https://onatera-copilot-monitor.<sub>.workers.dev/` (login par jeton). Déploiement : `cd monitor && npx wrangler deploy` + `npx wrangler secret put MONITOR_TOKEN`.
+
 ## Base de connaissance
 
 `data/kb.json` (~171 entrées) = fiches réglementaires + posture curées à la main ([`data/kb_curated.json`](data/kb_curated.json)) + fiches produit « Énergie & Vitalité » (nom, référence, **prix**, allégations, précautions) + pages éditoriales, **ingérées hors-ligne** depuis onatera.com par [`scripts/ingest_onatera.py`](scripts/ingest_onatera.py). Rien n'est scrapé pendant l'analyse d'un ticket.

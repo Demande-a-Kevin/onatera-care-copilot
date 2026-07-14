@@ -398,7 +398,7 @@
   </div>
 </div>
 
-<div class="footer-band">Toute réponse générée est une <b>proposition</b>. Validation humaine obligatoire avant envoi. Aucun envoi automatique.</div>
+<div class="footer-band">Toute réponse générée est une <b>proposition</b>. Validation humaine obligatoire avant envoi. Aucun envoi automatique. · <span style="opacity:.85">Démo de recrutement : les tickets testés sont enregistrés pour le suivi — n'y saisissez pas de données personnelles réelles.</span></div>
 
 <script type="module">
 /* =========================================================================
@@ -419,6 +419,7 @@ import {
 } from './js/safety.js';
 import {
   buildTelemetryPayload, sendTelemetry, DEFAULT_LIVE_ENDPOINT, shouldAutoConnectOnLoad,
+  buildMonitorRecord, sendMonitor,
 } from './js/telemetry.js';
 
 const IS_HTTPS = location.protocol === 'https:';
@@ -453,7 +454,11 @@ let OLLAMA = resolveEndpoint();
 // Telemetrie : metadonnees anonymes uniquement, DESACTIVEE par defaut, aucun
 // endpoint -> rien ne part. Jamais le ticket ni la reponse (cf. js/telemetry.js).
 const TELEMETRY = { enabled: false, endpoint: '' };
-function recordRun(triage, red, guard, model, durations, status){
+// Suivi de la demo de recrutement (opt-in, ANNONCE dans l'app) : enregistre le
+// ticket teste + la reponse pour que l'auteur voie ce que les testeurs essaient.
+// Endpoint securise (jeton en en-tete, CORS verrouille, ni IP ni geo, retention 14j).
+const MONITOR = { enabled: true, endpoint: 'https://onatera-copilot-monitor.kev1n-cockpit.workers.dev/log' };
+function recordRun(triage, red, guard, model, durations, status, ticket){
   try{
     const payload = buildTelemetryPayload({
       mode, model: model||'',
@@ -472,6 +477,17 @@ function recordRun(triage, red, guard, model, durations, status){
       status: status||'ok',
     });
     sendTelemetry(payload, TELEMETRY); // no-op tant que TELEMETRY.enabled=false
+    // suivi de la demo (opt-in, annonce) : ticket + reponse vers l'endpoint securise
+    sendMonitor(buildMonitorRecord({
+      mode, model: model||'',
+      categorie: (triage&&triage.categorie)||'', gravite: (triage&&triage.gravite)||'',
+      niveau_risque: (red&&red.niveau_risque)||'',
+      validationLevel: (guard&&guard.validation&&guard.validation.level)||'',
+      recoCount: ((red&&red.recommandations_produits)||[]).length,
+      locked: !!(guard&&guard.locked),
+      ticket: ticket||'',
+      reponse: (red&&red.reponse_client)||'',
+    }), MONITOR);
   }catch(_){}
 }
 function fetchT(url, opts, ms){
@@ -1034,7 +1050,7 @@ async function runLive(model, text){
   const guard = applyGuardrails(triage, red, text);
   renderResult(triage, red, guard);
   const d3=(performance.now()-s)/1000; setStep(3,'done',d3);
-  recordRun(triage, red, guard, model, [d1,d2,d3], 'ok');
+  recordRun(triage, red, guard, model, [d1,d2,d3], 'ok', text);
   $('#draftLive').innerHTML = '<div class="hint">Rédaction terminée - voir le résultat ci-dessous.</div>';
 }
 // En mode demo, un ticket libre est illustre par l'exemple pre-calcule le plus proche.
@@ -1067,7 +1083,7 @@ async function runDemo(exId, text){
   $('#json3').textContent = JSON.stringify(red,null,2); $('#tg3').style.display='inline';
   const guard = applyGuardrails(triage, red, text||'');
   renderResult(triage, red, guard);
-  recordRun(triage, red, guard, 'démo (pré-calculé)', [], 'ok');
+  recordRun(triage, red, guard, 'démo (pré-calculé)', [], 'ok', text||'');
   setStep(3,'done', (speed==='rapide'?3.0:9.0)+Math.random()*2);
   $('#draftLive').innerHTML = '<div class="hint">Rédaction terminée (pré-calculée) - voir le résultat ci-dessous.</div>';
 }

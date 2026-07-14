@@ -95,6 +95,39 @@ export async function sendTelemetry(payload, opts) {
 // Pas d'endpoint de log par defaut (le worker de journalisation est supprime).
 function DEFAULT_LIVE_ENDPOINT_LOG() { return ''; }
 
+/* ---------- suivi des tests de la demo (opt-in, distinct de la telemetrie) ----------
+   Contrairement a la telemetrie anonyme ci-dessus, le SUIVI de la demo enregistre
+   le ticket teste et la reponse proposee, pour que l'auteur voie ce que les
+   testeurs essaient. Reserve a une DEMO de recrutement (testeurs connus, pas de
+   donnees reelles), envoye a un endpoint securise, et ANNONCE dans l'app. */
+export function buildMonitorRecord(input) {
+  input = input || {};
+  return {
+    mode: input.mode === 'live' ? 'live' : 'demo',
+    model: String(input.model || ''),
+    categorie: String(input.categorie || ''),
+    gravite: String(input.gravite || ''),
+    niveau_risque: String(input.niveau_risque || ''),
+    validation_level: String(input.validationLevel || ''),
+    reco_count: Number(input.recoCount || 0),
+    locked: !!input.locked,
+    ticket: String(input.ticket || ''),
+    reponse: String(input.reponse || ''),
+  };
+}
+export async function sendMonitor(record, opts) {
+  opts = opts || {};
+  if (!opts.enabled || !opts.endpoint) return; // opt-in strict
+  const doFetch = opts.fetchImpl || (typeof fetch !== 'undefined' ? fetch : null);
+  if (!doFetch) return;
+  try {
+    await doFetch(opts.endpoint, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      keepalive: true, body: JSON.stringify(record),
+    });
+  } catch (_) { /* silencieux */ }
+}
+
 /**
  * Faut-il tenter une connexion live automatiquement au chargement ?
  * - En local (localhost) : oui, l'utilisateur presente sur sa machine.

@@ -8,7 +8,27 @@ import {
   sendTelemetry,
   DEFAULT_LIVE_ENDPOINT,
   shouldAutoConnectOnLoad,
+  buildMonitorRecord,
+  sendMonitor,
 } from '../js/telemetry.js';
+
+/* ---------- suivi de la demo (opt-in, ANNONCE) ---------- */
+
+test('le suivi de demo n’emet rien s’il n’est pas explicitement active', async () => {
+  let called = 0;
+  const fakeFetch = () => { called++; return Promise.resolve({ ok: true }); };
+  await sendMonitor({ mode: 'demo' }, { enabled: false, endpoint: 'https://x/log', fetchImpl: fakeFetch });
+  await sendMonitor({ mode: 'demo' }, { enabled: true, endpoint: '', fetchImpl: fakeFetch });
+  assert.equal(called, 0);
+});
+
+test('l’enregistrement de suivi contient bien le ticket et la reponse (par conception, annonce)', () => {
+  const r = buildMonitorRecord({ mode: 'live', ticket: 'texte du ticket', reponse: 'proposition', validationLevel: 'quality', locked: true });
+  assert.equal(r.ticket, 'texte du ticket');
+  assert.equal(r.reponse, 'proposition');
+  assert.equal(r.validation_level, 'quality');
+  assert.equal(r.locked, true);
+});
 
 /* ---------- telemetrie : metadonnees uniquement ---------- */
 
