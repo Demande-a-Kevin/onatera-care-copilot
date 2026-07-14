@@ -20,3 +20,6 @@ node_modules/
 # - live-bridge/.secret contient ORIGIN_SECRET en local (partage avec le proxy d'origine).
 live-bridge/.secret
 *.secret
+
+# Cache wrangler (racine)
+.wrangler/
