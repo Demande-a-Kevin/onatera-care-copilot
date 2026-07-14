@@ -34,10 +34,9 @@ const server = http.createServer((req, res) => {
   if (!timingSafe(token, SECRET)) { res.writeHead(401).end('unauthorized'); req.resume(); return; }
   if (!ALLOWED.has(path)) { res.writeHead(404).end('not found'); req.resume(); return; }
 
-  const opts = {
-    host: OLLAMA.host, port: OLLAMA.port, method: req.method, path,
-    headers: { ...req.headers, host: 'localhost:11434', authorization: undefined },
-  };
+  const headers = { ...req.headers, host: 'localhost:11434' };
+  delete headers['authorization']; // ne pas transmettre le secret d'origine a Ollama
+  const opts = { host: OLLAMA.host, port: OLLAMA.port, method: req.method, path, headers };
   const up = http.request(opts, (r) => { res.writeHead(r.statusCode || 502, r.headers); r.pipe(res); });
   up.on('error', () => { if (!res.headersSent) res.writeHead(502); res.end('bad gateway'); });
   req.pipe(up);
