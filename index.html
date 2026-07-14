@@ -193,7 +193,7 @@
     <div class="sub">Aide au traitement des tickets - Service Client</div>
   </div>
   <div class="spacer"></div>
-  <button class="nav-btn active" id="nav-app">Atelier</button>
+  <button class="nav-btn active" id="nav-app">Ticket copilot</button>
   <button class="nav-btn" id="nav-how">Comment ça marche</button>
   <div class="mode-pill" id="modeToggle" title="Basculer live / demo">
     <span class="dot" id="modeDot"></span><b id="modeLabel">...</b>
@@ -219,7 +219,7 @@
           <button class="seg-btn active" data-speed="rapide">Rapide<small>1er jet, ~15 s</small></button>
           <button class="seg-btn" data-speed="complete">Complète<small>soignée, ~45 s</small></button>
         </div>
-        <div class="hint" id="speedHint">Rapide : modèle léger, pour dégrossir un ticket simple. Complète : modèle plus fin, pour un ticket sensible.</div>
+        <div class="hint" id="speedHint">Rapide : modèle léger, pour dégrossir un ticket simple (premier jet, ~15 s).</div>
 
         <div class="health" id="health">
           <span class="dot wait" id="healthDot"></span>
@@ -393,6 +393,9 @@ const HEALTH_CMD = 'OLLAMA_ORIGINS="' + location.origin + '" ollama serve';
 // Endpoint LLM. Priorite : ?ollama=<url> (memorise), puis localStorage, puis localhost.
 // Permet le mode LIVE meme depuis la page en ligne, via un tunnel Cloudflare qui
 // expose l'Ollama local derriere une URL https publique. Sans endpoint -> mode demo.
+// Endpoint live par defaut (tunnel nomme permanent) : permet le "Mode live" en UN CLIC
+// depuis l'URL de la demo, sans ?ollama= ni configuration.
+const DEFAULT_LIVE = 'https://ollama-copilot.kev1ncockpit.com';
 function resolveEndpoint(){
   try{
     const q = new URLSearchParams(location.search).get('ollama');
@@ -401,13 +404,26 @@ function resolveEndpoint(){
     if(s) return s.replace(/\/+$/,'');
   }catch(e){}
   if(IS_LOCAL) return 'http://localhost:11434';
-  return null;
+  return DEFAULT_LIVE; // en ligne : endpoint live pret a l'emploi (bascule via le bouton)
 }
 let OLLAMA = resolveEndpoint();
 // Journalisation des analyses (pour suivre les tests de la demo). Worker Cloudflare + KV.
 const LOG_ENDPOINT = 'https://onatera-copilot-log.kev1n-cockpit.workers.dev/log';
 function logAnalysis(triage, red, model, ticket){
   try{
+    const S=(v,n)=>String(v==null?'':v).slice(0,n);
+    const sources = ((red&&red.sources_utilisees)||[]).map(s=>{
+      const e = KB.find(k=>k.id===s);
+      return e ? {nom:e.nom, url:e.source_url||'', type:e.type} : {nom:S(s,120), url:'', type:''};
+    }).slice(0,8);
+    const actions = ((red&&red.actions_internes)||[]).map(a=>({
+      service:S(a.service,60), action:S(a.action,300), priorite:S(a.priorite,20), delai:S(a.delai,20)
+    })).slice(0,10);
+    const recos = ((red&&red.recommandations_produits)||[]).map(r=>{
+      let prix = S(r.prix,20);
+      if(!prix && r.nom){ const e=KB.find(k=>k.type==='produit' && k.nom && k.nom.toLowerCase().includes(String(r.nom).toLowerCase().slice(0,12))); if(e&&e.prix) prix=e.prix; }
+      return { nom:S(r.nom,120), prix:(typeof formatPrix==='function'?formatPrix(prix):prix), vigilance:S(r.points_de_vigilance,300) };
+    }).slice(0,6);
     fetch(LOG_ENDPOINT, {
       method:'POST', headers:{'Content-Type':'application/json'}, keepalive:true,
       body: JSON.stringify({
@@ -416,8 +432,9 @@ function logAnalysis(triage, red, model, ticket){
         categorie: (triage&&triage.categorie)||'',
         gravite: (triage&&triage.gravite)||'',
         niveau_risque: (red&&red.niveau_risque)||'',
-        reco: ((red&&red.recommandations_produits)||[]).length,
-        reponse: (red&&red.reponse_client)||''
+        reco: recos.length,
+        reponse: (red&&red.reponse_client)||'',
+        sources: sources, actions: actions, recos: recos
       })
     }).catch(()=>{});
   }catch(_){}
@@ -488,8 +505,14 @@ async function healthCheck(){
     installedModels = (d.models||[]).map(m=>m.name);
     ollamaOk = true;
     dot.className='dot ok';
-    txt.innerHTML = 'LLM connecté'+(IS_LOCAL?'':' (via tunnel)')+' - modèle <b>'+esc(pickModel(speed))+'</b>';
-    if(!modeManual) mode = 'live';
+    if(IS_LOCAL){
+      txt.innerHTML = 'LLM connecté - modèle <b>'+esc(pickModel(speed))+'</b>';
+      if(!modeManual) mode = 'live';
+    } else {
+      // en ligne : le live est pret ; on reste en demo par defaut, bascule en 1 clic
+      txt.innerHTML = 'LLM en direct disponible - cliquez sur <b>Mode live</b> (modèle <b>'+esc(pickModel(speed))+'</b>).';
+      // mode reste 'demo' tant que l'utilisateur ne clique pas
+    }
   }catch(e){
     ollamaOk = false;
     dot.className='dot bad';
@@ -526,13 +549,11 @@ function updateModeUI(){
   // banniere haut
   const tb = $('#topBanner');
   if(mode==='live'){
-    tb.innerHTML = '<div class="banner info">&#9889;&nbsp;<div><b>Mode live</b> - '
-      + (IS_LOCAL
-          ? 'le modèle tourne en local, aucune donnée ne quitte la machine.'
-          : 'le modèle tourne sur la machine du présentateur, relié via un tunnel chiffré Cloudflare (aucun LLM tiers).')
+    tb.innerHTML = '<div class="banner info">&#9889;&nbsp;<div><b>Mode Live</b> : le modèle tourne sur la machine du présentateur'
+      + (IS_LOCAL ? ', aucune donnée ne quitte la machine.' : '.')
       + '</div></div>';
   } else if(IS_HTTPS){
-    tb.innerHTML = '<div class="banner info">&#8505;&#65039;&nbsp;<div><b>Démo statique</b> - résultats pré-calculés à partir d\'exécutions réelles. Pour la démo en direct avec le LLM, voir le README.</div></div>';
+    tb.innerHTML = '<div class="banner info">&#8505;&#65039;&nbsp;<div><b>Démo statique</b> : résultats pré-calculés à partir du cas pratique et d\'exécutions réelles.</div></div>';
   } else {
     tb.innerHTML = '<div class="banner warn">&#9888;&#65039;&nbsp;<div><b>Mode démo</b> - LLM indisponible : lecture de résultats pré-calculés. Aucun appel LLM en direct.</div></div>';
   }
@@ -598,6 +619,7 @@ REGLES DURES - NON NEGOCIABLES :
 4. AUCUN engagement commercial chiffre (remboursement, geste) : ecris "[a definir avec le manager]". (Le PRIX catalogue d'un produit n'est pas un engagement : communique-le.)
 5. Ton empathique, factuel, non defensif, vouvoiement. Signature exacte : "[Prenom] - Service Client Onatera". Propose un interlocuteur et un delai de retour "[delai a confirmer]".
 6. Orthographe et ponctuation FRANCAISES IRREPROCHABLES. Le mail doit pouvoir etre envoye a une virgule pres apres relecture.
+6bis. MISE EN FORME du mail (reponse_client) : structure aere, jamais un seul bloc. Une formule d'appel (ex. "Bonjour Madame,"), puis des PARAGRAPHES COURTS separes par une ligne vide (\\n\\n), une formule de politesse, puis la signature sur sa propre ligne. Si tu recommandes plusieurs produits, presente-les sous forme de liste a puces (un par ligne, commencant par "- "). N'ecris jamais la signature au milieu du texte.
 7. Le champ "reponse_client" ne contient QUE le texte du mail (aucun raisonnement, note, balise, "thought_process").
 
 RECOMMANDATION DE PRODUITS - IMPORTANT :
@@ -1064,6 +1086,19 @@ function openKb(id){
   $('#kbModal').classList.add('show');
 }
 
+/* ---------- legende profondeur + rappel modele ---------- */
+const SPEED_HINT = {
+  rapide: 'Rapide : modèle léger, pour dégrossir un ticket simple (premier jet, ~15 s).',
+  complete: 'Complète : modèle plus fin, pour un ticket sensible (réponse soignée, ~45 s).'
+};
+function updateSpeedHint(){ const el=$('#speedHint'); if(el) el.textContent = SPEED_HINT[speed] || SPEED_HINT.rapide; }
+function refreshHealthModel(){
+  if(!ollamaOk) return;
+  const t=$('#healthText');
+  if(IS_LOCAL) t.innerHTML = 'LLM connecté - modèle <b>'+esc(pickModel(speed))+'</b>';
+  else t.innerHTML = 'LLM en direct disponible - cliquez sur <b>Mode live</b> (modèle <b>'+esc(pickModel(speed))+'</b>).';
+}
+
 /* ---------- events ---------- */
 function wire(){
   $('#exSelect').onchange = e=>{
@@ -1075,7 +1110,8 @@ function wire(){
   document.querySelectorAll('.seg-btn').forEach(b=>b.onclick=()=>{
     speed = b.dataset.speed;
     document.querySelectorAll('.seg-btn').forEach(x=>x.classList.toggle('active', x===b));
-    if(ollamaOk) $('#healthText').innerHTML = 'Ollama connecte - modele <b>'+esc(pickModel(speed))+'</b>';
+    updateSpeedHint();
+    refreshHealthModel();
   });
   $('#copyBtn').onclick = ()=>{ navigator.clipboard.writeText($('#replyBox').textContent); $('#copyBtn').textContent='Copie !'; setTimeout(()=>$('#copyBtn').textContent='Copier',1200); };
   document.querySelectorAll('.shd').forEach(h=>h.onclick=()=>$('#'+h.dataset.step).classList.toggle('open'));
@@ -1110,6 +1146,7 @@ function switchView(v){
 /* ---------- boot ---------- */
 (async function(){
   wire();
+  updateSpeedHint();
   try{ await loadData(); }catch(e){ $('#topBanner').innerHTML='<div class="banner danger">Impossible de charger data/*.json - servez le dossier via ./run.sh (pas en file://).</div>'; }
   await healthCheck();
   updateModeUI();

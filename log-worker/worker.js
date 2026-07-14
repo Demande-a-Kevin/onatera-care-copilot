@@ -36,6 +36,7 @@ export default {
     if (req.method === "POST" && url.pathname === "/log") {
       try {
         const b = await req.json();
+        const arr = (v) => Array.isArray(v) ? v : [];
         const entry = {
           ts: new Date().toISOString(),
           mode: S(b.mode, 10),
@@ -46,6 +47,9 @@ export default {
           niveau_risque: S(b.niveau_risque, 20),
           reco: Number(b.reco || 0),
           reponse: S(b.reponse, 3000),
+          sources: arr(b.sources).slice(0, 8).map((s) => ({ nom: S(s.nom, 120), url: S(s.url, 300), type: S(s.type, 20) })),
+          actions: arr(b.actions).slice(0, 10).map((a) => ({ service: S(a.service, 60), action: S(a.action, 300), priorite: S(a.priorite, 20), delai: S(a.delai, 20) })),
+          recos: arr(b.recos).slice(0, 6).map((r) => ({ nom: S(r.nom, 120), prix: S(r.prix, 20), vigilance: S(r.vigilance, 300) })),
           pays: (req.cf && req.cf.country) || "",
           ville: (req.cf && req.cf.city) || "",
         };
@@ -91,6 +95,16 @@ function renderHTML(entries, token) {
     const when = isNaN(d) ? esc(e.ts) : d.toLocaleString("fr-FR");
     const loc = [e.ville, e.pays].filter(Boolean).join(", ");
     const risk = (e.niveau_risque || "").toLowerCase();
+    const sources = Array.isArray(e.sources) ? e.sources : [];
+    const actions = Array.isArray(e.actions) ? e.actions : [];
+    const recos = Array.isArray(e.recos) ? e.recos : [];
+    const srcHtml = sources.length ? `<div class="blk"><h4>Fiches utilisées</h4>${sources.map((s) =>
+      s.url ? `<a class="chip" href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.nom)} &#8599;</a>`
+            : `<span class="chip">${esc(s.nom)}</span>`).join(" ")}</div>` : "";
+    const recoHtml = recos.length ? `<div class="blk"><h4>Produits recommandés</h4>${recos.map((r) =>
+      `<div class="reco"><b>${esc(r.nom)}</b>${r.prix ? ` <span class="prix">${esc(r.prix)}</span>` : ""}${r.vigilance ? `<div class="vig">&#9888;&#65039; ${esc(r.vigilance)}</div>` : ""}</div>`).join("")}</div>` : "";
+    const actHtml = actions.length ? `<div class="blk"><h4>Actions internes</h4><ul>${actions.map((a) =>
+      `<li><b>${esc(a.service)}</b> — ${esc(a.action)}${(a.priorite || a.delai) ? ` <i>(${esc(a.priorite)}${a.delai ? ", " + esc(a.delai) : ""})</i>` : ""}</li>`).join("")}</ul></div>` : "";
     return `<article class="card">
       <div class="meta">
         <span class="when">${when}</span>
@@ -105,6 +119,7 @@ function renderHTML(entries, token) {
         <div><h4>Ticket testé</h4><pre>${esc(e.ticket) || "<i>(vide)</i>"}</pre></div>
         <div><h4>Réponse proposée</h4><pre>${esc(e.reponse) || "<i>(vide)</i>"}</pre></div>
       </div>
+      ${srcHtml}${recoHtml}${actHtml}
     </article>`;
   }).join("");
 
@@ -135,6 +150,13 @@ function renderHTML(entries, token) {
   @media(max-width:720px){.cols{grid-template-columns:1fr}}
   h4{margin:0 0 5px;font-size:11px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted)}
   pre{white-space:pre-wrap;font-family:inherit;font-size:13px;background:#fff;border:1px solid var(--line);border-radius:8px;padding:10px;margin:0;max-height:260px;overflow:auto}
+  .blk{margin-top:12px}
+  .chip{display:inline-block;font-size:12px;background:var(--green-soft);border:1px solid #cadfd0;color:var(--green-dark);border-radius:999px;padding:3px 9px;margin:0 5px 5px 0;text-decoration:none}
+  .reco{border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin-top:6px;background:#fff;font-size:13px}
+  .reco .prix{font-size:12px;font-weight:700;color:var(--green-dark);background:var(--green-soft);border:1px solid #cadfd0;border-radius:999px;padding:1px 8px}
+  .reco .vig{margin-top:5px;font-size:12.5px;background:#fcf2da;border:1px solid #ecd9a6;color:var(--amber);border-radius:6px;padding:5px 8px}
+  .blk ul{margin:6px 0 0;padding-left:18px;font-size:13px}
+  .blk li{margin:3px 0}
 </style></head><body>
 <header>
   <div><h1>Historique des tests - Onatera Copilot</h1><div class="sub">Analyses effectuées via la démo en ligne</div></div>
