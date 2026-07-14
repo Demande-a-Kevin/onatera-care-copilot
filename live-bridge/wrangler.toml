@@ -1,0 +1,13 @@
+name = "onatera-copilot-live"
+main = "worker.js"
+compatibility_date = "2025-01-01"
+
+# Origines autorisees a appeler le pont (jamais "*").
+[vars]
+ALLOWED_ORIGINS = "https://onatera-copilot.pages.dev,https://demande-a-kevin.github.io"
+# URL du tunnel qui expose le PROXY LOCAL (pas Ollama directement).
+OLLAMA_ORIGIN = "https://ollama-copilot.kev1ncockpit.com"
+
+# Secrets (jamais commites) :
+#   wrangler secret put DEMO_TOKEN     # jeton d'acces communique aux testeurs
+#   wrangler secret put ORIGIN_SECRET  # partage avec le proxy local (live_tunnel.sh)

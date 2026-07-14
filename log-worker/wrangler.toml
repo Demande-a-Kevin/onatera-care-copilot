@@ -1,9 +1,0 @@
-name = "onatera-copilot-log"
-main = "worker.js"
-compatibility_date = "2025-01-01"
-
-# Le token admin (lecture de l'historique) est un SECRET, pas dans ce fichier :
-#   echo "<token>" | npx wrangler secret put ADMIN_TOKEN
-[[kv_namespaces]]
-binding = "LOGS"
-id = "b899262692a54ec0a178f9639aeb32af"
