@@ -158,6 +158,12 @@ export function computeValidationLevel(safety, triage, blocklistHits) {
     raise('manager');
     reasons.push('Reclamation / criticite haute : validation Responsable Client.');
   }
+  // prudence : personne vulnerable (grossesse/allaitement, mineur, personne agee)
+  // -> jamais une simple relecture conseiller, meme sur un conseil anodin.
+  if (safety.grossesse_allaitement || safety.mineur || safety.personne_vulnerable) {
+    raise('manager');
+    reasons.push('Personne vulnerable (grossesse / mineur / personne agee) : validation renforcee.');
+  }
 
   // Validateurs de base du niveau retenu.
   VALIDATION_META[level].validators.forEach(v => validators.add(v));

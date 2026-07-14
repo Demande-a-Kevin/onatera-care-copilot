@@ -102,6 +102,13 @@ test('menace DGCCRF => validation Qualite ET Juridique', () => {
   assert.ok(v.validators.some(x => /juridique/i.test(x)), 'Juridique requis');
 });
 
+test('grossesse (meme sur un simple conseil) => validation au moins manager', () => {
+  const triage = { categorie: 'information_conseil', gravite: 'basse' };
+  const safety = computeSafetyContext('Je suis enceinte, quel complément pour la fatigue ?', triage);
+  const v = computeValidationLevel(safety, triage, []);
+  assert.ok(['manager', 'quality', 'legal_nutrivigilance'].includes(v.level), 'niveau > standard, obtenu: ' + v.level);
+});
+
 test('demande logistique simple => validation standard', () => {
   const triage = { categorie: 'livraison', gravite: 'basse' };
   const safety = computeSafetyContext('Mon colis a du retard, ou en est-il ?', triage);
