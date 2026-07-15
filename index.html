@@ -208,6 +208,7 @@
   <div class="mode-pill" id="modeToggle" title="Mode démo / live">
     <span class="dot" id="modeDot"></span><b id="modeLabel">...</b>
   </div>
+  <button class="nav-btn" id="logoutBtn" style="display:none">Déconnexion</button>
 </header>
 
 <!-- ============ ATELIER ============ -->
@@ -588,8 +589,17 @@ function updateModeUI(){
   const dot = $('#modeDot'), lbl = $('#modeLabel');
   if(mode==='live'){ dot.className='dot ok'; lbl.textContent='Mode live'; }
   else { dot.className='dot'; dot.style.background='#c9a227'; lbl.textContent='Mode démo'; }
+  // Bouton "Deconnexion" : visible quand le live est actif ou qu'un code est memorise.
+  let hasToken=false; try{ hasToken=!!localStorage.getItem('onatera_live_token'); }catch(_){}
+  const lo=$('#logoutBtn'); if(lo) lo.style.display=(mode==='live'||hasToken)?'':'none';
   // Pas de banniere technique : l'utilisateur n'a pas a connaitre le fonctionnement interne.
   const tb = $('#topBanner'); if(tb) tb.innerHTML = '';
+}
+// Deconnexion : sort du mode live, efface le code memorise, revient en demo.
+function logoutLive(){
+  try{ localStorage.removeItem('onatera_live_token'); localStorage.removeItem('onatera_live_url'); }catch(_){}
+  ollamaOk=false; modeManual=true; mode='demo'; liveWanted=false;
+  updateModeUI();
 }
 
 /* ---------- schemas de sortie structuree ---------- */
@@ -1100,6 +1110,7 @@ function wire(){
       modeManual = true; mode = 'demo'; updateModeUI();
     }
   };
+  $('#logoutBtn').onclick = logoutLive;
   $('#nav-app').onclick = ()=>switchView('app');
   $('#nav-how').onclick = ()=>switchView('how');
   $('#kbClose').onclick = ()=>$('#kbModal').classList.remove('show');
