@@ -75,14 +75,29 @@ export default {
         return new Response(JSON.stringify({ ok: false, error: 'origine' }), { status: 403, headers: { ...cors, 'content-type': 'application/json' } });
       if (await rateLimited(req)) return new Response('rate', { status: 429, headers: cors });
       try {
-        const b = await req.json();
+        const raw = await req.text();
+        if (raw.length > 80 * 1024) return new Response(JSON.stringify({ ok: false, error: 'trop volumineux' }), { status: 413, headers: { ...cors, 'content-type': 'application/json' } });
+        const b = JSON.parse(raw);
+        const arr = (v, n) => Array.isArray(v) ? v.slice(0, n) : [];
+        const triage = b.triage && typeof b.triage === 'object' ? b.triage : null;
+        const red = b.redaction && typeof b.redaction === 'object' ? b.redaction : null;
         const rec = {
           ts: new Date().toISOString(),
           mode: S(b.mode, 12), model: S(b.model, 40),
-          categorie: S(b.categorie, 40), gravite: S(b.gravite, 20),
-          niveau_risque: S(b.niveau_risque, 20), validation_level: S(b.validation_level, 30),
-          reco_count: Number(b.reco_count || 0), locked: !!b.locked,
-          ticket: S(b.ticket, 4000), reponse: S(b.reponse, 4000),
+          ticket: S(b.ticket, 6000),
+          triage,                                  // objet triage complet
+          retrieved: arr(b.retrieved, 12),         // recherche documentaire (fiches + score)
+          validation: b.validation || null,        // { level, validators[], reasons[] }
+          reco_suppressed: !!b.reco_suppressed,
+          reco_suppress_reason: S(b.reco_suppress_reason, 200),
+          redaction: red,                          // reponse, actions_internes, recommandations_produits, sources_utilisees...
+          // champs plats (pastilles)
+          categorie: S((triage && triage.categorie) || b.categorie, 40),
+          gravite: S((triage && triage.gravite) || b.gravite, 20),
+          niveau_risque: S((red && red.niveau_risque) || b.niveau_risque, 20),
+          validation_level: S((b.validation && b.validation.level) || b.validation_level, 30),
+          reco_count: Number(b.reco_count || (red && (red.recommandations_produits || []).length) || 0),
+          locked: !!b.locked,
         };
         const key = PREFIX + rec.ts + '-' + Math.random().toString(36).slice(2, 8);
         await env.MONITOR.put(key, JSON.stringify(rec), { expirationTtl: RETENTION_DAYS * 86400 });
@@ -146,8 +161,27 @@ const ADMIN_HTML = `<!doctype html><html lang="fr"><head><meta charset="utf-8">
  .pill.risk-critique,.pill.risk-eleve{background:#fbe9e7;border-color:#eec3bd;color:var(--red)}
  .cols{display:grid;grid-template-columns:1fr 1fr;gap:14px}@media(max-width:720px){.cols{grid-template-columns:1fr}}
  h4{margin:0 0 5px;font-size:11px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted)}
- pre{white-space:pre-wrap;font-family:inherit;font-size:13px;background:#fff;border:1px solid var(--line);border-radius:8px;padding:10px;margin:0;max-height:260px;overflow:auto}
+ pre{white-space:pre-wrap;font-family:inherit;font-size:13px;background:#fff;border:1px solid var(--line);border-radius:8px;padding:10px;margin:0;max-height:320px;overflow:auto}
  .empty{color:var(--muted);text-align:center;padding:60px 10px}
+ .blk{margin-top:12px}
+ .mut{color:var(--muted)}
+ .kv{background:#fff;border:1px solid var(--line);border-radius:8px;padding:4px 10px}
+ .kvr{display:flex;gap:10px;padding:5px 0;border-bottom:1px solid #f0efe8;font-size:13px}
+ .kvr:last-child{border-bottom:0}
+ .kvl{flex:0 0 160px;color:var(--muted);font-weight:600}
+ .kvv{flex:1}
+ .src{display:flex;align-items:center;gap:8px;font-size:13px;background:#fff;border:1px solid var(--line);border-radius:8px;padding:7px 10px;margin-top:6px}
+ .src .score{margin-left:auto;color:var(--muted);font-size:12px;font-variant-numeric:tabular-nums}
+ .pill.vlvl{background:#eef2f6;border-color:#d6e0ea;color:var(--blue);font-weight:700}
+ .vwrap{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+ .atbl{width:100%;border-collapse:collapse;font-size:13px;margin-top:6px}
+ .atbl th,.atbl td{text-align:left;padding:7px 9px;border-bottom:1px solid var(--line);vertical-align:top}
+ .atbl th{font-size:11px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted)}
+ .reco{border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin-top:6px;background:#fff;font-size:13px}
+ .reco .prix{font-size:12px;font-weight:700;color:var(--green-dark);background:var(--green-soft);border:1px solid #cadfd0;border-radius:999px;padding:1px 8px}
+ .reco .vig{margin-top:5px;font-size:12.5px;background:#fcf2da;border:1px solid #ecd9a6;color:var(--amber);border-radius:6px;padding:5px 8px}
+ .off{background:#fcf2da;border:1px dashed #ecd9a6;color:var(--amber);border-radius:8px;padding:9px 11px;font-size:13px}
+ .dl{margin-left:auto;background:#fff;border:1px solid var(--line);color:var(--green-dark);border-radius:8px;padding:4px 10px;font-size:12px;font-weight:600;cursor:pointer}
 </style></head><body>
 <div id="app"></div>
 <script>
@@ -165,25 +199,95 @@ function doLogin(){ try{sessionStorage.setItem(K,document.getElementById('t').va
 async function api(path,opts){ return fetch(path,Object.assign({headers:{'Authorization':'Bearer '+tok()}},opts||{})); }
 async function flush(){ if(!confirm('Vider tout l\\'historique des tests ?'))return; await api('/flush',{method:'POST'}); load(); }
 function pill(t,c){return '<span class="pill '+(c||'')+'">'+esc(t)+'</span>'}
+function kv(label,val){ if(val==null||val==='')return ''; if(Array.isArray(val)){ if(!val.length)return ''; val=val.join(', '); } return '<div class="kvr"><span class="kvl">'+esc(label)+'</span><span class="kvv">'+esc(val)+'</span></div>'; }
+function renderTriage(t){
+  if(!t) return '';
+  return '<div class="blk"><h4>Triage (complet)</h4><div class="kv">'
+    + kv('Résumé', t.resume_1_phrase)
+    + kv('Catégorie', t.categorie)
+    + kv('Criticité', t.gravite)
+    + kv('Urgence sanitaire', t.urgence_sanitaire===true?'oui':(t.urgence_sanitaire===false?'non':''))
+    + kv('État émotionnel', t.etat_emotionnel)
+    + kv('Produits cités', t.produits_cites)
+    + kv('Actifs concernés', t.actifs_concernes)
+    + kv('Besoins', t.besoins)
+    + kv('Signaux d’escalade', t.signaux_escalade)
+    + kv('Faits allégués', t.faits_allegues)
+    + kv('Demandes explicites', t.demandes_explicites)
+    + '</div></div>';
+}
+function renderRetrieved(list){
+  if(!Array.isArray(list)||!list.length) return '';
+  return '<div class="blk"><h4>Recherche documentaire (fiches utilisées)</h4>'
+    + list.map(h=>'<div class="src"><b>'+esc(h.nom||h.id)+'</b> <span class="mut">'+esc(h.id||'')+(h.type?' · '+esc(h.type):'')+'</span><span class="score">score '+esc(h.score)+'</span></div>').join('')
+    + '</div>';
+}
+function renderValidation(v){
+  if(!v) return '';
+  return '<div class="blk"><h4>Niveau de validation requis</h4>'
+    + '<div><span class="pill vlvl">'+esc(v.level||'')+'</span></div>'
+    + (Array.isArray(v.validators)&&v.validators.length?'<div class="vwrap">'+v.validators.map(x=>'<span class="pill">'+esc(x)+'</span>').join('')+'</div>':'')
+    + (Array.isArray(v.reasons)&&v.reasons.length?'<div class="mut" style="margin-top:6px">'+esc(v.reasons.join(' '))+'</div>':'')
+    + '</div>';
+}
+function renderActions(list){
+  if(!Array.isArray(list)||!list.length) return '';
+  return '<div class="blk"><h4>Actions internes à déclencher</h4><table class="atbl"><thead><tr><th>À qui</th><th>Action</th><th>Prio.</th><th>Délai</th></tr></thead><tbody>'
+    + list.map(a=>'<tr><td>'+esc(a.service)+'</td><td>'+esc(a.action)+'</td><td>'+esc(a.priorite)+'</td><td>'+esc(a.delai)+'</td></tr>').join('')
+    + '</tbody></table></div>';
+}
+function renderRecos(e){
+  if(e.reco_suppressed) return '<div class="blk"><h4>Recommandations produits</h4><div class="off">🔒 '+esc(e.reco_suppress_reason||'Recommandations désactivées')+'</div></div>';
+  const list=(e.redaction&&e.redaction.recommandations_produits)||[];
+  if(!list.length) return '';
+  return '<div class="blk"><h4>Recommandations produits</h4>'
+    + list.map(r=>'<div class="reco"><b>'+esc(r.nom)+'</b>'+(r.prix?' <span class="prix">'+esc(r.prix)+'</span>':'')
+        +(r.pourquoi?'<div>'+esc(r.pourquoi)+'</div>':'')
+        +(r.points_de_vigilance?'<div class="vig">⚠️ '+esc(r.points_de_vigilance)+'</div>':'')+'</div>').join('')
+    + '</div>';
+}
+function renderCard(e,i){
+  const when=new Date(e.ts); const w=isNaN(when)?esc(e.ts):when.toLocaleString('fr-FR');
+  const risk=(e.niveau_risque||'').toLowerCase();
+  const red=e.redaction||{};
+  const sources=(red.sources_utilisees||[]);
+  const checks=(red.points_a_valider_par_un_humain||[]);
+  return '<div class="card"><div class="meta"><span class="when">'+w+'</span>'
+    +pill(e.mode||'?',e.mode==='live'?'live':'demo')
+    +(e.model?pill(e.model,'model'):'')
+    +(e.categorie?pill(e.categorie):'')
+    +(e.niveau_risque?pill('risque '+e.niveau_risque,'risk-'+risk):'')
+    +(e.validation_level?pill('validation '+e.validation_level):'')
+    +(e.reco_count?pill(e.reco_count+' reco'):'')
+    +(e.locked?pill('verrouillé','locked'):'')
+    +'<button class="dl" onclick="dlJson('+i+')">Télécharger le JSON</button>'
+    +'</div>'
+    +'<div class="blk"><h4>Ticket testé</h4><pre>'+(esc(e.ticket)||'<i>(vide)</i>')+'</pre></div>'
+    +renderTriage(e.triage)
+    +renderRetrieved(e.retrieved)
+    +renderValidation(e.validation)
+    +renderActions(red.actions_internes)
+    +renderRecos(e)
+    +'<div class="blk"><h4>Réponse proposée</h4><pre>'+(esc(red.reponse_client)||'<i>(vide)</i>')+'</pre></div>'
+    +(sources.length?'<div class="blk"><h4>Sources utilisées</h4>'+sources.map(s=>'<span class="pill">'+esc(s)+'</span>').join(' ')+'</div>':'')
+    +(checks.length?'<div class="blk"><h4>Points à valider par un humain</h4><ul>'+checks.map(c=>'<li>'+esc(c)+'</li>').join('')+'</ul></div>':'')
+    +'</div>';
+}
+function dlJson(i){
+  try{
+    const rec=(window.__MON||[])[i]; if(!rec)return;
+    const blob=new Blob([JSON.stringify(rec,null,2)],{type:'application/json'});
+    const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+    a.download='analyse-'+(rec.ts||'').replace(/[:.]/g,'-')+'.json'; a.click();
+    setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+  }catch(_){}
+}
 async function load(){
   if(!tok()){ loginView(); return; }
   let d; try{ const r=await api('/api'); if(r.status===401){ loginView('Jeton refusé.'); return;} d=await r.json(); }
   catch(e){ loginView('Erreur réseau.'); return; }
-  const recs=d.records||[];
-  const rows=recs.map(e=>{
-    const when=new Date(e.ts); const w=isNaN(when)?esc(e.ts):when.toLocaleString('fr-FR');
-    const risk=(e.niveau_risque||'').toLowerCase();
-    return '<div class="card"><div class="meta"><span class="when">'+w+'</span>'
-      +pill(e.mode||'?',e.mode==='live'?'live':'demo')
-      +(e.model?pill(e.model,'model'):'')
-      +(e.categorie?pill(e.categorie):'')
-      +(e.niveau_risque?pill('risque '+e.niveau_risque,'risk-'+risk):'')
-      +(e.validation_level?pill('validation '+e.validation_level):'')
-      +(e.reco_count?pill(e.reco_count+' reco'):'')
-      +(e.locked?pill('verrouillé','locked'):'')
-      +'</div><div class="cols"><div><h4>Ticket testé</h4><pre>'+(esc(e.ticket)||'<i>(vide)</i>')+'</pre></div>'
-      +'<div><h4>Réponse proposée</h4><pre>'+(esc(e.reponse)||'<i>(vide)</i>')+'</pre></div></div></div>';
-  }).join('');
+  const recs=d.records||[]; window.__MON=recs;
+  const rows=recs.map((e,i)=>renderCard(e,i)).join('');
   document.getElementById('app').innerHTML=
    '<header><div><h1>Suivi des tests - Onatera Copilot</h1><div class="sub">Démo de recrutement - tickets de test, rétention '+(d.retention_days||14)+' j</div></div>'
    +'<span class="count">'+(d.count||0)+' test'+((d.count||0)>1?'s':'')+'</span>'

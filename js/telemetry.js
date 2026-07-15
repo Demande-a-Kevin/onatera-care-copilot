@@ -102,17 +102,31 @@ function DEFAULT_LIVE_ENDPOINT_LOG() { return ''; }
    donnees reelles), envoye a un endpoint securise, et ANNONCE dans l'app. */
 export function buildMonitorRecord(input) {
   input = input || {};
+  const triage = input.triage || null;
+  const red = input.redaction || null;
+  const validation = input.validation || null;
+  const retrieved = Array.isArray(input.retrieved)
+    ? input.retrieved.map((h) => ({ id: h.id, nom: h.nom, score: h.score, type: h.type })).slice(0, 12)
+    : [];
   return {
     mode: input.mode === 'live' ? 'live' : 'demo',
     model: String(input.model || ''),
-    categorie: String(input.categorie || ''),
-    gravite: String(input.gravite || ''),
-    niveau_risque: String(input.niveau_risque || ''),
-    validation_level: String(input.validationLevel || ''),
-    reco_count: Number(input.recoCount || 0),
-    locked: !!input.locked,
     ticket: String(input.ticket || ''),
-    reponse: String(input.reponse || ''),
+    // objets complets (le suivi de demo veut TOUT voir)
+    triage,
+    retrieved,
+    validation,       // { level, validators[], reasons[] }
+    reco_suppressed: !!input.recoSuppressed,
+    reco_suppress_reason: String(input.recoSuppressReason || ''),
+    redaction: red,   // reponse_client, actions_internes, recommandations_produits, sources_utilisees, niveau_risque, escalade_requise, points_a_valider_par_un_humain
+    // champs plats pour l'affichage rapide (pastilles)
+    categorie: (triage && triage.categorie) || '',
+    gravite: (triage && triage.gravite) || '',
+    niveau_risque: (red && red.niveau_risque) || '',
+    validation_level: (validation && validation.level) || '',
+    reco_count: ((red && red.recommandations_produits) || []).length,
+    locked: !!input.locked,
+    reponse: (red && red.reponse_client) || '',
   };
 }
 export async function sendMonitor(record, opts) {

@@ -204,8 +204,8 @@
   </div>
   <div class="spacer"></div>
   <button class="nav-btn active" id="nav-app">Ticket copilot</button>
-  <button class="nav-btn" id="nav-how">Comment ça marche</button>
-  <div class="mode-pill" id="modeToggle" title="Basculer live / demo">
+  <button class="nav-btn" id="nav-how">Aide</button>
+  <div class="mode-pill" id="modeToggle" title="Mode démo / live">
     <span class="dot" id="modeDot"></span><b id="modeLabel">...</b>
   </div>
 </header>
@@ -226,14 +226,14 @@
 
         <label class="fld" style="margin-top:14px">Profondeur d'analyse</label>
         <div class="seg" id="seg">
-          <button class="seg-btn active" data-speed="rapide">Rapide<small>1er jet, ~15 s</small></button>
-          <button class="seg-btn" data-speed="complete">Complète<small>soignée, ~45 s</small></button>
+          <button class="seg-btn active" data-speed="rapide">Rapide<small>premier jet</small></button>
+          <button class="seg-btn" data-speed="complete">Complète<small>réponse soignée</small></button>
         </div>
-        <div class="hint" id="speedHint">Rapide : modèle léger, pour dégrossir un ticket simple (premier jet, ~15 s).</div>
+        <div class="hint" id="speedHint">Rapide : pour dégrossir un ticket simple.</div>
 
-        <div class="health" id="health">
+        <div class="health" id="health" style="display:none">
           <span class="dot wait" id="healthDot"></span>
-          <div id="healthText">Vérification d'Ollama...</div>
+          <div id="healthText"></div>
         </div>
 
         <div style="margin-top:14px">
@@ -259,7 +259,6 @@
             </div>
             <div class="sbody" id="body1">
               <div id="triageSummary" class="empty">En attente d'analyse.</div>
-              <button class="toggle-json" data-tgt="json1">Voir le JSON brut</button>
               <pre class="json" id="json1" style="display:none"></pre>
             </div>
           </div>
@@ -267,7 +266,7 @@
           <div class="step" id="step2">
             <div class="shd" data-step="step2">
               <span class="num">2</span>
-              <span class="stitle">Recherche documentaire (KB)</span>
+              <span class="stitle">Recherche documentaire</span>
               <span class="smeta"><span class="status-ico" id="ico2">-</span><span id="t2"></span></span>
             </div>
             <div class="sbody" id="body2">
@@ -284,7 +283,6 @@
             </div>
             <div class="sbody" id="body3">
               <div id="draftLive" class="empty">En attente.</div>
-              <button class="toggle-json" data-tgt="json3" style="display:none" id="tg3">Voir le JSON brut</button>
               <pre class="json" id="json3" style="display:none"></pre>
             </div>
           </div>
@@ -296,7 +294,7 @@
           <div id="guardBanner"></div>
 
           <div class="subhd">Niveau de validation requis</div>
-          <div class="hint" style="margin-top:0;margin-bottom:6px">Déterminé par des règles métier (pas par le modèle) : qui doit valider avant tout usage, et pourquoi.</div>
+          <div class="hint" style="margin-top:0;margin-bottom:6px">Qui doit valider avant tout usage, et pourquoi.</div>
           <div id="validationBox"></div>
 
           <div class="subhd">Actions internes à déclencher</div>
@@ -323,17 +321,17 @@
   </div>
 </main>
 
-<!-- ============ COMMENT CA MARCHE ============ -->
+<!-- ============ AIDE ============ -->
 <main class="app-view how" id="view-how">
   <section class="card"><div class="bd">
-    <h2 style="margin-top:4px">Comment ça marche</h2>
-    <p>Onatera Copilot fait gagner à l'agent les longues minutes de recherche : retrouver la bonne fiche produit, la précaution qui manque, la règle à connaître, le bon service à prévenir. Il propose une réponse et les actions à mener. <b>L'agent garde la main</b> : il relit, corrige et signe. Rien n'est envoyé automatiquement. Le LLM est toujours local (aucun prestataire d'IA tiers) ; selon le mode, les données restent sur la machine (voir « Confidentialité selon le mode »).</p>
+    <h2 style="margin-top:4px">Aide</h2>
+    <p>Onatera Copilot fait gagner à l'agent les minutes de recherche : retrouver la bonne fiche produit, la précaution qui manque, la règle à connaître, le bon service à prévenir. Il propose une réponse et les actions à mener. <b>L'agent garde la main</b> : il relit, corrige et signe. Rien n'est envoyé automatiquement.</p>
 
     <h3 style="margin-top:20px">L'utiliser en 3 gestes</h3>
     <div class="cols">
       <div>
         <div class="stepcard"><span class="sc-n">1</span><div><b>Collez le message du client</b><br><span class="mut">Ou choisissez un exemple. Vous n'avez rien à catégoriser vous-même.</span></div></div>
-        <div class="stepcard"><span class="sc-n">2</span><div><b>Choisissez la profondeur</b><br><span class="mut">Rapide pour un premier jet sur un ticket simple ; Complète pour un ticket sensible, plus soignée.</span></div></div>
+        <div class="stepcard"><span class="sc-n">2</span><div><b>Choisissez la profondeur</b><br><span class="mut">Rapide pour un premier jet ; Complète pour un ticket sensible, réponse plus soignée.</span></div></div>
       </div>
       <div>
         <div class="stepcard"><span class="sc-n">3</span><div><b>Cliquez sur Analyser</b><br><span class="mut">L'outil affiche la catégorie, la criticité, les sources, les actions à mener et une réponse. Vous relisez, corrigez, signez.</span></div></div>
@@ -345,7 +343,7 @@
         <h3>Ce que l'outil fait pour vous</h3>
         <ul>
           <li><b>Il lit le ticket</b> et propose une <b>catégorie</b> (risque sanitaire, réglementaire, livraison, commande…) et un <b>niveau de criticité</b>.</li>
-          <li><b>Il retrouve les bonnes fiches</b> (produits, règles, pages d'aide) et vous les montre : la réponse s'appuie sur des sources, pas sur une invention.</li>
+          <li><b>Il retrouve les bonnes fiches</b> (produits, règles, pages d'aide) et vous les montre : la réponse s'appuie sur des sources.</li>
           <li><b>Il rédige une proposition</b> dans le ton Onatera : chaleureux, factuel, jamais défensif.</li>
           <li><b>Il liste les actions internes</b> à déclencher et à qui les adresser (remontée qualité, alerte fournisseur, escalade juridique…).</li>
           <li><b>Il peut recommander des produits</b> selon le besoin du client (avec prix), en signalant les <b>précautions et contre-indications</b> à vérifier.</li>
@@ -362,26 +360,10 @@
       </div>
     </div>
 
-    <h3 style="margin-top:20px">Confidentialité selon le mode</h3>
+    <h3 style="margin-top:20px">Ce qui est verrouillé</h3>
     <ul>
-      <li><b>Démo statique (lien public)</b> : aucun ticket saisi n'est analysé par un LLM ni envoyé ; un exemple pré-calculé proche est affiché à titre d'illustration. Rien n'est journalisé à distance.</li>
-      <li><b>Live local</b> (<span class="cmd" style="font-size:12px">./run.sh</span>) : le modèle tourne sur la machine et les données saisies restent locales.</li>
-      <li><b>Live distant protégé</b> : le modèle reste local, mais le texte transite par un tunnel chiffré et authentifié — à réserver à des données de test, pas de données de santé réelles.</li>
-    </ul>
-
-    <h3 style="margin-top:20px">Vos garanties</h3>
-    <ul>
-      <li><b>Aucun prestataire d'IA tiers</b> : le LLM est toujours local (jamais un service d'IA externe).</li>
-      <li><b>Validation humaine</b> : aucune réponse n'est envoyée automatiquement. Sur un dossier critique, la copie est verrouillée tant qu'une validation interne n'a pas eu lieu.</li>
-      <li><b>Pas de conseil médical, pas d'aveu de responsabilité, aucun montant chiffré</b> : ces règles sont bloquées en post-traitement, même si le modèle dérive.</li>
-    </ul>
-
-    <h3 style="margin-top:20px">Et après ?</h3>
-    <ul>
-      <li>Mise à jour automatique de la base à partir du catalogue et des pages d'aide Onatera.</li>
-      <li>Branchement à l'outil de tickets (le message arrive et repart directement depuis l'outil habituel).</li>
-      <li>Apprentissage à partir des corrections des agents, pour s'améliorer avec le temps.</li>
-      <li>Mesure régulière de la qualité sur un lot de tickets de référence.</li>
+      <li><b>Validation humaine obligatoire</b> : aucune réponse n'est envoyée automatiquement. Sur un dossier critique, la copie est verrouillée tant qu'une validation interne n'a pas eu lieu.</li>
+      <li><b>Pas de conseil médical, pas d'aveu de responsabilité, aucun montant chiffré</b> : ces règles sont bloquées, même si la proposition les contient.</li>
     </ul>
   </div></section>
 </main>
@@ -458,7 +440,7 @@ const TELEMETRY = { enabled: false, endpoint: '' };
 // ticket teste + la reponse pour que l'auteur voie ce que les testeurs essaient.
 // Endpoint securise (jeton en en-tete, CORS verrouille, ni IP ni geo, retention 14j).
 const MONITOR = { enabled: true, endpoint: 'https://onatera-copilot-monitor.kev1n-cockpit.workers.dev/log' };
-function recordRun(triage, red, guard, model, durations, status, ticket){
+function recordRun(triage, red, guard, model, durations, status, ticket, hits){
   try{
     const payload = buildTelemetryPayload({
       mode, model: model||'',
@@ -477,16 +459,17 @@ function recordRun(triage, red, guard, model, durations, status, ticket){
       status: status||'ok',
     });
     sendTelemetry(payload, TELEMETRY); // no-op tant que TELEMETRY.enabled=false
-    // suivi de la demo (opt-in, annonce) : ticket + reponse vers l'endpoint securise
+    // suivi de la demo (opt-in, annonce) : analyse COMPLETE vers l'endpoint securise
     sendMonitor(buildMonitorRecord({
       mode, model: model||'',
-      categorie: (triage&&triage.categorie)||'', gravite: (triage&&triage.gravite)||'',
-      niveau_risque: (red&&red.niveau_risque)||'',
-      validationLevel: (guard&&guard.validation&&guard.validation.level)||'',
-      recoCount: ((red&&red.recommandations_produits)||[]).length,
-      locked: !!(guard&&guard.locked),
       ticket: ticket||'',
-      reponse: (red&&red.reponse_client)||'',
+      triage: triage||null,
+      retrieved: Array.isArray(hits) ? hits : [],
+      validation: (guard&&guard.validation)||null,
+      recoSuppressed: !!(guard&&guard.recoSuppressed),
+      recoSuppressReason: (guard&&guard.recoSuppressReason)||'',
+      redaction: red||null,
+      locked: !!(guard&&guard.locked),
     }), MONITOR);
   }catch(_){}
 }
@@ -550,24 +533,16 @@ function liveHeaders(extra){
   return h;
 }
 
-/* ---------- affichage "demo statique" sans aucun appel reseau ---------- */
+/* ---------- mode demo statique : aucun appel reseau, aucun texte technique ---------- */
 function showStaticDemoHealth(){
-  const dot = $('#healthDot'), txt = $('#healthText');
   ollamaOk = false; if(!modeManual) mode = 'demo';
-  dot.className='dot'; dot.style.background='#c9a227';
-  txt.innerHTML = 'Démo statique - résultats pré-calculés, aucun LLM appelé, aucune donnée envoyée. '
-    + (LIVE_BRIDGE
-        ? '<a href="#" id="cfgLive">Activer le mode live (pont sécurisé)</a>'
-        : '<span style="color:var(--muted)">Le mode live est disponible en local (voir README).</span>');
-  wireCfgLive();
 }
 
-/* ---------- health-check (uniquement sur demande explicite ou en local) ---------- */
+/* ---------- verification de la disponibilite live (sur demande ou en local) ---------- */
+// Ne montre AUCUN detail technique a l'utilisateur : seulement le succes/echec.
 async function healthCheck(){
-  const dot = $('#healthDot'), txt = $('#healthText');
   OLLAMA = resolveEndpoint();
   if(!OLLAMA){ showStaticDemoHealth(); updateModeUI(); return; }
-  dot.className = 'dot wait'; txt.textContent = 'Connexion au LLM…';
   try{
     const r = await fetchT(OLLAMA + '/api/tags', {method:'GET', headers: liveHeaders()}, 6000);
     if(r.status === 401 || r.status === 403) throw new Error('AUTH');
@@ -575,57 +550,37 @@ async function healthCheck(){
     const d = await r.json();
     installedModels = (d.models||[]).map(m=>m.name);
     ollamaOk = true;
-    dot.className='dot ok';
-    if(IS_LOCAL){
-      txt.innerHTML = 'LLM connecté (local) - modèle <b>'+esc(pickModel(speed))+'</b>';
-      if(!modeManual) mode = 'live';
-    } else {
-      txt.innerHTML = 'Pont live connecté - cliquez sur <b>Mode live</b> (modèle <b>'+esc(pickModel(speed))+'</b>).';
-    }
+    if(IS_LOCAL && !modeManual) mode = 'live';
+    if(liveWanted){ liveWanted = false; mode = 'live'; modeManual = true; }
   }catch(e){
     ollamaOk = false;
-    dot.className='dot bad';
-    if(IS_LOCAL){
-      txt.innerHTML = 'Ollama indisponible. Lancez : <span class="cmd">'+esc(HEALTH_CMD)+'</span>'
-        + ' <button class="src-chip" id="copyCmd">Copier la commande</button>'
-        + '<br><span style="color:var(--muted)">Bascule automatique en mode démo (résultats pré-calculés).</span>';
-      const cc = $('#copyCmd'); if(cc) cc.onclick = ()=>navigator.clipboard.writeText(HEALTH_CMD);
-    } else if(e.message === 'AUTH'){
-      txt.innerHTML = 'Jeton d’accès au pont live refusé. <a href="#" id="cfgLive">Ressaisir le jeton</a>';
-      wireCfgLive();
-    } else {
-      txt.innerHTML = 'Pont live indisponible - mode démo. <a href="#" id="cfgLive">Réessayer</a>';
-      wireCfgLive();
-    }
     if(!modeManual) mode = 'demo';
+    if(liveWanted){
+      liveWanted = false;
+      alert(e.message === 'AUTH'
+        ? 'Code d’accès refusé. Le mode live reste indisponible.'
+        : 'Le mode live n’est pas disponible pour le moment. La démo reste utilisable.');
+    }
   }
   updateModeUI();
 }
 
-function wireCfgLive(){
-  const a = $('#cfgLive'); if(!a) return;
-  a.onclick = (e)=>{ e.preventDefault(); activateLive(); };
-}
+let liveWanted = false; // vrai quand l'utilisateur vient de demander le mode live
 // Active le mode live SUR DEMANDE (jamais au chargement).
 function activateLive(){
   if(IS_LOCAL){
-    let cur=''; try{ cur = localStorage.getItem('onatera_live_url')||''; }catch(_){}
-    const u = prompt('URL du LLM en direct (localhost par défaut) :', cur || 'http://localhost:11434');
-    if(u===null) return;
-    try{ const v=u.trim().replace(/\/+$/,''); if(v) localStorage.setItem('onatera_live_url', v); else localStorage.removeItem('onatera_live_url'); }catch(_){}
-    modeManual = false; healthCheck();
+    liveWanted = true; modeManual = false; healthCheck();
     return;
   }
   if(!LIVE_BRIDGE){
-    alert('Le mode live distant nécessite le pont sécurisé (voir README). En local, lancez ./run.sh.');
+    alert('Le mode live n’est pas disponible ici.');
     return;
   }
-  // public + pont configuré : saisir le jeton d'accès puis health-check du pont.
   const cur = bridgeToken();
-  const t = prompt('Jeton d’accès au pont live (fourni par le présentateur / Onatera) :', cur);
+  const t = prompt('Code d’accès au mode live :', cur);
   if(t===null) return;
   try{ if(t.trim()) localStorage.setItem('onatera_live_token', t.trim()); }catch(_){}
-  modeManual = false; healthCheck();
+  liveWanted = true; healthCheck();
 }
 
 /* ---------- UI mode ---------- */
@@ -633,17 +588,8 @@ function updateModeUI(){
   const dot = $('#modeDot'), lbl = $('#modeLabel');
   if(mode==='live'){ dot.className='dot ok'; lbl.textContent='Mode live'; }
   else { dot.className='dot'; dot.style.background='#c9a227'; lbl.textContent='Mode démo'; }
-  // banniere haut : discours de confidentialite honnete selon le flux reel des donnees
-  const tb = $('#topBanner');
-  if(mode==='live' && IS_LOCAL){
-    tb.innerHTML = '<div class="banner info">&#9889;&nbsp;<div><b>Mode live local</b> : le modèle tourne sur cette machine ; les données saisies restent locales et ne sont pas journalisées à distance.</div></div>';
-  } else if(mode==='live'){
-    tb.innerHTML = '<div class="banner warn">&#9889;&nbsp;<div><b>Mode live distant (pont sécurisé)</b> : le modèle reste local, mais le texte du ticket transite par un tunnel chiffré et authentifié. À n\'utiliser qu\'avec des données de test — pas de données de santé réelles.</div></div>';
-  } else if(IS_HTTPS){
-    tb.innerHTML = '<div class="banner info">&#8505;&#65039;&nbsp;<div><b>Démo statique</b> : aucun ticket n\'est analysé par un LLM et aucune donnée saisie n\'est envoyée ni journalisée. Un exemple pré-calculé proche est affiché à titre d\'illustration.</div></div>';
-  } else {
-    tb.innerHTML = '<div class="banner warn">&#9888;&#65039;&nbsp;<div><b>Mode démo</b> - aucun LLM appelé : lecture de résultats pré-calculés. Aucune donnée envoyée.</div></div>';
-  }
+  // Pas de banniere technique : l'utilisateur n'a pas a connaitre le fonctionnement interne.
+  const tb = $('#topBanner'); if(tb) tb.innerHTML = '';
 }
 
 /* ---------- schemas de sortie structuree ---------- */
@@ -1009,7 +955,7 @@ async function runPipeline(){
   }catch(err){
     // en live, bascule automatique et honnete vers la demo
     if(!useDemo && exId && DEMO[exId]){
-      $('#pipeBanner').innerHTML = '<div class="banner warn">&#9888;&#65039;&nbsp;Erreur Ollama ('+esc(err.message)+') - bascule sur les resultats pre-calcules.</div>';
+      $('#pipeBanner').innerHTML = '<div class="banner warn">&#9888;&#65039;&nbsp;Le mode live a rencontré un problème — affichage d\'un exemple proche.</div>';
       try{ await runDemo(exId, text); }catch(e2){ showErr(e2); }
     } else { showErr(err); }
   } finally {
@@ -1017,8 +963,7 @@ async function runPipeline(){
   }
 }
 function showErr(err){
-  $('#pipeBanner').innerHTML = '<div class="banner danger">&#9888;&#65039;&nbsp;'+esc(err.message)
-    +'. Activez le mode demo ou chargez un ticket d\'exemple.</div>';
+  $('#pipeBanner').innerHTML = '<div class="banner danger">&#9888;&#65039;&nbsp;Une erreur est survenue. Choisissez un exemple ou réessayez.</div>';
 }
 async function runLive(model, text){
   // etape 1
@@ -1046,11 +991,11 @@ async function runLive(model, text){
   );
   let red; try{ red = parseJsonLoose(raw3); }
   catch(e){ throw new Error('Reponse etape 3 illisible'); }
-  $('#json3').textContent = JSON.stringify(red,null,2); $('#tg3').style.display='inline';
+  $('#json3').textContent = JSON.stringify(red,null,2);
   const guard = applyGuardrails(triage, red, text);
   renderResult(triage, red, guard);
   const d3=(performance.now()-s)/1000; setStep(3,'done',d3);
-  recordRun(triage, red, guard, model, [d1,d2,d3], 'ok', text);
+  recordRun(triage, red, guard, model, [d1,d2,d3], 'ok', text, hits);
   $('#draftLive').innerHTML = '<div class="hint">Rédaction terminée - voir le résultat ci-dessous.</div>';
 }
 // En mode demo, un ticket libre est illustre par l'exemple pre-calcule le plus proche.
@@ -1080,10 +1025,10 @@ async function runDemo(exId, text){
   $('#draftLive').classList.remove('empty');
   $('#draftLive').innerHTML = '<div class="reply" id="liveReply"></div>';
   await typeOut($('#liveReply'), red.reponse_client);
-  $('#json3').textContent = JSON.stringify(red,null,2); $('#tg3').style.display='inline';
+  $('#json3').textContent = JSON.stringify(red,null,2);
   const guard = applyGuardrails(triage, red, text||'');
   renderResult(triage, red, guard);
-  recordRun(triage, red, guard, 'démo (pré-calculé)', [], 'ok', text||'');
+  recordRun(triage, red, guard, 'démo (pré-calculé)', [], 'ok', text||'', (rec.retrieved||[]).slice(0,kbDepth()));
   setStep(3,'done', (speed==='rapide'?3.0:9.0)+Math.random()*2);
   $('#draftLive').innerHTML = '<div class="hint">Rédaction terminée (pré-calculée) - voir le résultat ci-dessous.</div>';
 }
@@ -1104,7 +1049,7 @@ function resetUI(){
     const st=$('#step'+n); st.classList.remove('done','open'); $('#ico'+n).textContent='-'; $('#t'+n).textContent='';
   });
   $('#triageSummary').className='empty'; $('#triageSummary').textContent='En attente d\'analyse.';
-  $('#json1').style.display='none'; $('#json3').style.display='none'; $('#tg3').style.display='none';
+  $('#json1').style.display='none'; $('#json3').style.display='none';
   $('#kbHits').className='empty'; $('#kbHits').textContent='En attente.';
   $('#draftLive').className='empty'; $('#draftLive').textContent='En attente.';
   $('#recoHd').style.display='none'; $('#recoLead').style.display='none'; $('#recoBox').innerHTML='';
@@ -1124,18 +1069,12 @@ function openKb(id){
   $('#kbModal').classList.add('show');
 }
 
-/* ---------- legende profondeur + rappel modele ---------- */
+/* ---------- legende profondeur ---------- */
 const SPEED_HINT = {
-  rapide: 'Rapide : modèle léger, pour dégrossir un ticket simple (premier jet, ~15 s).',
-  complete: 'Complète : modèle plus fin, pour un ticket sensible (réponse soignée, ~45 s).'
+  rapide: 'Rapide : pour dégrossir un ticket simple.',
+  complete: 'Complète : pour un ticket sensible, réponse plus soignée.'
 };
 function updateSpeedHint(){ const el=$('#speedHint'); if(el) el.textContent = SPEED_HINT[speed] || SPEED_HINT.rapide; }
-function refreshHealthModel(){
-  if(!ollamaOk) return;
-  const t=$('#healthText');
-  if(IS_LOCAL) t.innerHTML = 'LLM connecté - modèle <b>'+esc(pickModel(speed))+'</b>';
-  else t.innerHTML = 'LLM en direct disponible - cliquez sur <b>Mode live</b> (modèle <b>'+esc(pickModel(speed))+'</b>).';
-}
 
 /* ---------- events ---------- */
 function wire(){
@@ -1149,25 +1088,17 @@ function wire(){
     speed = b.dataset.speed;
     document.querySelectorAll('.seg-btn').forEach(x=>x.classList.toggle('active', x===b));
     updateSpeedHint();
-    refreshHealthModel();
   });
   $('#copyBtn').onclick = ()=>{ navigator.clipboard.writeText($('#replyBox').textContent); $('#copyBtn').textContent='Copie !'; setTimeout(()=>$('#copyBtn').textContent='Copier',1200); };
   document.querySelectorAll('.shd').forEach(h=>h.onclick=()=>$('#'+h.dataset.step).classList.toggle('open'));
-  document.querySelectorAll('.toggle-json').forEach(b=>b.onclick=()=>{
-    const el=$('#'+b.dataset.tgt); el.style.display = el.style.display==='none'?'block':'none';
-  });
+  // Pastille de mode : en démo, un clic propose de passer en live (déjà en live -> retour démo).
   $('#modeToggle').onclick = ()=>{
     if(mode==='demo'){
-      if(!ollamaOk){
-        alert(OLLAMA ? 'Le LLM n\'est pas joignable pour le moment (verifiez le tunnel / Ollama).'
-                     : 'Aucune connexion live configuree. Cliquez sur « Activer une connexion live » a cote de la pastille de sante.');
-        return;
-      }
-      modeManual = true; mode = 'live';
+      if(ollamaOk){ modeManual = true; mode = 'live'; updateModeUI(); }
+      else { activateLive(); }
     } else {
-      modeManual = true; mode = 'demo';
+      modeManual = true; mode = 'demo'; updateModeUI();
     }
-    updateModeUI();
   };
   $('#nav-app').onclick = ()=>switchView('app');
   $('#nav-how').onclick = ()=>switchView('how');
@@ -1185,7 +1116,7 @@ function switchView(v){
 (async function(){
   wire();
   updateSpeedHint();
-  try{ await loadData(); }catch(e){ $('#topBanner').innerHTML='<div class="banner danger">Impossible de charger data/*.json - servez le dossier via ./run.sh (pas en file://).</div>'; }
+  try{ await loadData(); }catch(e){ $('#topBanner').innerHTML='<div class="banner danger">Impossible de charger les données. Réessayez plus tard.</div>'; }
   // Egress reseau : en public, AUCUNE tentative de connexion au chargement.
   // On ne health-check Ollama qu'en local ; le live distant est opt-in explicite.
   if(shouldAutoConnectOnLoad({isLocal: IS_LOCAL, savedEndpoint: OLLAMA})){

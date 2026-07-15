@@ -22,12 +22,25 @@ test('le suivi de demo n’emet rien s’il n’est pas explicitement active', a
   assert.equal(called, 0);
 });
 
-test('l’enregistrement de suivi contient bien le ticket et la reponse (par conception, annonce)', () => {
-  const r = buildMonitorRecord({ mode: 'live', ticket: 'texte du ticket', reponse: 'proposition', validationLevel: 'quality', locked: true });
+test('l’enregistrement de suivi contient l’analyse complete (par conception, annonce)', () => {
+  const r = buildMonitorRecord({
+    mode: 'live', ticket: 'texte du ticket',
+    triage: { categorie: 'reglementaire', gravite: 'haute', besoins: ['prostate'] },
+    retrieved: [{ id: 'kb_x', nom: 'Fiche X', score: 3, type: 'produit', extra: 'ignore' }],
+    validation: { level: 'quality', validators: ['Qualite / Reglementaire', 'Juridique'], reasons: ['r'] },
+    redaction: { reponse_client: 'proposition', actions_internes: [{ service: 'Qualite' }], recommandations_produits: [{ nom: 'Zinc' }], sources_utilisees: ['kb_x'] },
+    locked: true,
+  });
   assert.equal(r.ticket, 'texte du ticket');
   assert.equal(r.reponse, 'proposition');
   assert.equal(r.validation_level, 'quality');
+  assert.equal(r.categorie, 'reglementaire');
+  assert.equal(r.reco_count, 1);
   assert.equal(r.locked, true);
+  assert.deepEqual(r.triage.besoins, ['prostate']);
+  assert.equal(r.retrieved[0].nom, 'Fiche X');
+  assert.equal(r.retrieved[0].extra, undefined); // seuls id/nom/score/type conservés
+  assert.equal(r.redaction.actions_internes.length, 1);
 });
 
 /* ---------- telemetrie : metadonnees uniquement ---------- */
