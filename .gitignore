@@ -23,3 +23,7 @@ live-bridge/.secret
 
 # Cache wrangler (racine)
 .wrangler/
+
+# Fichiers de jetons locaux (jamais commites)
+.demo_token
+.monitor_token
