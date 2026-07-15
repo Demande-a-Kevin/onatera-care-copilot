@@ -1,0 +1,11 @@
+name = "onatera-copilot-monitor"
+main = "worker.js"
+compatibility_date = "2025-01-01"
+
+# Stockage par enregistrement (une cle KV par test, TTL de retention).
+[[kv_namespaces]]
+binding = "MONITOR"
+id = "f91b2566035e4618a5bd13e54440aa25"
+
+# Secret (jamais commite) :
+#   wrangler secret put MONITOR_TOKEN

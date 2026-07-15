@@ -47,6 +47,6 @@ sont dans `index.html` (constantes `TRIAGE_SCHEMA`, `REDACTION_SCHEMA`,
 ## Verification
 - Les 4 tickets se deroulent en < 60 s chacun.
 - Le ticket #4529 (vitamine D) doit, apres garde-fous, afficher niveau **critique**
-  + escalade **juridique / direction / pharmacovigilance ANSES**.
+  + escalade **juridique / direction / nutrivigilance ANSES** + copie verrouillee.
 - Aucune reponse ne doit contenir de reconnaissance de responsabilite (sinon le
   bandeau rouge s'affiche - c'est le filet, pas un bug).

@@ -12,8 +12,18 @@ Thumbs.db
 *.log
 
 # Worker (outillage wrangler)
-log-worker/.wrangler/
-log-worker/node_modules/
+live-bridge/.wrangler/
+node_modules/
 
-# Aucun secret dans le repo : le token admin du Worker est un secret Cloudflare
-# (wrangler secret put ADMIN_TOKEN), jamais commite.
+# Secrets : jamais dans le depot.
+# - DEMO_TOKEN / ORIGIN_SECRET du pont live = secrets Cloudflare (wrangler secret put ...)
+# - live-bridge/.secret contient ORIGIN_SECRET en local (partage avec le proxy d'origine).
+live-bridge/.secret
+*.secret
+
+# Cache wrangler (racine)
+.wrangler/
+
+# Fichiers de jetons locaux (jamais commites)
+.demo_token
+.monitor_token

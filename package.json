@@ -1,0 +1,10 @@
+{
+  "name": "onatera-care-copilot",
+  "version": "1.0.0",
+  "description": "Onatera Copilot - prototype d'aide a la decision (triage / recherche / escalade / validation humaine).",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "test": "node --test"
+  }
+}
